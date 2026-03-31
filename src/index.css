@@ -161,3 +161,27 @@ body {
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
+
+/* ── Pupil test: pulse dot ── */
+@keyframes pulse-dot {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* ── Pupil test: pulse ring ── */
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { opacity: 0.4; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ── Avatar sleeping zzz ── */
+@keyframes zzz-float {
+  0%, 100% { transform: translateY(0) rotate(-10deg); opacity: 0.7; }
+  50% { transform: translateY(-8px) rotate(10deg); opacity: 1; }
+}
+
+.zzz-anim {
+  animation: zzz-float 2s ease-in-out infinite;
+}

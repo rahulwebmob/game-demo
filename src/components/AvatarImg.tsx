@@ -7,15 +7,20 @@ const src: Record<AvatarId, string> = {
   cat2: '/avatars/cat2.png',
 }
 
+const sleepSrc: Partial<Record<AvatarId, string>> = {
+  owl: '/avatars/owl-sleep.png',
+}
+
 interface Props {
   avatar: AvatarId
   size?: number
   className?: string
   ring?: boolean
   level?: number
+  sleeping?: boolean
 }
 
-export default function AvatarImg({ avatar, size = 80, className = '', ring, level }: Props) {
+export default function AvatarImg({ avatar, size = 80, className = '', ring, level, sleeping }: Props) {
   const r = size <= 36 ? 10 : size <= 48 ? 12 : size <= 64 ? 16 : 20
   return (
     <div
@@ -27,12 +32,18 @@ export default function AvatarImg({ avatar, size = 80, className = '', ring, lev
         style={{ borderRadius: r }}
       >
         <img
-          src={src[avatar]}
+          src={sleeping && sleepSrc[avatar] ? sleepSrc[avatar]! : src[avatar]}
           alt={avatar}
           draggable={false}
           className="w-full h-full object-contain select-none"
+          style={sleeping && !sleepSrc[avatar] ? { filter: 'grayscale(0.4) brightness(0.85)' } : undefined}
         />
       </div>
+      {sleeping && (
+        <span className="zzz-anim absolute -top-1 -right-1 text-[14px] font-bold text-ink-muted pointer-events-none select-none">
+          💤
+        </span>
+      )}
       {level != null && (
         <div
           className="absolute -bottom-1 -right-1 bg-coral text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-[var(--shadow-btn)]"

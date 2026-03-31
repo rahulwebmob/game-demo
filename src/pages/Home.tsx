@@ -3,10 +3,11 @@ import {
   Zap, Flame, Star, Trophy,
   Gamepad2, BarChart3, Search,
   Megaphone, ArrowRight, Medal, Gift, Coins, Paintbrush,
-  Clock, Brain, Eye, Heart, Activity, Sun, Moon,
+  Clock, Brain, Eye, Heart, Activity, Sun, Moon, Lock,
 } from 'lucide-react'
 import AvatarImg from '../components/AvatarImg'
 import CoinBadge from '../components/CoinBadge'
+import EnergyBadge from '../components/EnergyBadge'
 import AnimatedNumber from '../components/AnimatedNumber'
 import type { AvatarId } from '../data/avatars'
 import { dailyQuests, playerStats } from '../data/avatars'
@@ -23,6 +24,9 @@ interface Props {
   navigate: (t: Tab) => void
   themeId: ThemeId
   onThemeChange: (id: ThemeId) => void
+  energy: number
+  maxEnergy: number
+  onStartEyeCheck: () => void
 }
 
 const fade = {
@@ -39,7 +43,8 @@ const cats = [
 
 const featuredGames = games.slice(0, 3)
 
-export default function Home({ coins, score, streak, avatar, name, navigate, themeId, onThemeChange }: Props) {
+export default function Home({ coins, score, streak, avatar, name, navigate, themeId, onThemeChange, energy, maxEnergy, onStartEyeCheck }: Props) {
+  const noEnergy = energy === 0
   return (
     <motion.div
       initial="initial" animate="animate"
@@ -55,6 +60,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <EnergyBadge energy={energy} maxEnergy={maxEnergy} onClick={noEnergy ? onStartEyeCheck : undefined} />
           <motion.button
             whileTap={{ scale: 0.85, rotate: 30 }}
             whileHover={{ scale: 1.1 }}
@@ -74,7 +80,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
             </motion.div>
           </motion.button>
           <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.04 }} onClick={() => navigate('customize')} className="cursor-pointer">
-            <AvatarImg avatar={avatar} size={48} ring level={playerStats.level} />
+            <AvatarImg avatar={avatar} size={48} level={playerStats.level} sleeping={noEnergy} />
           </motion.div>
         </div>
       </motion.div>
@@ -142,6 +148,35 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
         ))}
       </motion.div>
 
+      {/* ── Eye Check CTA (when no energy) ── */}
+      {noEnergy && (
+        <motion.div variants={fade}>
+          <motion.div
+            whileTap={{ scale: 0.97 }}
+            whileHover={{ y: -2 }}
+            onClick={onStartEyeCheck}
+            className="rounded-2xl p-5 md:p-6 flex items-center gap-4 cursor-pointer shadow-[var(--shadow-elevated)] relative overflow-hidden"
+            style={{ background: 'linear-gradient(135deg, var(--color-coral), var(--color-teal))' }}
+          >
+            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+              <Eye size={28} color="white" strokeWidth={1.8} />
+            </div>
+            <div className="flex-1">
+              <p className="text-[16px] md:text-[18px] font-bold text-white">Wake Up Your Brain</p>
+              <p className="text-[12px] md:text-[13px] text-white/80 mt-0.5">Complete an eye check to restore energy</p>
+            </div>
+            <motion.div
+              animate={{ scale: [1, 1.08, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className="px-4 py-2.5 rounded-xl bg-white font-bold text-[13px] flex-shrink-0"
+              style={{ color: 'var(--color-coral)' }}
+            >
+              Start
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      )}
+
       {/* ── Featured Games ── */}
       <motion.div variants={fade}>
         <div className="flex items-center justify-between mb-3 md:mb-4">
@@ -154,12 +189,17 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
           {featuredGames.map(g => (
             <motion.div
               key={g.id}
-              whileTap={{ scale: 0.97, y: 1 }}
-              whileHover={{ y: -3, boxShadow: 'var(--shadow-elevated)' }}
-              onClick={() => navigate('games')}
-              className="rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 cursor-pointer relative overflow-hidden shadow-[var(--shadow-soft)]"
+              whileTap={noEnergy ? undefined : { scale: 0.97, y: 1 }}
+              whileHover={noEnergy ? undefined : { y: -3, boxShadow: 'var(--shadow-elevated)' }}
+              onClick={() => !noEnergy && navigate('games')}
+              className={`rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 relative overflow-hidden shadow-[var(--shadow-soft)] ${noEnergy ? 'cursor-not-allowed' : 'cursor-pointer'}`}
               style={{ background: g.bg }}
             >
+              {noEnergy && (
+                <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10 rounded-3xl">
+                  <Lock size={24} className="text-white" />
+                </div>
+              )}
               <div className="w-[56px] h-[56px] md:w-[64px] md:h-[64px] rounded-2xl bg-white/50 flex items-center justify-center flex-shrink-0">
                 {g.icon === 'grid' && <Gamepad2 size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
                 {g.icon === 'eye' && <Eye size={28} style={{ color: g.fg }} strokeWidth={1.8} />}

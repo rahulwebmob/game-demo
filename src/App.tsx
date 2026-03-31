@@ -6,6 +6,8 @@ import Games from './pages/Games'
 import Customize from './pages/Customize'
 import Leaderboard from './pages/Leaderboard'
 import DailyLogin from './pages/DailyLogin'
+import PupilTest from './components/PupilTest'
+import SleepOverlay from './components/SleepOverlay'
 import ToastContainer from './components/Toast'
 import type { ToastData } from './components/Toast'
 import Skeleton from './components/Skeleton'
@@ -26,6 +28,18 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home')
   const [direction, setDirection] = useState(0)
   const [loading, setLoading] = useState(false)
+
+  // Energy state (not persisted — resets on refresh)
+  const [energy, setEnergy] = useState(0)
+  const [showPupilTest, setShowPupilTest] = useState(false)
+  const [showSleepOverlay, setShowSleepOverlay] = useState(true)
+  const MAX_ENERGY = 5
+
+  const fillEnergy = useCallback(() => {
+    setEnergy(MAX_ENERGY)
+    setShowSleepOverlay(false)
+  }, [])
+  const spendEnergy = useCallback(() => setEnergy(e => Math.max(0, e - 1)), [])
 
   // Persisted state
   const [coins, setCoins] = useLocalStorage('gamerify-coins', 250)
@@ -99,6 +113,36 @@ export default function App() {
 
   return (
     <div className="min-h-dvh bg-bg max-w-[430px] md:max-w-[768px] lg:max-w-[960px] mx-auto relative overflow-hidden">
+      {/* Sleep overlay (first load) */}
+      <AnimatePresence>
+        {showSleepOverlay && energy === 0 && !showPupilTest && (
+          <SleepOverlay
+            avatar={selectedAvatar}
+            onStartEyeCheck={() => {
+              setShowSleepOverlay(false)
+              setShowPupilTest(true)
+            }}
+            onClose={() => setShowSleepOverlay(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Pupil Test overlay */}
+      {showPupilTest && (
+        <PupilTest
+          onComplete={() => {
+            fillEnergy()
+            setShowPupilTest(false)
+            showToast('Energy restored! 5/5', 'success')
+          }}
+          onClose={() => setShowPupilTest(false)}
+          onError={(msg) => {
+            showToast(msg, 'success')
+            setShowPupilTest(false)
+          }}
+        />
+      )}
+
       {/* Toasts */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
@@ -137,10 +181,10 @@ export default function App() {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {tab === 'home' && (
-                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} />
+                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} />
               )}
               {tab === 'games' && (
-                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} />
+                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} />
               )}
               {tab === 'customize' && (
                 <Customize

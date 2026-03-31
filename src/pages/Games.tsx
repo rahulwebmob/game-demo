@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Gamepad2, ArrowLeft, Coins, Clock, Zap, Star,
-  LayoutGrid, Eye, Brain, Hash, ScanEye,
+  LayoutGrid, Eye, Brain, Hash, ScanEye, Lock,
 } from 'lucide-react'
 import CoinBadge from '../components/CoinBadge'
+import EnergyBadge from '../components/EnergyBadge'
 import MemoryMatch from '../components/games/MemoryMatch'
 import ColorVision from '../components/games/ColorVision'
 import ReactionTime from '../components/games/ReactionTime'
@@ -36,6 +37,9 @@ interface Props {
   coins: number
   onEarnCoins: (amount: number) => void
   showToast: (msg: string, type?: 'success' | 'purchase') => void
+  energy: number
+  onSpendEnergy: () => void
+  onStartEyeCheck: () => void
 }
 
 const gridItem = {
@@ -43,7 +47,8 @@ const gridItem = {
   visible: { opacity: 1, y: 0, scale: 1 },
 }
 
-export default function Games({ coins, onEarnCoins, showToast }: Props) {
+export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEnergy, onStartEyeCheck }: Props) {
+  const noEnergy = energy === 0
   const [activeGame, setActiveGame] = useState<GameId | null>(null)
   const [filter, setFilter] = useState<GameCategory | 'all'>('all')
 
@@ -123,8 +128,31 @@ export default function Games({ coins, onEarnCoins, showToast }: Props) {
             <p className="text-[11px] md:text-[13px] text-ink-muted">Train your brain & eyes</p>
           </div>
         </div>
-        <CoinBadge amount={coins} small />
+        <div className="flex items-center gap-2">
+          <EnergyBadge energy={energy} maxEnergy={5} onClick={noEnergy ? onStartEyeCheck : undefined} />
+          <CoinBadge amount={coins} small />
+        </div>
       </div>
+
+      {/* No energy banner */}
+      {noEnergy && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-4 flex items-center gap-3 shadow-[var(--shadow-card)]"
+          style={{ background: 'linear-gradient(135deg, var(--color-coral-light), var(--color-teal-light))' }}
+        >
+          <Eye size={20} className="text-coral flex-shrink-0" />
+          <p className="text-[13px] font-semibold text-ink flex-1">Out of Energy — complete an eye check to play!</p>
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            onClick={onStartEyeCheck}
+            className="px-3 py-1.5 rounded-xl bg-coral text-white text-[12px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] flex-shrink-0"
+          >
+            Start Eye Check
+          </motion.button>
+        </motion.div>
+      )}
 
       {/* Category filter */}
       <div className="flex gap-2 glass-card rounded-2xl p-1.5 md:p-2 shadow-[var(--shadow-soft)]">
@@ -163,12 +191,21 @@ export default function Games({ coins, onEarnCoins, showToast }: Props) {
           <motion.button
             key={game.id}
             variants={gridItem}
-            whileTap={{ scale: 0.97, y: 1 }}
-            whileHover={{ y: -3, boxShadow: 'var(--shadow-elevated)' }}
-            onClick={() => setActiveGame(game.id)}
-            className="flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none cursor-pointer text-left shadow-[var(--shadow-soft)]"
+            whileTap={noEnergy ? undefined : { scale: 0.97, y: 1 }}
+            whileHover={noEnergy ? undefined : { y: -3, boxShadow: 'var(--shadow-elevated)' }}
+            onClick={() => {
+              if (noEnergy) return
+              onSpendEnergy()
+              setActiveGame(game.id)
+            }}
+            className={`flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none text-left shadow-[var(--shadow-soft)] relative overflow-hidden ${noEnergy ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             style={{ background: game.bg }}
           >
+            {noEnergy && (
+              <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10 rounded-2xl">
+                <Lock size={22} className="text-white" />
+              </div>
+            )}
             <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/50 flex items-center justify-center flex-shrink-0"
               style={{ color: game.fg }}
             >
