@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import CoinBadge from '../components/CoinBadge'
 import EnergyBadge from '../components/EnergyBadge'
+import EnergyControl from '../components/EnergyControl'
 import MemoryMatch from '../components/games/MemoryMatch'
 import ColorVision from '../components/games/ColorVision'
 import ReactionTime from '../components/games/ReactionTime'
@@ -40,6 +41,8 @@ interface Props {
   energy: number
   onSpendEnergy: () => void
   onStartEyeCheck: () => void
+  onAddEnergy: () => void
+  onResetEnergy: () => void
 }
 
 const gridItem = {
@@ -47,7 +50,7 @@ const gridItem = {
   visible: { opacity: 1, y: 0, scale: 1 },
 }
 
-export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEnergy, onStartEyeCheck }: Props) {
+export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEnergy, onStartEyeCheck, onAddEnergy, onResetEnergy }: Props) {
   const noEnergy = energy === 0
   const [activeGame, setActiveGame] = useState<GameId | null>(null)
   const [filter, setFilter] = useState<GameCategory | 'all'>('all')
@@ -129,7 +132,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <EnergyBadge energy={energy} maxEnergy={5} onClick={noEnergy ? onStartEyeCheck : undefined} />
+          <EnergyBadge energy={energy} maxEnergy={5} />
           <CoinBadge amount={coins} small />
         </div>
       </div>
@@ -153,6 +156,16 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
           </motion.button>
         </motion.div>
       )}
+
+      {/* Energy Control (demo) */}
+      <EnergyControl
+        energy={energy}
+        maxEnergy={5}
+        onAdd={onAddEnergy}
+        onSpend={onSpendEnergy}
+        onReset={onResetEnergy}
+        onStartEyeCheck={onStartEyeCheck}
+      />
 
       {/* Category filter */}
       <div className="flex gap-2 glass-card rounded-2xl p-1.5 md:p-2 shadow-[var(--shadow-soft)]">

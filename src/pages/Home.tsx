@@ -8,6 +8,7 @@ import {
 import AvatarImg from '../components/AvatarImg'
 import CoinBadge from '../components/CoinBadge'
 import EnergyBadge from '../components/EnergyBadge'
+import EnergyControl from '../components/EnergyControl'
 import AnimatedNumber from '../components/AnimatedNumber'
 import type { AvatarId } from '../data/avatars'
 import { dailyQuests, playerStats } from '../data/avatars'
@@ -27,6 +28,9 @@ interface Props {
   energy: number
   maxEnergy: number
   onStartEyeCheck: () => void
+  onAddEnergy: () => void
+  onSpendEnergy: () => void
+  onResetEnergy: () => void
 }
 
 const fade = {
@@ -43,7 +47,7 @@ const cats = [
 
 const featuredGames = games.slice(0, 3)
 
-export default function Home({ coins, score, streak, avatar, name, navigate, themeId, onThemeChange, energy, maxEnergy, onStartEyeCheck }: Props) {
+export default function Home({ coins, score, streak, avatar, name, navigate, themeId, onThemeChange, energy, maxEnergy, onStartEyeCheck, onAddEnergy, onSpendEnergy, onResetEnergy }: Props) {
   const noEnergy = energy === 0
   return (
     <motion.div
@@ -60,7 +64,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <EnergyBadge energy={energy} maxEnergy={maxEnergy} onClick={noEnergy ? onStartEyeCheck : undefined} />
+          <EnergyBadge energy={energy} maxEnergy={maxEnergy} />
           <motion.button
             whileTap={{ scale: 0.85, rotate: 30 }}
             whileHover={{ scale: 1.1 }}
@@ -128,6 +132,18 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
             className="h-full xp-gradient rounded-full progress-bar"
           />
         </div>
+      </motion.div>
+
+      {/* ── Energy Control (demo) ── */}
+      <motion.div variants={fade}>
+        <EnergyControl
+          energy={energy}
+          maxEnergy={maxEnergy}
+          onAdd={onAddEnergy}
+          onSpend={onSpendEnergy}
+          onReset={onResetEnergy}
+          onStartEyeCheck={onStartEyeCheck}
+        />
       </motion.div>
 
       {/* ── Categories ── */}

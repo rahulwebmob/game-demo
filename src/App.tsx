@@ -40,6 +40,8 @@ export default function App() {
     setShowSleepOverlay(false)
   }, [])
   const spendEnergy = useCallback(() => setEnergy(e => Math.max(0, e - 1)), [])
+  const addEnergy = useCallback(() => setEnergy(e => Math.min(MAX_ENERGY, e + 1)), [])
+  const resetEnergy = useCallback(() => setEnergy(0), [])
 
   // Persisted state
   const [coins, setCoins] = useLocalStorage('gamerify-coins', 250)
@@ -181,10 +183,10 @@ export default function App() {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {tab === 'home' && (
-                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} />
+                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onSpendEnergy={spendEnergy} onResetEnergy={resetEnergy} />
               )}
               {tab === 'games' && (
-                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} />
+                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onResetEnergy={resetEnergy} />
               )}
               {tab === 'customize' && (
                 <Customize

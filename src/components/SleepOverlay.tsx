@@ -31,25 +31,62 @@ function Star({ delay, x, y, size }: { delay: number; x: string; y: string; size
   )
 }
 
-/* ── crescent moon SVG ── */
+/* ── moon with glow & animations ── */
 function Moon() {
   return (
-    <motion.svg
-      width="52" height="52" viewBox="0 0 52 52"
-      className="absolute pointer-events-none"
-      style={{ top: '9%', right: '12%' }}
-      animate={{ rotate: [0, 4, 0], y: [0, -3, 0] }}
-      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+    <motion.div
+      className="absolute pointer-events-none select-none"
+      style={{ top: '3%', right: '4%', width: 140, height: 140 }}
+      initial={{ opacity: 0, scale: 0.6, y: 30 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 1.2, ease: 'easeOut', delay: 0.3 }}
     >
-      {/* outer glow */}
-      <circle cx="26" cy="26" r="26" fill="rgba(253,224,71,0.06)" />
-      {/* moon body — a circle with a smaller cutout to form the crescent */}
-      <mask id="crescent">
-        <circle cx="26" cy="26" r="18" fill="white" />
-        <circle cx="34" cy="20" r="14" fill="black" />
-      </mask>
-      <circle cx="26" cy="26" r="18" fill="#fde047" mask="url(#crescent)" opacity="0.85" />
-    </motion.svg>
+      {/* Outer soft halo */}
+      <motion.div
+        className="absolute rounded-full pointer-events-none"
+        style={{
+          inset: -40,
+          background: 'radial-gradient(circle, rgba(253,224,71,0.10) 0%, rgba(253,224,71,0.03) 50%, transparent 70%)',
+        }}
+        animate={{ scale: [1, 1.25, 1], opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {/* Inner warm glow ring */}
+      <motion.div
+        className="absolute rounded-full pointer-events-none"
+        style={{
+          inset: -16,
+          background: 'radial-gradient(circle, rgba(253,224,71,0.12) 0%, rgba(255,200,60,0.04) 60%, transparent 80%)',
+          filter: 'blur(8px)',
+        }}
+        animate={{ scale: [1, 1.12, 1], opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+      />
+      {/* Moon image */}
+      <motion.img
+        src="/moon.png"
+        alt="moon"
+        draggable={false}
+        className="w-full h-full"
+        style={{ objectFit: 'contain', mixBlendMode: 'screen' }}
+        animate={{
+          rotate: [0, 3, 0, -2, 0],
+          y: [0, -4, 0, -2, 0],
+          scale: [1, 1.03, 1, 1.015, 1],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      {/* Pulsing light rays */}
+      <motion.div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%)',
+          filter: 'blur(4px)',
+        }}
+        animate={{ opacity: [0, 0.6, 0], scale: [0.9, 1.15, 0.9] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+      />
+    </motion.div>
   )
 }
 
@@ -98,18 +135,19 @@ export default function SleepOverlay({ avatar, onStartEyeCheck, onClose }: Props
 
       {/* ── Moon (crescent) ── */}
       <Moon />
-      {/* Moon ambient glow */}
+      {/* Moon ambient glow — large area light cast */}
       <motion.div
         className="absolute rounded-full pointer-events-none"
         style={{
-          width: 160,
-          height: 160,
-          top: '5%',
-          right: '6%',
-          background: 'radial-gradient(circle, rgba(253,224,71,0.06) 0%, transparent 70%)',
+          width: 260,
+          height: 260,
+          top: '-2%',
+          right: '-4%',
+          background: 'radial-gradient(circle, rgba(253,224,71,0.07) 0%, rgba(253,224,71,0.02) 40%, transparent 70%)',
+          filter: 'blur(12px)',
         }}
-        animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.9, 0.5] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+        animate={{ scale: [1, 1.2, 1], opacity: [0.4, 0.8, 0.4] }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
       />
 
       {/* ── Avatar section ── */}
