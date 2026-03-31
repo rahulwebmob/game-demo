@@ -46,10 +46,10 @@ export const themeLabels: Record<ThemeId, string> = Object.fromEntries(
 /* ── Helper: standard light-theme glass + shadows ── */
 function lightGlass(shadowRgb: string): Record<string, string> {
   return {
-    '--shadow-card': `0 2px 12px rgba(${shadowRgb}, 0.06)`,
-    '--shadow-btn': `0 4px 16px rgba(${shadowRgb}, 0.18)`,
-    '--shadow-soft': `0 1px 4px rgba(${shadowRgb}, 0.04)`,
-    '--shadow-elevated': `0 4px 24px rgba(${shadowRgb}, 0.08), 0 1px 3px rgba(${shadowRgb}, 0.04)`,
+    '--shadow-card': `0 2px 16px rgba(${shadowRgb}, 0.10), 0 1px 4px rgba(${shadowRgb}, 0.06)`,
+    '--shadow-btn': `0 4px 18px rgba(${shadowRgb}, 0.22)`,
+    '--shadow-soft': `0 2px 8px rgba(${shadowRgb}, 0.08)`,
+    '--shadow-elevated': `0 8px 32px rgba(${shadowRgb}, 0.12), 0 2px 6px rgba(${shadowRgb}, 0.06)`,
     '--glass-bg': 'rgba(255, 255, 255, 0.72)',
     '--glass-border': 'rgba(255, 255, 255, 0.5)',
     '--nav-glass-bg': 'rgba(255, 255, 255, 0.88)',
@@ -60,10 +60,10 @@ function lightGlass(shadowRgb: string): Record<string, string> {
 /* ── Helper: standard dark-theme glass + shadows ── */
 function darkGlass(glassBg: string, glassBorder: string, navBg: string): Record<string, string> {
   return {
-    '--shadow-card': '0 1px 4px rgba(0, 0, 0, 0.2)',
-    '--shadow-btn': 'none',
-    '--shadow-soft': '0 1px 2px rgba(0, 0, 0, 0.15)',
-    '--shadow-elevated': '0 2px 8px rgba(0, 0, 0, 0.25)',
+    '--shadow-card': '0 2px 12px rgba(0, 0, 0, 0.28), 0 1px 4px rgba(0, 0, 0, 0.18)',
+    '--shadow-btn': '0 4px 14px rgba(0, 0, 0, 0.3)',
+    '--shadow-soft': '0 2px 8px rgba(0, 0, 0, 0.22)',
+    '--shadow-elevated': '0 8px 28px rgba(0, 0, 0, 0.35), 0 2px 6px rgba(0, 0, 0, 0.2)',
     '--glass-bg': glassBg,
     '--glass-border': glassBorder,
     '--nav-glass-bg': navBg,
@@ -98,14 +98,7 @@ const themes: Record<ThemeId, Record<string, string>> = {
     '--color-ink': '#1A2A2E',
     '--color-ink-secondary': '#5E6E76',
     '--color-ink-muted': '#ACB4BA',
-    '--shadow-card': '0 2px 12px rgba(30, 48, 56, 0.06)',
-    '--shadow-btn': '0 4px 16px rgba(123, 167, 181, 0.22)',
-    '--shadow-soft': '0 1px 4px rgba(30, 48, 56, 0.04)',
-    '--shadow-elevated': '0 4px 24px rgba(30, 48, 56, 0.08), 0 1px 3px rgba(30, 48, 56, 0.04)',
-    '--glass-bg': 'rgba(255, 255, 255, 0.72)',
-    '--glass-border': 'rgba(255, 255, 255, 0.5)',
-    '--nav-glass-bg': 'rgba(255, 255, 255, 0.88)',
-    '--nav-glass-shadow': 'rgba(30, 48, 56, 0.05)',
+    ...lightGlass('30, 48, 56'),
   },
   warm: {
     '--color-bg': '#FFF5EE',
@@ -130,14 +123,7 @@ const themes: Record<ThemeId, Record<string, string>> = {
     '--color-ink': '#1E1B18',
     '--color-ink-secondary': '#6B6560',
     '--color-ink-muted': '#A9A19A',
-    '--shadow-card': '0 2px 12px rgba(120, 80, 50, 0.06)',
-    '--shadow-btn': '0 4px 16px rgba(232, 106, 80, 0.22)',
-    '--shadow-soft': '0 1px 4px rgba(120, 80, 50, 0.04)',
-    '--shadow-elevated': '0 4px 24px rgba(120, 80, 50, 0.08), 0 1px 3px rgba(120, 80, 50, 0.04)',
-    '--glass-bg': 'rgba(255, 255, 255, 0.72)',
-    '--glass-border': 'rgba(255, 255, 255, 0.5)',
-    '--nav-glass-bg': 'rgba(255, 255, 255, 0.88)',
-    '--nav-glass-shadow': 'rgba(120, 80, 50, 0.05)',
+    ...lightGlass('120, 80, 50'),
   },
   dark: {
     '--color-bg': '#141420',
