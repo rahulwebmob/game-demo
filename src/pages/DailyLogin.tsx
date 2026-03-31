@@ -76,7 +76,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
                     filled
                       ? 'bg-coral text-white'
                       : current
-                        ? 'bg-coral text-white shadow-[0_0_0_3px_rgba(232,106,80,0.18)]'
+                        ? 'bg-coral text-white shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-coral)_18%,transparent)]'
                         : 'bg-muted text-ink-muted'
                   }`}
                   style={current ? { animation: 'gentle-pulse 2s ease-in-out infinite' } : undefined}
@@ -112,8 +112,8 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
               whileHover={!locked ? { y: -2 } : undefined}
               className={`flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl shadow-[var(--shadow-soft)] ${locked ? 'opacity-30' : ''}`}
               style={{
-                background: today ? '#FDEBE6' : done ? '#E0F5E9' : 'rgba(255,255,255,0.72)',
-                border: today ? '2px solid #E86A50' : '2px solid transparent',
+                background: today ? 'var(--color-coral-light)' : done ? 'var(--color-green-light)' : 'rgba(255,255,255,0.72)',
+                border: today ? '2px solid var(--color-coral)' : '2px solid transparent',
                 backdropFilter: 'blur(8px)',
               }}
             >
@@ -137,8 +137,8 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
         whileHover={{ y: -1 }}
         className={`flex items-center gap-4 p-4 md:p-5 rounded-2xl shadow-[var(--shadow-soft)] ${todayIdx >= 6 ? '' : 'opacity-35'}`}
         style={{
-          background: '#FEF3DC',
-          border: todayIdx >= 6 ? '2px solid #F5A623' : '2px solid transparent',
+          background: 'var(--color-gold-light)',
+          border: todayIdx >= 6 ? '2px solid var(--color-gold)' : '2px solid transparent',
         }}
       >
         <div className="w-[52px] h-[52px] md:w-[60px] md:h-[60px] rounded-2xl bg-white/60 flex items-center justify-center flex-shrink-0">
@@ -158,7 +158,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
         <Confetti active={showConfetti} />
         <motion.button
           whileTap={{ scale: 0.96, y: 2 }}
-          whileHover={!claimed ? { boxShadow: '0 6px 28px rgba(232,106,80,0.35)' } : undefined}
+          whileHover={!claimed ? { boxShadow: 'var(--shadow-btn)' } : undefined}
           onClick={handleClaim}
           disabled={claimed}
           className={`w-full py-4 md:py-5 rounded-2xl font-bold text-[15px] md:text-[17px] border-none cursor-pointer transition-all ${

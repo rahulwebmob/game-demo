@@ -66,7 +66,7 @@ export default function ContrastTest({ onComplete }: Props) {
         <h3 className="text-[22px] font-bold text-ink">{rating}</h3>
         <div className="flex gap-1">
           {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? '#F5A623' : 'none'} />
+            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
           ))}
         </div>
         <p className="text-[36px] font-extrabold text-gradient-coral">{score}</p>
@@ -75,7 +75,7 @@ export default function ContrastTest({ onComplete }: Props) {
           whileTap={{ scale: 0.95 }}
           onClick={reset}
           className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-rose text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: '0 4px 16px rgba(232,106,118,0.3)' }}
+          style={{ boxShadow: 'var(--shadow-btn)' }}
         >
           <RotateCcw size={16} /> Try Again
         </motion.button>
@@ -135,9 +135,9 @@ export default function ContrastTest({ onComplete }: Props) {
                 style={{
                   background: `rgb(${gray}%, ${gray}%, ${gray}%)`,
                   boxShadow: feedback === 'correct' && isOdd
-                    ? '0 0 0 3px #4CB870'
+                    ? '0 0 0 3px var(--color-green)'
                     : feedback === 'wrong' && isOdd
-                      ? '0 0 0 3px #E86A50'
+                      ? '0 0 0 3px var(--color-coral)'
                       : 'var(--shadow-soft)',
                 }}
               />

@@ -1,6 +1,16 @@
 import { motion } from 'framer-motion'
 
-const COLORS = ['#E86A50', '#F5A623', '#2AB89E', '#8B6CC1', '#4DA3E8', '#E86A76']
+function getThemeColors() {
+  const s = getComputedStyle(document.documentElement)
+  return [
+    s.getPropertyValue('--color-coral').trim(),
+    s.getPropertyValue('--color-gold').trim(),
+    s.getPropertyValue('--color-teal').trim(),
+    s.getPropertyValue('--color-violet').trim(),
+    s.getPropertyValue('--color-sky').trim(),
+    s.getPropertyValue('--color-rose').trim(),
+  ]
+}
 const COUNT = 32
 
 function rand(min: number, max: number) {
@@ -9,10 +19,11 @@ function rand(min: number, max: number) {
 
 export default function Confetti({ active }: { active: boolean }) {
   if (!active) return null
+  const colors = getThemeColors()
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
       {Array.from({ length: COUNT }).map((_, i) => {
-        const color = COLORS[i % COLORS.length]
+        const color = colors[i % colors.length]
         const x = rand(-120, 120)
         const y = rand(-200, -60)
         const r = rand(-360, 360)

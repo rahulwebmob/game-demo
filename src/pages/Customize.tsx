@@ -56,7 +56,7 @@ export default function Customize({
       <div className="glass-card rounded-3xl py-8 md:py-10 flex flex-col items-center gap-3 md:gap-4 shadow-[var(--shadow-elevated)]">
         <div
           className="w-[140px] h-[140px] md:w-[180px] md:h-[180px] rounded-3xl flex items-center justify-center"
-          style={{ background: `${cur?.bg || '#F0AD2A'}15` }}
+          style={{ background: `color-mix(in srgb, ${cur?.bg || 'var(--color-coral)'} 8%, transparent)` }}
         >
           <AnimatePresence mode="wait">
             <motion.div

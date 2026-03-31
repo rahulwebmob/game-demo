@@ -2,43 +2,43 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #FFF5EE;
+  --color-bg: #EDF3F8;
   --color-card: #FFFFFF;
-  --color-muted: #F7EBE3;
-  --color-border: #F0DDD3;
+  --color-muted: #E8ECF0;
+  --color-border: #C8CED2;
 
-  --color-coral: #E86A50;
-  --color-coral-light: #FDEBE6;
-  --color-coral-dark: #D0503A;
+  --color-coral: #7BA7B5;
+  --color-coral-light: #E0EEF2;
+  --color-coral-dark: #5E8E9C;
 
-  --color-teal: #2AB89E;
+  --color-teal: #4DC9A0;
   --color-teal-light: #DFF6F0;
 
-  --color-gold: #F5A623;
-  --color-gold-light: #FEF3DC;
+  --color-gold: #8CC99D;
+  --color-gold-light: #E0F5E9;
 
-  --color-violet: #8B6CC1;
-  --color-violet-light: #EDE5F8;
+  --color-violet: #384D56;
+  --color-violet-light: #E8ECF0;
 
-  --color-sky: #4DA3E8;
-  --color-sky-light: #E0EFFE;
+  --color-sky: #A8C4D0;
+  --color-sky-light: #EDF3F8;
 
-  --color-green: #4CB870;
-  --color-green-light: #E0F5E9;
+  --color-green: #4DC9A0;
+  --color-green-light: #DFF6F0;
 
-  --color-rose: #E86A76;
-  --color-rose-light: #FDE8EA;
+  --color-rose: #5E6E76;
+  --color-rose-light: #E8ECF0;
 
-  --color-ink: #1E1B18;
-  --color-ink-secondary: #6B6560;
-  --color-ink-muted: #A9A19A;
+  --color-ink: #1A2A2E;
+  --color-ink-secondary: #5E6E76;
+  --color-ink-muted: #ACB4BA;
 
   --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
 
-  --shadow-card: 0 2px 12px rgba(120, 80, 50, 0.06);
-  --shadow-btn: 0 4px 16px rgba(232, 106, 80, 0.22);
-  --shadow-soft: 0 1px 4px rgba(120, 80, 50, 0.04);
-  --shadow-elevated: 0 4px 24px rgba(120, 80, 50, 0.08), 0 1px 3px rgba(120, 80, 50, 0.04);
+  --shadow-card: 0 2px 12px rgba(30, 48, 56, 0.06);
+  --shadow-btn: 0 4px 16px rgba(123, 167, 181, 0.22);
+  --shadow-soft: 0 1px 4px rgba(30, 48, 56, 0.04);
+  --shadow-elevated: 0 4px 24px rgba(30, 48, 56, 0.08), 0 1px 3px rgba(30, 48, 56, 0.04);
 }
 
 html {
@@ -67,14 +67,14 @@ body {
 
 /* ── Gradient text ── */
 .text-gradient-coral {
-  background: linear-gradient(135deg, #E86A50 0%, #F5A623 100%);
+  background: linear-gradient(135deg, #7BA7B5 0%, #4DC9A0 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-gold {
-  background: linear-gradient(135deg, #F5A623 0%, #E86A50 100%);
+  background: linear-gradient(135deg, #8CC99D 0%, #7BA7B5 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -98,7 +98,7 @@ body {
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 -1px 16px rgba(120, 80, 50, 0.05);
+  box-shadow: 0 -1px 16px rgba(30, 48, 56, 0.05);
   border-top: 1px solid rgba(255, 255, 255, 0.5);
 }
 
@@ -128,8 +128,8 @@ body {
 
 /* ── Claim button pulse ── */
 @keyframes claim-pulse {
-  0%, 100% { box-shadow: 0 4px 16px rgba(232, 106, 80, 0.22); }
-  50% { box-shadow: 0 4px 28px rgba(232, 106, 80, 0.40); }
+  0%, 100% { box-shadow: 0 4px 16px rgba(123, 167, 181, 0.22); }
+  50% { box-shadow: 0 4px 28px rgba(123, 167, 181, 0.40); }
 }
 .pulse-claim { animation: claim-pulse 2s ease-in-out infinite; }
 
@@ -147,7 +147,7 @@ body {
 
 /* ── XP bar gradient ── */
 .xp-gradient {
-  background: linear-gradient(90deg, #E86A50, #F5A623);
+  background: linear-gradient(90deg, #7BA7B5, #4DC9A0);
 }
 
 /* ── Skeleton loader ── */

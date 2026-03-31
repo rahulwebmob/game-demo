@@ -14,7 +14,9 @@
       "Bash(python3 --version 2>&1 || py --version 2>&1)",
       "Bash(magick --version 2>&1 || convert --version 2>&1 || ffmpeg -version 2>&1 | head -1)",
       "Bash(node -e \"console.log\\('node ok'\\)\" 2>&1)",
-      "Bash(cd D:/gamerify && npm install --save-dev sharp 2>&1)"
+      "Bash(cd D:/gamerify && npm install --save-dev sharp 2>&1)",
+      "Bash(magick --version 2>&1 | head -1)",
+      "Bash(node -e \"console.log\\('ok'\\)\")"
     ]
   }
 }

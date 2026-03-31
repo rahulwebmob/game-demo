@@ -164,7 +164,7 @@ export default function Games({ coins, onEarnCoins, showToast }: Props) {
             key={game.id}
             variants={gridItem}
             whileTap={{ scale: 0.97, y: 1 }}
-            whileHover={{ y: -3, boxShadow: '0 8px 28px rgba(120,80,50,0.10)' }}
+            whileHover={{ y: -3, boxShadow: 'var(--shadow-elevated)' }}
             onClick={() => setActiveGame(game.id)}
             className="flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none cursor-pointer text-left shadow-[var(--shadow-soft)]"
             style={{ background: game.bg }}

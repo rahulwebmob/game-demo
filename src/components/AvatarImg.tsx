@@ -1,10 +1,10 @@
 import type { AvatarId } from '../data/avatars'
 
 const src: Record<AvatarId, string> = {
+  owl: '/avatars/owl.png',
   dog: '/avatars/dog.png',
   cat: '/avatars/cat.png',
   cat2: '/avatars/cat2.png',
-  panda: '/avatars/panda.png',
 }
 
 interface Props {
@@ -18,14 +18,21 @@ interface Props {
 export default function AvatarImg({ avatar, size = 80, className = '', ring, level }: Props) {
   const r = size <= 36 ? 10 : size <= 48 ? 12 : size <= 64 ? 16 : 20
   return (
-    <div className="relative inline-block flex-shrink-0">
-      <img
-        src={src[avatar]}
-        alt={avatar}
-        draggable={false}
-        className={`object-cover select-none ${ring ? 'ring-[3px] ring-coral/25' : ''} ${className}`}
-        style={{ width: size, height: size, borderRadius: r }}
-      />
+    <div
+      className={`relative inline-block flex-shrink-0 ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <div
+        className={`w-full h-full overflow-hidden flex items-center justify-center ${ring ? 'ring-[3px] ring-coral/25' : ''}`}
+        style={{ borderRadius: r }}
+      >
+        <img
+          src={src[avatar]}
+          alt={avatar}
+          draggable={false}
+          className="w-full h-full object-contain select-none"
+        />
+      </div>
       {level != null && (
         <div
           className="absolute -bottom-1 -right-1 bg-coral text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-[var(--shadow-btn)]"

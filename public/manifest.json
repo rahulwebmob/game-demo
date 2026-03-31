@@ -4,8 +4,8 @@
   "description": "Your gaming rewards companion",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFF5EE",
-  "theme_color": "#E86A50",
+  "background_color": "#EDF3F8",
+  "theme_color": "#7BA7B5",
   "orientation": "portrait",
   "icons": [
     {

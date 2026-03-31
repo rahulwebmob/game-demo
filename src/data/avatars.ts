@@ -1,4 +1,4 @@
-export type AvatarId = 'dog' | 'cat' | 'cat2' | 'panda'
+export type AvatarId = 'owl' | 'dog' | 'cat' | 'cat2'
 
 export interface Avatar {
   id: AvatarId
@@ -8,10 +8,10 @@ export interface Avatar {
 }
 
 export const avatars: Avatar[] = [
-  { id: 'dog', name: 'Buddy', bg: '#F0AD2A', price: 0 },
-  { id: 'cat', name: 'Whiskers', bg: '#1AC9C9', price: 100 },
-  { id: 'cat2', name: 'Ginger', bg: '#5DD99A', price: 200 },
-  { id: 'panda', name: 'Bamboo', bg: '#F04858', price: 350 },
+  { id: 'owl', name: 'Hoot', bg: 'var(--color-coral)', price: 0 },
+  { id: 'dog', name: 'Buddy', bg: 'var(--color-teal)', price: 0 },
+  { id: 'cat', name: 'Whiskers', bg: 'var(--color-gold)', price: 0 },
+  { id: 'cat2', name: 'Ginger', bg: 'var(--color-violet)', price: 150 },
 ]
 
 export interface Accessory {
@@ -41,14 +41,14 @@ export const dailyRewards = [
 ]
 
 export const leaderboardData = [
-  { rank: 1, name: 'ProGamer99', avatar: 'panda' as AvatarId, score: 12450 },
+  { rank: 1, name: 'ProGamer99', avatar: 'owl' as AvatarId, score: 12450 },
   { rank: 2, name: 'NinjaKitty', avatar: 'cat' as AvatarId, score: 11200 },
   { rank: 3, name: 'DogeMaster', avatar: 'dog' as AvatarId, score: 10800 },
-  { rank: 4, name: 'PandaKing', avatar: 'panda' as AvatarId, score: 9500 },
+  { rank: 4, name: 'OwlWise', avatar: 'owl' as AvatarId, score: 9500 },
   { rank: 5, name: 'CatWhisper', avatar: 'cat2' as AvatarId, score: 8900 },
   { rank: 6, name: 'FireDog', avatar: 'dog' as AvatarId, score: 7600 },
   { rank: 7, name: 'LunarCat', avatar: 'cat' as AvatarId, score: 6800 },
-  { rank: 8, name: 'StarPanda', avatar: 'panda' as AvatarId, score: 5400 },
+  { rank: 8, name: 'StarOwl', avatar: 'owl' as AvatarId, score: 5400 },
   { rank: 9, name: 'AceHunter', avatar: 'dog' as AvatarId, score: 4900 },
   { rank: 10, name: 'MoonCat', avatar: 'cat2' as AvatarId, score: 4200 },
 ]
@@ -60,9 +60,9 @@ export const dailyQuests = [
 ]
 
 export const featuredItems = [
-  { id: 'crown', name: 'Crown', originalPrice: 500, salePrice: 350, color: '#F0AD2A' },
-  { id: 'star', name: 'Star', originalPrice: 200, salePrice: 120, color: '#2DB574' },
-  { id: 'hat', name: 'Top Hat', originalPrice: 150, salePrice: 99, color: '#1AC9C9' },
+  { id: 'crown', name: 'Crown', originalPrice: 500, salePrice: 350, color: 'var(--color-coral)' },
+  { id: 'star', name: 'Star', originalPrice: 200, salePrice: 120, color: 'var(--color-teal)' },
+  { id: 'hat', name: 'Top Hat', originalPrice: 150, salePrice: 99, color: 'var(--color-sky)' },
 ]
 
 export const playerStats = { level: 12, xp: 340, xpToNext: 500 }

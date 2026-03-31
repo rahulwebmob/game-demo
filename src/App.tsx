@@ -13,6 +13,7 @@ import type { Tab } from './components/NavBar'
 import type { AvatarId } from './data/avatars'
 import { dailyRewards, accessories, avatars } from './data/avatars'
 import { useLocalStorage } from './hooks/useLocalStorage'
+import { useTheme } from './hooks/useTheme'
 
 const TAB_ORDER: Tab[] = ['home', 'games', 'customize', 'leaderboard', 'daily']
 
@@ -21,6 +22,7 @@ function getDirection(from: Tab, to: Tab) {
 }
 
 export default function App() {
+  const theme = useTheme()
   const [tab, setTab] = useState<Tab>('home')
   const [direction, setDirection] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -30,9 +32,9 @@ export default function App() {
   const [score] = useLocalStorage('gamerify-score', 4820)
   const [streak, setStreak] = useLocalStorage('gamerify-streak', 3)
   const [claimedToday, setClaimedToday] = useLocalStorage('gamerify-claimed', false)
-  const [selectedAvatar, setSelectedAvatar] = useLocalStorage<AvatarId>('gamerify-avatar', 'dog')
+  const [selectedAvatar, setSelectedAvatar] = useLocalStorage<AvatarId>('gamerify-avatar', 'owl')
   const [selectedAccessory, setSelectedAccessory] = useLocalStorage<string | null>('gamerify-accessory', null)
-  const [ownedAvatars, setOwnedAvatars] = useLocalStorage<AvatarId[]>('gamerify-owned-avatars', ['dog'])
+  const [ownedAvatars, setOwnedAvatars] = useLocalStorage<AvatarId[]>('gamerify-owned-avatars', ['owl', 'dog', 'cat'])
   const [ownedAccessories, setOwnedAccessories] = useLocalStorage<string[]>('gamerify-owned-accessories', [])
 
   // Toast state
@@ -55,6 +57,7 @@ export default function App() {
     setDirection(getDirection(tab, to))
     setLoading(true)
     setTab(to)
+    window.scrollTo(0, 0)
     setTimeout(() => setLoading(false), 180)
   }, [tab])
 
@@ -102,19 +105,19 @@ export default function App() {
       {/* Ambient background blobs */}
       <motion.div
         className="fixed w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(232,106,80,0.08), transparent 70%)', top: '-8%', right: '-12%' }}
+        style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-coral) 8%, transparent), transparent 70%)', top: '-8%', right: '-12%' }}
         animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
         transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
         className="fixed w-[220px] h-[220px] md:w-[320px] md:h-[320px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(245,166,35,0.06), transparent 70%)', bottom: '10%', left: '-10%' }}
+        style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-gold) 6%, transparent), transparent 70%)', bottom: '10%', left: '-10%' }}
         animate={{ x: [0, -15, 0], y: [0, 20, 0] }}
         transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
       />
       <motion.div
         className="fixed w-[180px] h-[180px] md:w-[260px] md:h-[260px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(139,108,193,0.05), transparent 70%)', top: '40%', right: '-5%' }}
+        style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-violet) 5%, transparent), transparent 70%)', top: '40%', right: '-5%' }}
         animate={{ x: [0, 12, 0], y: [0, 18, 0] }}
         transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
       />
@@ -134,7 +137,7 @@ export default function App() {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {tab === 'home' && (
-                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} />
+                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} />
               )}
               {tab === 'games' && (
                 <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} />

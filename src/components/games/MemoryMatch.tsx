@@ -112,7 +112,7 @@ export default function MemoryMatch({ onComplete }: Props) {
         <h3 className="text-[22px] font-bold text-ink">Complete!</h3>
         <div className="flex gap-1">
           {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? '#F5A623' : 'none'} />
+            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
           ))}
         </div>
         <div className="flex gap-6 text-center">

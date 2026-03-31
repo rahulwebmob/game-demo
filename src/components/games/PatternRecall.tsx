@@ -125,7 +125,7 @@ export default function PatternRecall({ onComplete }: Props) {
         <h3 className="text-[22px] font-bold text-ink">Pattern Master</h3>
         <div className="flex gap-1">
           {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? '#F5A623' : 'none'} />
+            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
           ))}
         </div>
         <p className="text-[36px] font-extrabold text-gradient-coral">{score}</p>
@@ -134,7 +134,7 @@ export default function PatternRecall({ onComplete }: Props) {
           whileTap={{ scale: 0.95 }}
           onClick={reset}
           className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-teal text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: '0 4px 16px rgba(42,184,158,0.3)' }}
+          style={{ boxShadow: 'var(--shadow-btn)' }}
         >
           <RotateCcw size={16} /> Play Again
         </motion.button>
@@ -184,7 +184,7 @@ export default function PatternRecall({ onComplete }: Props) {
             onClick={() => handleTap(i)}
             animate={{
               scale: highlighted === i ? 1.08 : 1,
-              backgroundColor: highlighted === i ? '#2AB89E' : 'var(--color-muted)',
+              backgroundColor: highlighted === i ? 'var(--color-teal)' : 'var(--color-muted)',
             }}
             transition={{ duration: 0.15 }}
             className="aspect-square rounded-2xl border-none cursor-pointer shadow-[var(--shadow-soft)]"

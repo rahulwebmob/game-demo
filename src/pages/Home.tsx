@@ -3,7 +3,7 @@ import {
   Zap, Flame, Star, Trophy,
   Gamepad2, BarChart3, Search,
   Megaphone, ArrowRight, Medal, Gift, Coins, Paintbrush,
-  Clock, Brain, Eye, Heart, Activity,
+  Clock, Brain, Eye, Heart, Activity, Sun, Moon,
 } from 'lucide-react'
 import AvatarImg from '../components/AvatarImg'
 import CoinBadge from '../components/CoinBadge'
@@ -12,6 +12,7 @@ import type { AvatarId } from '../data/avatars'
 import { dailyQuests, playerStats } from '../data/avatars'
 import { games } from '../data/games'
 import type { Tab } from '../components/NavBar'
+import type { ThemeId } from '../hooks/useTheme'
 
 interface Props {
   coins: number
@@ -20,6 +21,8 @@ interface Props {
   avatar: AvatarId
   name: string
   navigate: (t: Tab) => void
+  themeId: ThemeId
+  onThemeChange: (id: ThemeId) => void
 }
 
 const fade = {
@@ -28,15 +31,15 @@ const fade = {
 }
 
 const cats = [
-  { icon: Brain, label: 'Brain', bg: '#DFF6F0', fg: '#2AB89E' },
-  { icon: Eye, label: 'Eye Care', bg: '#EDE5F8', fg: '#8B6CC1' },
-  { icon: Heart, label: 'Memory', bg: '#FDEBE6', fg: '#E86A50' },
-  { icon: Activity, label: 'Stats', bg: '#E0EFFE', fg: '#4DA3E8' },
+  { icon: Brain, label: 'Brain', bg: 'var(--color-teal-light)', fg: 'var(--color-teal)' },
+  { icon: Eye, label: 'Eye Care', bg: 'var(--color-violet-light)', fg: 'var(--color-violet)' },
+  { icon: Heart, label: 'Memory', bg: 'var(--color-coral-light)', fg: 'var(--color-coral)' },
+  { icon: Activity, label: 'Stats', bg: 'var(--color-sky-light)', fg: 'var(--color-sky)' },
 ]
 
 const featuredGames = games.slice(0, 3)
 
-export default function Home({ coins, score, streak, avatar, name, navigate }: Props) {
+export default function Home({ coins, score, streak, avatar, name, navigate, themeId, onThemeChange }: Props) {
   return (
     <motion.div
       initial="initial" animate="animate"
@@ -51,9 +54,29 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
             <MapPin /> Level {playerStats.level} player
           </p>
         </div>
-        <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.04 }} onClick={() => navigate('customize')} className="cursor-pointer">
-          <AvatarImg avatar={avatar} size={48} ring level={playerStats.level} />
-        </motion.div>
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileTap={{ scale: 0.85, rotate: 30 }}
+            whileHover={{ scale: 1.1 }}
+            onClick={() => onThemeChange(themeId === 'cool' ? 'warm' : 'cool')}
+            className="w-10 h-10 md:w-11 md:h-11 rounded-full glass-card border border-border flex items-center justify-center cursor-pointer shadow-[var(--shadow-soft)]"
+          >
+            <motion.div
+              key={themeId}
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 18 }}
+            >
+              {themeId === 'cool'
+                ? <Moon size={18} className="text-coral" />
+                : <Sun size={18} className="text-coral" />
+              }
+            </motion.div>
+          </motion.button>
+          <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.04 }} onClick={() => navigate('customize')} className="cursor-pointer">
+            <AvatarImg avatar={avatar} size={48} ring level={playerStats.level} />
+          </motion.div>
+        </div>
       </motion.div>
 
       {/* ── Hero text ── */}
@@ -132,7 +155,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
             <motion.div
               key={g.id}
               whileTap={{ scale: 0.97, y: 1 }}
-              whileHover={{ y: -3, boxShadow: '0 8px 28px rgba(120,80,50,0.10)' }}
+              whileHover={{ y: -3, boxShadow: 'var(--shadow-elevated)' }}
               onClick={() => navigate('games')}
               className="rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 cursor-pointer relative overflow-hidden shadow-[var(--shadow-soft)]"
               style={{ background: g.bg }}
@@ -169,10 +192,10 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
       {/* ── Stats strip ── */}
       <motion.div variants={fade} className="grid grid-cols-4 gap-2 md:gap-3">
         {[
-          { icon: Zap, label: 'Score', val: score, bg: '#FDEBE6', fg: '#E86A50' },
-          { icon: Flame, label: 'Streak', val: streak, bg: '#FEF3DC', fg: '#F5A623', suffix: 'd' },
-          { icon: Trophy, label: 'Rank', val: 42, bg: '#DFF6F0', fg: '#2AB89E', prefix: '#' },
-          { icon: Star, label: 'Level', val: playerStats.level, bg: '#EDE5F8', fg: '#8B6CC1' },
+          { icon: Zap, label: 'Score', val: score, bg: 'var(--color-coral-light)', fg: 'var(--color-coral)' },
+          { icon: Flame, label: 'Streak', val: streak, bg: 'var(--color-gold-light)', fg: 'var(--color-gold)', suffix: 'd' },
+          { icon: Trophy, label: 'Rank', val: 42, bg: 'var(--color-teal-light)', fg: 'var(--color-teal)', prefix: '#' },
+          { icon: Star, label: 'Level', val: playerStats.level, bg: 'var(--color-violet-light)', fg: 'var(--color-violet)' },
         ].map((s, i) => (
           <motion.div
             key={s.label}
@@ -204,9 +227,9 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
           {dailyQuests.map((q, qi) => {
             const done = q.progress >= q.total
             const colors = [
-              { bg: '#FDEBE6', fg: '#E86A50' },
-              { bg: '#DFF6F0', fg: '#2AB89E' },
-              { bg: '#EDE5F8', fg: '#8B6CC1' },
+              { bg: 'var(--color-coral-light)', fg: 'var(--color-coral)' },
+              { bg: 'var(--color-teal-light)', fg: 'var(--color-teal)' },
+              { bg: 'var(--color-violet-light)', fg: 'var(--color-violet)' },
             ]
             const qc = colors[qi % 3]
             const pct = (q.progress / q.total) * 100
@@ -217,11 +240,11 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
                 className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)]"
               >
                 <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: done ? '#E0F5E9' : qc.bg }}
+                  style={{ background: done ? 'var(--color-green-light)' : qc.bg }}
                 >
-                  {q.icon === 'gamepad' && <Gamepad2 size={20} style={{ color: done ? '#4CB870' : qc.fg }} />}
-                  {q.icon === 'trophy' && <Trophy size={20} style={{ color: done ? '#4CB870' : qc.fg }} />}
-                  {q.icon === 'bar-chart' && <BarChart3 size={20} style={{ color: done ? '#4CB870' : qc.fg }} />}
+                  {q.icon === 'gamepad' && <Gamepad2 size={20} style={{ color: done ? 'var(--color-green)' : qc.fg }} />}
+                  {q.icon === 'trophy' && <Trophy size={20} style={{ color: done ? 'var(--color-green)' : qc.fg }} />}
+                  {q.icon === 'bar-chart' && <BarChart3 size={20} style={{ color: done ? 'var(--color-green)' : qc.fg }} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] md:text-[15px] font-semibold text-ink">{q.title}</p>
@@ -231,7 +254,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
                       animate={{ width: `${pct}%` }}
                       transition={{ duration: 0.8, delay: 0.3 + qi * 0.12, ease: [0.34, 1.56, 0.64, 1] }}
                       className="h-full rounded-full progress-bar"
-                      style={{ background: done ? '#4CB870' : qc.fg }}
+                      style={{ background: done ? 'var(--color-green)' : qc.fg }}
                     />
                   </div>
                 </div>
@@ -246,10 +269,10 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
 
       {/* ── Quick actions ── */}
       <motion.div variants={fade} className="grid grid-cols-4 gap-2 md:gap-3">
-        <QBtn icon={Gamepad2} label="Games" bg="#FDEBE6" fg="#E86A50" onClick={() => navigate('games')} />
-        <QBtn icon={Medal} label="Ranks" bg="#DFF6F0" fg="#2AB89E" onClick={() => navigate('leaderboard')} />
-        <QBtn icon={Gift} label="Daily" bg="#FEF3DC" fg="#F5A623" onClick={() => navigate('daily')} />
-        <QBtn icon={Paintbrush} label="Shop" bg="#EDE5F8" fg="#8B6CC1" onClick={() => navigate('customize')} />
+        <QBtn icon={Gamepad2} label="Games" bg="var(--color-coral-light)" fg="var(--color-coral)" onClick={() => navigate('games')} />
+        <QBtn icon={Medal} label="Ranks" bg="var(--color-teal-light)" fg="var(--color-teal)" onClick={() => navigate('leaderboard')} />
+        <QBtn icon={Gift} label="Daily" bg="var(--color-gold-light)" fg="var(--color-gold)" onClick={() => navigate('daily')} />
+        <QBtn icon={Paintbrush} label="Shop" bg="var(--color-violet-light)" fg="var(--color-violet)" onClick={() => navigate('customize')} />
       </motion.div>
 
       {/* ── Health tip banner ── */}
@@ -282,7 +305,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate }: P
 
 function MapPin() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E86A50" strokeWidth="2.2"
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-coral)" strokeWidth="2.2"
       strokeLinecap="round" strokeLinejoin="round" className="inline -mt-px">
       <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
       <circle cx="12" cy="10" r="3" />
@@ -296,7 +319,7 @@ function QBtn({ icon: Icon, label, bg, fg, onClick }: {
   return (
     <motion.button
       whileTap={{ scale: 0.93, y: 2 }}
-      whileHover={{ y: -3, boxShadow: '0 6px 20px rgba(120,80,50,0.08)' }}
+      whileHover={{ y: -3, boxShadow: 'var(--shadow-elevated)' }}
       onClick={onClick}
       className="flex flex-col items-center gap-1.5 md:gap-2 py-4 md:py-6 rounded-2xl text-[11px] md:text-[13px] font-semibold border-none cursor-pointer shadow-[var(--shadow-soft)]"
       style={{ background: bg, color: fg }}

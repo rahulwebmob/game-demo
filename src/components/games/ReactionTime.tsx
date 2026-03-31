@@ -82,7 +82,7 @@ export default function ReactionTime({ onComplete }: Props) {
         <h3 className="text-[22px] font-bold text-ink">{rating}</h3>
         <div className="flex gap-1">
           {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? '#F5A623' : 'none'} />
+            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
           ))}
         </div>
         <p className="text-[42px] font-extrabold text-gradient-coral leading-none">{avg}ms</p>
@@ -98,7 +98,7 @@ export default function ReactionTime({ onComplete }: Props) {
           whileTap={{ scale: 0.95 }}
           onClick={reset}
           className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gold text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: '0 4px 16px rgba(245,166,35,0.3)' }}
+          style={{ boxShadow: 'var(--shadow-btn)' }}
         >
           <RotateCcw size={16} /> Try Again
         </motion.button>
@@ -106,7 +106,7 @@ export default function ReactionTime({ onComplete }: Props) {
     )
   }
 
-  const bgColor = phase === 'waiting' ? '#E86A50' : phase === 'ready' ? '#4CB870' : 'var(--color-muted)'
+  const bgColor = phase === 'waiting' ? 'var(--color-coral)' : phase === 'ready' ? 'var(--color-green)' : 'var(--color-muted)'
   const textColor = phase === 'waiting' || phase === 'ready' ? '#fff' : 'var(--color-ink)'
 
   return (

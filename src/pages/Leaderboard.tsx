@@ -95,7 +95,7 @@ export default function Leaderboard() {
           <motion.div
             key={p.rank}
             variants={row}
-            whileHover={{ y: -1, boxShadow: '0 4px 16px rgba(120,80,50,0.06)' }}
+            whileHover={{ y: -1, boxShadow: 'var(--shadow-card)' }}
             className="glass-card rounded-2xl px-4 md:px-5 py-3 md:py-3.5 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
           >
             <span className="text-[13px] md:text-[15px] font-bold text-ink-muted w-5 md:w-6 text-center tabular-nums">{p.rank}</span>
@@ -121,8 +121,8 @@ function PodiumCard({ player, pos, delay }: {
 }) {
   const isFirst = pos === 1
   const heights = ['', 'h-[100px] md:h-[130px]', 'h-[68px] md:h-[90px]', 'h-[52px] md:h-[70px]']
-  const colors = ['', '#FEF3DC', '#F5F5F5', '#FDEBE6']
-  const medals = ['', '#F5A623', '#A8A8A8', '#CD7F32']
+  const colors = ['', 'var(--color-gold-light)', 'var(--color-muted)', 'var(--color-coral-light)']
+  const medals = ['', 'var(--color-gold)', 'var(--color-ink-muted)', 'var(--color-violet)']
 
   return (
     <motion.div

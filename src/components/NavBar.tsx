@@ -36,7 +36,7 @@ export default function NavBar({ active, onChange, dot }: Props) {
                 <motion.div
                   layoutId="tab-active"
                   className="w-[42px] h-[42px] md:w-[48px] md:h-[48px] rounded-[14px] bg-coral flex items-center justify-center"
-                  style={{ boxShadow: '0 4px 14px rgba(232,106,80,0.28)' }}
+                  style={{ boxShadow: 'var(--shadow-btn)' }}
                   transition={{ type: 'spring', stiffness: 420, damping: 32 }}
                 >
                   <t.icon size={19} color="#fff" strokeWidth={2.2} />
