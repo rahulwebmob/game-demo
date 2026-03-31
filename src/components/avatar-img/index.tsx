@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { avatarSrc, avatarSleepSrc, accessories } from "../../data/avatars";
+import { motion } from "framer-motion";
+import { avatarSrc, avatarSleepSrc, avatarAccessorySrc } from "../../data/avatars";
 import type { AvatarId } from "../../data/avatars";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
   ring?: boolean;
   level?: number;
   sleeping?: boolean;
-  /** Accessory id to overlay on the avatar */
+  /** Accessory id — swaps to pre-rendered variant image */
   accessory?: string | null;
 }
 
@@ -56,113 +56,6 @@ function FloatingZ({
   );
 }
 
-/* ── Single accessory image with entrance + idle animation ── */
-function AccessoryImage({
-  accessoryId,
-  avatarId,
-  size,
-}: {
-  accessoryId: string;
-  avatarId: AvatarId;
-  size: number;
-}) {
-  const acc = accessories.find((a) => a.id === accessoryId);
-  if (!acc) return null;
-
-  const placement = acc.placement[avatarId] || acc.placement.default;
-  if (!placement) return null;
-
-  const { cx, cy, width, rotate = 0 } = placement;
-  const pxLeft = (cx / 100) * size;
-  const pxTop = (cy / 100) * size;
-  const pxWidth = (width / 100) * size;
-  const idleAnimation = getIdleAnimation(accessoryId);
-
-  return (
-    <motion.img
-      key={accessoryId}
-      src={acc.src}
-      alt={acc.name}
-      draggable={false}
-      className="absolute pointer-events-none select-none"
-      style={{
-        left: pxLeft,
-        top: pxTop,
-        width: pxWidth,
-        height: "auto",
-        x: "-50%",
-        y: "-50%",
-        zIndex: 2,
-        filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.18))",
-      }}
-      initial={{ scale: 0, opacity: 0, rotate: rotate - 15 }}
-      animate={{
-        scale: 1,
-        opacity: 1,
-        rotate,
-        ...idleAnimation.animate,
-      }}
-      exit={{ scale: 0, opacity: 0, rotate: rotate + 15 }}
-      transition={{
-        type: "spring",
-        stiffness: 320,
-        damping: 20,
-        ...idleAnimation.transition,
-      }}
-    />
-  );
-}
-
-/** Each accessory gets a unique subtle idle animation */
-function getIdleAnimation(id: string) {
-  switch (id) {
-    case "crown":
-      return {
-        animate: {
-          y: [0, -1.5, 0],
-          rotate: [0, 1, 0, -1, 0],
-        },
-        transition: {
-          y: { duration: 3, repeat: Infinity, ease: "easeInOut" as const },
-          rotate: { duration: 4, repeat: Infinity, ease: "easeInOut" as const },
-        },
-      };
-    case "glasses":
-      return {
-        animate: {
-          y: [0, 0.5, 0],
-        },
-        transition: {
-          y: { duration: 4, repeat: Infinity, ease: "easeInOut" as const, delay: 0.5 },
-        },
-      };
-    case "mask":
-      return {
-        animate: {
-          y: [0, 1, 0],
-          scale: [1, 1.01, 1],
-        },
-        transition: {
-          y: { duration: 3.5, repeat: Infinity, ease: "easeInOut" as const },
-          scale: { duration: 3.5, repeat: Infinity, ease: "easeInOut" as const },
-        },
-      };
-    case "grad-cap":
-      return {
-        animate: {
-          y: [0, -1, 0],
-          rotate: [-5, -3, -5],
-        },
-        transition: {
-          y: { duration: 3, repeat: Infinity, ease: "easeInOut" as const },
-          rotate: { duration: 5, repeat: Infinity, ease: "easeInOut" as const },
-        },
-      };
-    default:
-      return { animate: {}, transition: {} };
-  }
-}
-
 /** Hook to track actual rendered size via ResizeObserver */
 function useRenderedSize(fallback: number) {
   const ref = useRef<HTMLDivElement>(null);
@@ -199,6 +92,14 @@ export default function AvatarImg({
   const r = size <= 36 ? 10 : size <= 48 ? 12 : size <= 64 ? 16 : 20;
   const s = renderedSize / 80;
 
+  // Determine the image source: sleep > accessory variant > default
+  const imgSrc =
+    sleeping && avatarSleepSrc[avatar]
+      ? avatarSleepSrc[avatar]!
+      : !sleeping && accessory && avatarAccessorySrc[avatar]?.[accessory]
+        ? avatarAccessorySrc[avatar]![accessory]!
+        : avatarSrc[avatar];
+
   return (
     <div
       ref={ref}
@@ -210,11 +111,7 @@ export default function AvatarImg({
         style={{ borderRadius: r }}
       >
         <img
-          src={
-            sleeping && avatarSleepSrc[avatar]
-              ? avatarSleepSrc[avatar]!
-              : avatarSrc[avatar]
-          }
+          src={imgSrc}
           alt={avatar}
           loading="lazy"
           draggable={false}
@@ -226,13 +123,6 @@ export default function AvatarImg({
           }
         />
       </div>
-
-      {/* Accessory overlay — uses renderedSize so positioning matches actual CSS size */}
-      <AnimatePresence mode="popLayout">
-        {accessory && !sleeping && (
-          <AccessoryImage accessoryId={accessory} avatarId={avatar} size={renderedSize} />
-        )}
-      </AnimatePresence>
 
       {/* Sleeping ZZZ */}
       {sleeping && (

@@ -7,12 +7,7 @@ import {
   Coins,
   ArrowLeft,
   Glasses,
-  Crown,
-  Star,
-  Shield,
-  GraduationCap,
   Ban,
-  Heart,
 } from "lucide-react";
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
@@ -30,11 +25,6 @@ interface Props {
 
 const accIcons: Record<string, React.ReactNode> = {
   glasses: <Glasses size={24} />,
-  shield: <Shield size={24} />,
-  crown: <Crown size={24} />,
-  ribbon: <Heart size={24} />,
-  hat: <GraduationCap size={24} />,
-  star: <Star size={24} />,
 };
 
 const gridItem = {
@@ -259,7 +249,7 @@ export default function Customize({ navigate }: Props) {
                 } ${locked ? "opacity-30" : ""}`}
               >
                 <span className="text-ink">
-                  {accIcons[ac.icon] || <Star size={24} />}
+                  {accIcons[ac.icon] || <Glasses size={24} />}
                 </span>
                 <span className="text-[11px] md:text-[13px] font-semibold text-ink">
                   {ac.name}
