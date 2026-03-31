@@ -16,7 +16,9 @@
       "Bash(node -e \"console.log\\('node ok'\\)\" 2>&1)",
       "Bash(cd D:/gamerify && npm install --save-dev sharp 2>&1)",
       "Bash(magick --version 2>&1 | head -1)",
-      "Bash(node -e \"console.log\\('ok'\\)\")"
+      "Bash(node -e \"console.log\\('ok'\\)\")",
+      "Bash(cd D:/gamerify && npx tsc --noEmit --noUnusedLocals --noUnusedParameters 2>&1 | head -40)",
+      "Bash(cd D:/gamerify && for word in ArrowLeft LogOut Heart TrendingUp Lock Check Star; do echo -n \"$word: \"; grep -c \"<$word\\\\b\" src/pages/Profile.tsx || echo 0; done)"
     ]
   }
 }

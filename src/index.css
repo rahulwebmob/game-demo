@@ -67,14 +67,14 @@ body {
 
 /* ── Gradient text ── */
 .text-gradient-coral {
-  background: linear-gradient(135deg, #7BA7B5 0%, #4DC9A0 100%);
+  background: linear-gradient(135deg, var(--color-coral) 0%, var(--color-teal) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-gold {
-  background: linear-gradient(135deg, #8CC99D 0%, #7BA7B5 100%);
+  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-coral) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion'
-import { Home, Paintbrush, Trophy, Gift, Gamepad2 } from 'lucide-react'
+import { Home, User, Trophy, Gift, Gamepad2 } from 'lucide-react'
 
-export type Tab = 'home' | 'games' | 'customize' | 'leaderboard' | 'daily'
+export type Tab = 'home' | 'games' | 'customize' | 'leaderboard' | 'daily' | 'profile'
 
 const tabs: { id: Tab; icon: typeof Home; label: string }[] = [
   { id: 'home', icon: Home, label: 'Home' },
   { id: 'games', icon: Gamepad2, label: 'Games' },
-  { id: 'customize', icon: Paintbrush, label: 'Avatar' },
+  { id: 'profile', icon: User, label: 'Profile' },
   { id: 'leaderboard', icon: Trophy, label: 'Ranks' },
   { id: 'daily', icon: Gift, label: 'Daily' },
 ]
@@ -22,7 +22,7 @@ export default function NavBar({ active, onChange, dot }: Props) {
     <nav className="fixed bottom-0 left-0 right-0 safe-bottom z-50">
       <div className="nav-glass max-w-[430px] md:max-w-[768px] lg:max-w-[960px] mx-auto flex justify-around items-end px-3 md:px-6 pt-2 pb-3 md:pb-4">
         {tabs.map(t => {
-          const on = active === t.id
+          const on = active === t.id || (t.id === 'profile' && active === 'customize')
           const showDot = t.id === 'daily' && dot && !on
           return (
             <motion.button

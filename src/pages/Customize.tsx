@@ -1,12 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Check, Users, Wand2, Lock, Coins,
+  Check, Users, Wand2, Lock, Coins, ArrowLeft,
   Glasses, Crown, Star, Shield, GraduationCap, Ban, Heart, Paintbrush,
 } from 'lucide-react'
 import AvatarImg from '../components/AvatarImg'
 import CoinBadge from '../components/CoinBadge'
 import { avatars, accessories } from '../data/avatars'
 import type { AvatarId } from '../data/avatars'
+import type { Tab } from '../components/NavBar'
 
 interface Props {
   coins: number
@@ -17,6 +18,7 @@ interface Props {
   onSelectAvatar: (id: AvatarId) => void
   onSelectAccessory: (id: string | null) => void
   onBuy: (type: 'avatar' | 'accessory', id: string, price: number) => void
+  navigate: (t: Tab) => void
 }
 
 const accIcons: Record<string, React.ReactNode> = {
@@ -35,7 +37,7 @@ const gridItem = {
 
 export default function Customize({
   coins, avatar, accessory, ownedAvatars, ownedAccessories,
-  onSelectAvatar, onSelectAccessory, onBuy,
+  onSelectAvatar, onSelectAccessory, onBuy, navigate,
 }: Props) {
   const cur = avatars.find(a => a.id === avatar)
 
@@ -44,10 +46,17 @@ export default function Customize({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 md:w-12 md:h-12 rounded-[14px] bg-coral-light flex items-center justify-center">
-            <Paintbrush size={20} className="text-coral" />
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            onClick={() => navigate('profile')}
+            className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-muted flex items-center justify-center border-none cursor-pointer"
+          >
+            <ArrowLeft size={18} className="text-ink" />
+          </motion.button>
+          <div>
+            <h1 className="text-[22px] md:text-[28px] font-bold text-ink tracking-tight">Customize</h1>
+            <p className="text-[11px] md:text-[13px] text-ink-muted">Avatars & accessories</p>
           </div>
-          <h1 className="text-[22px] md:text-[28px] font-bold text-ink tracking-tight">Customize</h1>
         </div>
         <CoinBadge amount={coins} small />
       </div>

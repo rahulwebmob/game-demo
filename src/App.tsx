@@ -6,6 +6,7 @@ import Games from './pages/Games'
 import Customize from './pages/Customize'
 import Leaderboard from './pages/Leaderboard'
 import DailyLogin from './pages/DailyLogin'
+import Profile from './pages/Profile'
 import PupilTest from './components/PupilTest'
 import SleepOverlay from './components/SleepOverlay'
 import ToastContainer from './components/Toast'
@@ -17,7 +18,7 @@ import { dailyRewards, accessories, avatars } from './data/avatars'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useTheme } from './hooks/useTheme'
 
-const TAB_ORDER: Tab[] = ['home', 'games', 'customize', 'leaderboard', 'daily']
+const TAB_ORDER: Tab[] = ['home', 'games', 'customize', 'leaderboard', 'daily', 'profile']
 
 function getDirection(from: Tab, to: Tab) {
   return TAB_ORDER.indexOf(to) > TAB_ORDER.indexOf(from) ? 1 : -1
@@ -52,6 +53,12 @@ export default function App() {
   const [selectedAccessory, setSelectedAccessory] = useLocalStorage<string | null>('gamerify-accessory', null)
   const [ownedAvatars, setOwnedAvatars] = useLocalStorage<AvatarId[]>('gamerify-owned-avatars', ['owl', 'dog', 'cat'])
   const [ownedAccessories, setOwnedAccessories] = useLocalStorage<string[]>('gamerify-owned-accessories', [])
+  const [playerName, setPlayerName] = useLocalStorage('gamerify-name', 'Gamer')
+  const [playerEmail, setPlayerEmail] = useLocalStorage('gamerify-email', '')
+  const [, setPlayerPassword] = useLocalStorage('gamerify-password', '')
+  const [soundEnabled, setSoundEnabled] = useLocalStorage('gamerify-sound', true)
+  const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage('gamerify-notifications', true)
+  const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage('gamerify-2fa', false)
 
   // Toast state
   const [toasts, setToasts] = useState<ToastData[]>([])
@@ -171,7 +178,7 @@ export default function App() {
       <div className="relative z-10 pb-24 md:pb-28 min-h-dvh">
         <AnimatePresence mode="wait" custom={direction}>
           {loading ? (
-            <Skeleton key="skeleton" variant={tab === 'games' ? 'home' : tab as 'home' | 'customize' | 'leaderboard' | 'daily'} />
+            <Skeleton key="skeleton" variant={tab === 'games' || tab === 'profile' ? 'home' : tab as 'home' | 'customize' | 'leaderboard' | 'daily'} />
           ) : (
             <motion.div
               key={tab}
@@ -183,7 +190,7 @@ export default function App() {
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
               {tab === 'home' && (
-                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name="Gamer" navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onSpendEnergy={spendEnergy} onResetEnergy={resetEnergy} />
+                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name={playerName} navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onSpendEnergy={spendEnergy} onResetEnergy={resetEnergy} />
               )}
               {tab === 'games' && (
                 <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onResetEnergy={resetEnergy} />
@@ -193,12 +200,24 @@ export default function App() {
                   coins={coins} avatar={selectedAvatar} accessory={selectedAccessory}
                   ownedAvatars={ownedAvatars} ownedAccessories={ownedAccessories}
                   onSelectAvatar={setSelectedAvatar} onSelectAccessory={setSelectedAccessory}
-                  onBuy={buy}
+                  onBuy={buy} navigate={navigate}
                 />
               )}
               {tab === 'leaderboard' && <Leaderboard />}
               {tab === 'daily' && (
                 <DailyLogin coins={coins} streak={streak} claimed={claimedToday} onClaim={claimDaily} />
+              )}
+              {tab === 'profile' && (
+                <Profile
+                  coins={coins} score={score} streak={streak} avatar={selectedAvatar}
+                  name={playerName} email={playerEmail} navigate={navigate}
+                  themeId={theme.themeId} onThemeChange={theme.setThemeId}
+                  soundEnabled={soundEnabled} onSoundToggle={() => setSoundEnabled(v => !v)}
+                  notificationsEnabled={notificationsEnabled} onNotificationsToggle={() => setNotificationsEnabled(v => !v)}
+                  twoFactorEnabled={twoFactorEnabled} onTwoFactorToggle={() => setTwoFactorEnabled(v => !v)}
+                  onNameChange={setPlayerName} onEmailChange={setPlayerEmail}
+                  onPasswordChange={setPlayerPassword} showToast={showToast}
+                />
               )}
             </motion.div>
           )}

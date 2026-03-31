@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import {
   Zap, Flame, Star, Trophy,
   Gamepad2, BarChart3, Search,
-  Megaphone, ArrowRight, Medal, Gift, Coins, Paintbrush,
+  Medal, Gift, Coins, Paintbrush,
   Clock, Brain, Eye, Heart, Activity, Sun, Moon, Lock,
 } from 'lucide-react'
 import AvatarImg from '../components/AvatarImg'
@@ -83,7 +83,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
               }
             </motion.div>
           </motion.button>
-          <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.04 }} onClick={() => navigate('customize')} className="cursor-pointer">
+          <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.04 }} onClick={() => navigate('profile')} className="cursor-pointer">
             <AvatarImg avatar={avatar} size={48} level={playerStats.level} sleeping={noEnergy} />
           </motion.div>
         </div>
@@ -344,17 +344,6 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
         </div>
       </motion.div>
 
-      {/* ── Announcement ── */}
-      <motion.div variants={fade} whileHover={{ y: -1 }} onClick={() => navigate('games')} className="glass-card rounded-2xl p-4 md:p-5 flex items-center gap-3.5 shadow-[var(--shadow-soft)] cursor-pointer">
-        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-coral-light flex items-center justify-center flex-shrink-0">
-          <Megaphone size={20} className="text-coral" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-[13px] md:text-[15px] font-bold text-ink">New: Alzheimer's Prevention Pack</p>
-          <p className="text-[11px] md:text-[13px] text-ink-muted mt-0.5">6 medical games now available</p>
-        </div>
-        <ArrowRight size={18} className="text-ink-muted flex-shrink-0" />
-      </motion.div>
     </motion.div>
   )
 }

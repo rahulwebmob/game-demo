@@ -137,7 +137,7 @@ function PodiumCard({ player, pos, delay }: {
           </motion.div>
         : <Medal size={17} style={{ color: medals[pos] }} />
       }
-      <AvatarImg avatar={player.avatar as AvatarId} size={isFirst ? 58 : 46} ring={isFirst} />
+      <AvatarImg avatar={player.avatar as AvatarId} size={isFirst ? 58 : 46} />
       <span className="text-[11px] md:text-[13px] font-semibold text-ink truncate max-w-full">{player.name}</span>
       <div
         className={`w-full ${heights[pos]} rounded-t-2xl flex items-start justify-center pt-3`}
