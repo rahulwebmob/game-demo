@@ -12,7 +12,7 @@ import { dailyRewards, accessories, avatars } from './data/avatars'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useTheme, isDarkTheme } from './hooks/useTheme'
 import { useSound } from './hooks/useSound'
-import { STORAGE_KEYS, MAX_ENERGY, Z } from './constants'
+import { STORAGE_KEYS, MAX_ENERGY } from './constants'
 
 // Lazy-loaded pages
 const Home = lazy(() => import('./pages/Home'))
