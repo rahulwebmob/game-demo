@@ -1,25 +1,33 @@
-import { motion, AnimatePresence } from 'framer-motion'
-import { Coins } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import AnimatedNumber from './AnimatedNumber'
+import { motion, AnimatePresence } from "framer-motion";
+import { Coins } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import AnimatedNumber from "./AnimatedNumber";
 
-export default function CoinBadge({ amount, small }: { amount: number; small?: boolean }) {
-  const prev = useRef(amount)
-  const [diff, setDiff] = useState<number | null>(null)
+export default function CoinBadge({
+  amount,
+  small,
+}: {
+  amount: number;
+  small?: boolean;
+}) {
+  const prev = useRef(amount);
+  const [diff, setDiff] = useState<number | null>(null);
 
   useEffect(() => {
     if (amount !== prev.current) {
-      setDiff(amount - prev.current)
-      prev.current = amount
-      const t = setTimeout(() => setDiff(null), 1100)
-      return () => clearTimeout(t)
+      setDiff(amount - prev.current);
+      prev.current = amount;
+      const t = setTimeout(() => setDiff(null), 1100);
+      return () => clearTimeout(t);
     }
-  }, [amount])
+  }, [amount]);
 
   return (
-    <div className={`relative inline-flex items-center gap-1.5 bg-gold-light rounded-full font-semibold text-ink ${
-      small ? 'px-3 py-[5px] text-[12px]' : 'px-4 py-[6px] text-[13px]'
-    }`}>
+    <div
+      className={`relative inline-flex items-center gap-1.5 bg-gold-light rounded-full font-semibold text-ink ${
+        small ? "px-3 py-[5px] text-[12px]" : "px-4 py-[6px] text-[13px]"
+      }`}
+    >
       <Coins size={small ? 14 : 16} className="text-gold" strokeWidth={2.2} />
       <AnimatedNumber value={amount} duration={500} />
       <AnimatePresence>
@@ -36,5 +44,5 @@ export default function CoinBadge({ amount, small }: { amount: number; small?: b
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

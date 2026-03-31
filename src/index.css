@@ -1,44 +1,46 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #EDF3F8;
-  --color-card: #FFFFFF;
-  --color-muted: #E8ECF0;
-  --color-border: #C8CED2;
+  --color-bg: #edf3f8;
+  --color-card: #ffffff;
+  --color-muted: #e8ecf0;
+  --color-border: #c8ced2;
 
-  --color-coral: #7BA7B5;
-  --color-coral-light: #E0EEF2;
-  --color-coral-dark: #5E8E9C;
+  --color-coral: #7ba7b5;
+  --color-coral-light: #e0eef2;
+  --color-coral-dark: #5e8e9c;
 
-  --color-teal: #4DC9A0;
-  --color-teal-light: #DFF6F0;
+  --color-teal: #4dc9a0;
+  --color-teal-light: #dff6f0;
 
-  --color-gold: #8CC99D;
-  --color-gold-light: #E0F5E9;
+  --color-gold: #8cc99d;
+  --color-gold-light: #e0f5e9;
 
-  --color-violet: #384D56;
-  --color-violet-light: #E8ECF0;
+  --color-violet: #384d56;
+  --color-violet-light: #e8ecf0;
 
-  --color-sky: #A8C4D0;
-  --color-sky-light: #EDF3F8;
+  --color-sky: #a8c4d0;
+  --color-sky-light: #edf3f8;
 
-  --color-green: #4DC9A0;
-  --color-green-light: #DFF6F0;
+  --color-green: #4dc9a0;
+  --color-green-light: #dff6f0;
 
-  --color-rose: #5E6E76;
-  --color-rose-light: #E8ECF0;
+  --color-rose: #5e6e76;
+  --color-rose-light: #e8ecf0;
 
-  --color-ink: #1A2A2E;
-  --color-ink-secondary: #5E6E76;
-  --color-ink-muted: #ACB4BA;
+  --color-ink: #1a2a2e;
+  --color-ink-secondary: #5e6e76;
+  --color-ink-muted: #acb4ba;
 
-  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-sans: "Poppins", system-ui, -apple-system, sans-serif;
 
-  --shadow-card: 0 2px 16px rgba(30, 48, 56, 0.10), 0 1px 4px rgba(30, 48, 56, 0.06);
+  --shadow-card:
+    0 2px 16px rgba(30, 48, 56, 0.1), 0 1px 4px rgba(30, 48, 56, 0.06);
   --shadow-btn: 0 4px 18px rgba(123, 167, 181, 0.22);
   --shadow-soft: 0 2px 8px rgba(30, 48, 56, 0.08);
-  --shadow-elevated: 0 8px 32px rgba(30, 48, 56, 0.12), 0 2px 6px rgba(30, 48, 56, 0.06);
+  --shadow-elevated:
+    0 8px 32px rgba(30, 48, 56, 0.12), 0 2px 6px rgba(30, 48, 56, 0.06);
 }
 
 html {
@@ -56,32 +58,66 @@ body {
   font-family: var(--font-sans);
 }
 
-#root { min-height: 100dvh; }
+#root {
+  min-height: 100dvh;
+}
 
-::-webkit-scrollbar { width: 0; height: 0; }
-* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-.no-scrollbar::-webkit-scrollbar { display: none; }
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 /* ── Thin scrollbar for dropdowns ── */
-.thin-scrollbar { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
-.thin-scrollbar::-webkit-scrollbar { width: 4px; }
-.thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.thin-scrollbar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
-.thin-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-ink-muted); }
-
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted);
+}
 
 /* ── Gradient text ── */
 .text-gradient-coral {
-  background: linear-gradient(135deg, var(--color-coral) 0%, var(--color-teal) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-coral) 0%,
+    var(--color-teal) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .text-gradient-gold {
-  background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-coral) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-gold) 0%,
+    var(--color-coral) 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -109,11 +145,14 @@ body {
   border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.5));
 }
 
-
 /* ── Progress bar shimmer ── */
 @keyframes bar-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(200%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
 }
 
 .progress-bar {
@@ -123,33 +162,57 @@ body {
 }
 
 .progress-bar::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.35),
+    transparent
+  );
   animation: bar-shimmer 2s ease-in-out infinite;
 }
 
 /* ── Claim button pulse ── */
 @keyframes claim-pulse {
-  0%, 100% { box-shadow: var(--shadow-btn); }
-  50% { box-shadow: 0 4px 28px color-mix(in srgb, var(--color-coral) 40%, transparent); }
+  0%,
+  100% {
+    box-shadow: var(--shadow-btn);
+  }
+  50% {
+    box-shadow: 0 4px 28px
+      color-mix(in srgb, var(--color-coral) 40%, transparent);
+  }
 }
-.pulse-claim { animation: claim-pulse 2s ease-in-out infinite; }
+.pulse-claim {
+  animation: claim-pulse 2s ease-in-out infinite;
+}
 
 /* ── Gentle pulse ── */
 @keyframes gentle-pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
 }
 
 /* ── Float up (coin diff) ── */
 @keyframes float-up {
-  0% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-18px); }
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
 }
 
 /* ── XP bar gradient ── */
@@ -159,34 +222,67 @@ body {
 
 /* ── Skeleton loader ── */
 @keyframes skeleton-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton-bone {
-  background: linear-gradient(90deg, var(--color-muted) 25%, var(--color-border) 50%, var(--color-muted) 75%);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-muted) 85%, var(--color-coral-light)) 25%,
+    color-mix(in srgb, var(--color-border) 70%, var(--color-coral-light)) 50%,
+    color-mix(in srgb, var(--color-muted) 85%, var(--color-coral-light)) 75%
+  );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
 /* ── Pupil test: pulse dot ── */
 @keyframes pulse-dot {
-  0% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.8; }
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
 }
 
 /* ── Pupil test: pulse ring ── */
 @keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 0; }
-  50% { opacity: 0.4; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 /* ── Avatar sleeping zzz ── */
 @keyframes zzz-float {
-  0%, 100% { transform: translateY(0) rotate(-10deg); opacity: 0.7; }
-  50% { transform: translateY(-8px) rotate(10deg); opacity: 1; }
+  0%,
+  100% {
+    transform: translateY(0) rotate(-10deg);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-8px) rotate(10deg);
+    opacity: 1;
+  }
 }
 
 .zzz-anim {

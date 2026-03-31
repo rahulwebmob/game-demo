@@ -1,27 +1,27 @@
-import { useEffect, useRef, useState } from 'react'
-import * as tf from '@tensorflow/tfjs-core'
-import '@tensorflow/tfjs-backend-cpu'
-import '@tensorflow/tfjs-backend-webgl'
-import * as faceLandmarksDetection from '@tensorflow-models/face-landmarks-detection'
+import { useEffect, useRef, useState } from "react";
+import * as tf from "@tensorflow/tfjs-core";
+import "@tensorflow/tfjs-backend-cpu";
+import "@tensorflow/tfjs-backend-webgl";
+import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
 
-const isAndroid = () => /android/i.test(navigator.userAgent)
+const isAndroid = () => /android/i.test(navigator.userAgent);
 
 interface EyeTrackerProps {
-  onLoad?: () => void
-  setFaceDetected: (detected: boolean) => void
-  faceDetected: boolean
-  shouldStop?: boolean
-  onCenteringComplete?: () => void
-  isForPupilTest?: boolean
-  onMediaRecorderStarted?: () => void
+  onLoad?: () => void;
+  setFaceDetected: (detected: boolean) => void;
+  faceDetected: boolean;
+  shouldStop?: boolean;
+  onCenteringComplete?: () => void;
+  isForPupilTest?: boolean;
+  onMediaRecorderStarted?: () => void;
 }
 
 interface FacePrediction {
-  keypoints: Array<{ x: number; y: number; z?: number }>
+  keypoints: Array<{ x: number; y: number; z?: number }>;
 }
 
-const VIDEO_WIDTH = 640
-const VIDEO_HEIGHT = 480
+const VIDEO_WIDTH = 640;
+const VIDEO_HEIGHT = 480;
 
 export default function EyeTracker({
   onLoad,
@@ -31,64 +31,65 @@ export default function EyeTracker({
   onCenteringComplete,
   isForPupilTest = false,
 }: EyeTrackerProps) {
-  const MIN_FACE_WIDTH = isAndroid() ? 30 : 50
+  const MIN_FACE_WIDTH = isAndroid() ? 30 : 50;
 
-  const [isInitializing, setIsInitializing] = useState(true)
-  const [isStopped, setIsStopped] = useState(false)
-  const [centeringProgress, setCenteringProgress] = useState(0)
-  const [isCenteringComplete, setIsCenteringComplete] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const detectorRef = useRef<faceLandmarksDetection.FaceLandmarksDetector | null>(null)
-  const rafIdRef = useRef<number | null>(null)
-  const centeringStartTimeRef = useRef<number | null>(null)
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [isStopped, setIsStopped] = useState(false);
+  const [centeringProgress, setCenteringProgress] = useState(0);
+  const [isCenteringComplete, setIsCenteringComplete] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const detectorRef =
+    useRef<faceLandmarksDetection.FaceLandmarksDetector | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const centeringStartTimeRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const videoElement = videoRef.current
-    const detector = detectorRef.current
-    const stream = streamRef.current
-    const rafId = rafIdRef.current
+    const videoElement = videoRef.current;
+    const detector = detectorRef.current;
+    const stream = streamRef.current;
+    const rafId = rafIdRef.current;
 
     async function init(): Promise<void> {
       try {
-        await tf.ready()
+        await tf.ready();
         try {
-          await tf.setBackend('webgl')
+          await tf.setBackend("webgl");
         } catch {
-          await tf.setBackend('cpu')
+          await tf.setBackend("cpu");
         }
-        await tf.ready()
+        await tf.ready();
 
         detectorRef.current = await faceLandmarksDetection.createDetector(
           faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-          { runtime: 'tfjs', maxFaces: 1, refineLandmarks: false },
-        )
+          { runtime: "tfjs", maxFaces: 1, refineLandmarks: false },
+        );
 
         streamRef.current = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: 'user',
+            facingMode: "user",
             width: { ideal: 640 },
             height: { ideal: 480 },
             frameRate: { exact: 30 },
           },
           audio: false,
-        })
+        });
 
         if (videoRef.current) {
-          videoRef.current.srcObject = streamRef.current
+          videoRef.current.srcObject = streamRef.current;
           videoRef.current.onloadedmetadata = async () => {
             if (videoRef.current) {
               try {
-                await videoRef.current.play()
-                setIsInitializing(false)
-                onLoad?.()
-                detectLoop()
+                await videoRef.current.play();
+                setIsInitializing(false);
+                onLoad?.();
+                detectLoop();
               } catch {
                 // play error
               }
             }
-          }
+          };
         }
       } catch {
         // init error
@@ -96,197 +97,215 @@ export default function EyeTracker({
     }
 
     async function detectLoop(): Promise<void> {
-      const detector = detectorRef.current
-      const videoElement = videoRef.current
-      if (!detector || !videoElement || isStopped) return
+      const detector = detectorRef.current;
+      const videoElement = videoRef.current;
+      if (!detector || !videoElement || isStopped) return;
 
       try {
         if (videoElement.readyState < 2) {
-          rafIdRef.current = requestAnimationFrame(detectLoop)
-          return
+          rafIdRef.current = requestAnimationFrame(detectLoop);
+          return;
         }
 
         const predictions = await detector.estimateFaces(videoElement, {
           flipHorizontal: false,
-        })
+        });
 
         const valid = predictions.filter((pred: FacePrediction) => {
-          const xs = pred.keypoints.map((k) => k.x)
-          return Math.max(...xs) - Math.min(...xs) >= MIN_FACE_WIDTH
-        })
+          const xs = pred.keypoints.map((k) => k.x);
+          return Math.max(...xs) - Math.min(...xs) >= MIN_FACE_WIDTH;
+        });
 
-        const isDetected = valid.length > 0
-        setFaceDetected(isDetected)
+        const isDetected = valid.length > 0;
+        setFaceDetected(isDetected);
 
         // Centering logic (not during pupil test phase)
         if (isDetected && valid.length > 0 && !isForPupilTest) {
-          const pred = valid[0]
-          const xs = pred.keypoints.map((k) => k.x)
-          const ys = pred.keypoints.map((k) => k.y)
-          const centerX = (Math.min(...xs) + Math.max(...xs)) / 2
-          const centerY = (Math.min(...ys) + Math.max(...ys)) / 2
+          const pred = valid[0];
+          const xs = pred.keypoints.map((k) => k.x);
+          const ys = pred.keypoints.map((k) => k.y);
+          const centerX = (Math.min(...xs) + Math.max(...xs)) / 2;
+          const centerY = (Math.min(...ys) + Math.max(...ys)) / 2;
 
           const isCentered =
             Math.abs(centerX - VIDEO_WIDTH / 2) < VIDEO_WIDTH * 0.25 &&
-            Math.abs(centerY - VIDEO_HEIGHT / 2) < VIDEO_HEIGHT * 0.25
+            Math.abs(centerY - VIDEO_HEIGHT / 2) < VIDEO_HEIGHT * 0.25;
 
           if (isCentered && !isCenteringComplete) {
             if (centeringStartTimeRef.current === null) {
-              centeringStartTimeRef.current = Date.now()
+              centeringStartTimeRef.current = Date.now();
             }
-            const elapsed = Date.now() - centeringStartTimeRef.current
-            const progress = Math.min((elapsed / 5000) * 100, 100)
-            setCenteringProgress(progress)
+            const elapsed = Date.now() - centeringStartTimeRef.current;
+            const progress = Math.min((elapsed / 5000) * 100, 100);
+            setCenteringProgress(progress);
 
             if (elapsed >= 5000 && !isCenteringComplete) {
-              setIsCenteringComplete(true)
-              onCenteringComplete?.()
+              setIsCenteringComplete(true);
+              onCenteringComplete?.();
             }
           } else if (!isCentered) {
-            centeringStartTimeRef.current = null
-            setCenteringProgress(0)
-            setIsCenteringComplete(false)
+            centeringStartTimeRef.current = null;
+            setCenteringProgress(0);
+            setIsCenteringComplete(false);
           }
         } else if (!isDetected && !isForPupilTest) {
-          centeringStartTimeRef.current = null
-          setCenteringProgress(0)
-          setIsCenteringComplete(false)
+          centeringStartTimeRef.current = null;
+          setCenteringProgress(0);
+          setIsCenteringComplete(false);
         }
 
-        drawOverlay(valid)
+        drawOverlay(valid);
 
         if (!isStopped) {
-          rafIdRef.current = requestAnimationFrame(detectLoop)
+          rafIdRef.current = requestAnimationFrame(detectLoop);
         }
       } catch {
         if (!isStopped) {
-          rafIdRef.current = requestAnimationFrame(detectLoop)
+          rafIdRef.current = requestAnimationFrame(detectLoop);
         }
       }
     }
 
     function drawOverlay(predictions: FacePrediction[]): void {
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
 
-      ctx.clearRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT)
+      ctx.clearRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
       predictions.forEach((pred) => {
-        const xs = pred.keypoints.map((k) => k.x)
-        const ys = pred.keypoints.map((k) => k.y)
-        const minX = Math.min(...xs)
-        const minY = Math.min(...ys)
-        const maxX = Math.max(...xs)
-        const maxY = Math.max(...ys)
+        const xs = pred.keypoints.map((k) => k.x);
+        const ys = pred.keypoints.map((k) => k.y);
+        const minX = Math.min(...xs);
+        const minY = Math.min(...ys);
+        const maxX = Math.max(...xs);
+        const maxY = Math.max(...ys);
 
-        ctx.strokeStyle = 'red'
-        ctx.lineWidth = 2
-        ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
-      })
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
+      });
     }
 
-    init()
+    init();
 
     return () => {
-      if (rafId) cancelAnimationFrame(rafId)
-      if (detector && 'dispose' in detector) {
+      if (rafId) cancelAnimationFrame(rafId);
+      if (detector && "dispose" in detector) {
         try {
-          ;(detector as unknown as { dispose: () => void }).dispose()
-        } catch { /* */ }
+          (detector as unknown as { dispose: () => void }).dispose();
+        } catch {
+          /* */
+        }
       }
-      if (stream) stream.getTracks().forEach((track) => track.stop())
-      if (videoElement) videoElement.srcObject = null
-    }
+      if (stream) stream.getTracks().forEach((track) => track.stop());
+      if (videoElement) videoElement.srcObject = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   // Handle stopping the eye tracker
   useEffect(() => {
     if (shouldStop && !isStopped) {
-      setIsStopped(true)
+      setIsStopped(true);
       if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current)
-        rafIdRef.current = null
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
       }
       if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop())
-        streamRef.current = null
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
       }
-      if (videoRef.current) videoRef.current.srcObject = null
+      if (videoRef.current) videoRef.current.srcObject = null;
       if (canvasRef.current) {
-        const ctx = canvasRef.current.getContext('2d')
-        if (ctx) ctx.clearRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT)
+        const ctx = canvasRef.current.getContext("2d");
+        if (ctx) ctx.clearRect(0, 0, VIDEO_WIDTH, VIDEO_HEIGHT);
       }
-      centeringStartTimeRef.current = null
-      setCenteringProgress(0)
-      setIsCenteringComplete(false)
+      centeringStartTimeRef.current = null;
+      setCenteringProgress(0);
+      setIsCenteringComplete(false);
     }
-  }, [shouldStop, isStopped])
+  }, [shouldStop, isStopped]);
 
   // Restart when shouldStop becomes false
   useEffect(() => {
     if (!shouldStop && isStopped) {
       const restartEyeTracker = async () => {
         try {
-          await tf.ready()
+          await tf.ready();
           if (!detectorRef.current) {
             detectorRef.current = await faceLandmarksDetection.createDetector(
               faceLandmarksDetection.SupportedModels.MediaPipeFaceMesh,
-              { runtime: 'tfjs', maxFaces: 1, refineLandmarks: false },
-            )
+              { runtime: "tfjs", maxFaces: 1, refineLandmarks: false },
+            );
           }
           streamRef.current = await navigator.mediaDevices.getUserMedia({
             video: {
-              facingMode: 'user',
+              facingMode: "user",
               width: { ideal: 640 },
               height: { ideal: 480 },
               frameRate: { exact: 30 },
             },
             audio: false,
-          })
+          });
           if (videoRef.current) {
-            videoRef.current.srcObject = streamRef.current
+            videoRef.current.srcObject = streamRef.current;
             videoRef.current.onloadedmetadata = async () => {
               if (videoRef.current) {
                 try {
-                  await videoRef.current.play()
-                  setIsStopped(false)
+                  await videoRef.current.play();
+                  setIsStopped(false);
                   const detectLoop = async () => {
-                    const detector = detectorRef.current
-                    const videoElement = videoRef.current
-                    if (!detector || !videoElement || isStopped) return
+                    const detector = detectorRef.current;
+                    const videoElement = videoRef.current;
+                    if (!detector || !videoElement || isStopped) return;
                     try {
                       if (videoElement.readyState < 2) {
-                        rafIdRef.current = requestAnimationFrame(detectLoop)
-                        return
+                        rafIdRef.current = requestAnimationFrame(detectLoop);
+                        return;
                       }
-                      const predictions = await detector.estimateFaces(videoElement, { flipHorizontal: false })
-                      const valid = predictions.filter((pred: FacePrediction) => {
-                        const xs = pred.keypoints.map((k) => k.x)
-                        return Math.max(...xs) - Math.min(...xs) >= MIN_FACE_WIDTH
-                      })
-                      setFaceDetected(valid.length > 0)
-                      if (!isStopped) rafIdRef.current = requestAnimationFrame(detectLoop)
+                      const predictions = await detector.estimateFaces(
+                        videoElement,
+                        { flipHorizontal: false },
+                      );
+                      const valid = predictions.filter(
+                        (pred: FacePrediction) => {
+                          const xs = pred.keypoints.map((k) => k.x);
+                          return (
+                            Math.max(...xs) - Math.min(...xs) >= MIN_FACE_WIDTH
+                          );
+                        },
+                      );
+                      setFaceDetected(valid.length > 0);
+                      if (!isStopped)
+                        rafIdRef.current = requestAnimationFrame(detectLoop);
                     } catch {
-                      if (!isStopped) rafIdRef.current = requestAnimationFrame(detectLoop)
+                      if (!isStopped)
+                        rafIdRef.current = requestAnimationFrame(detectLoop);
                     }
-                  }
-                  detectLoop()
-                } catch { /* */ }
+                  };
+                  detectLoop();
+                } catch {
+                  /* */
+                }
               }
-            }
+            };
           }
-        } catch { /* */ }
-      }
-      restartEyeTracker()
+        } catch {
+          /* */
+        }
+      };
+      restartEyeTracker();
     }
-  }, [shouldStop, isStopped, setFaceDetected, MIN_FACE_WIDTH])
+  }, [shouldStop, isStopped, setFaceDetected, MIN_FACE_WIDTH]);
 
   return (
     <div
       className="relative w-full overflow-hidden rounded-lg mx-auto bg-black shadow-[var(--shadow-card)]"
-      style={{ aspectRatio: `${VIDEO_WIDTH} / ${VIDEO_HEIGHT}`, border: `2px solid ${faceDetected ? 'var(--color-teal)' : 'var(--color-rose)'}` }}
+      style={{
+        aspectRatio: `${VIDEO_WIDTH} / ${VIDEO_HEIGHT}`,
+        border: `2px solid ${faceDetected ? "var(--color-teal)" : "var(--color-rose)"}`,
+      }}
     >
       {/* Loading overlay */}
       {isInitializing && (
@@ -300,13 +319,17 @@ export default function EyeTracker({
       <div
         className="absolute top-2 left-2 z-[2] px-2 py-0.5 rounded text-[10px] font-bold"
         style={{
-          backgroundColor: 'var(--glass-bg)',
-          color: faceDetected ? 'var(--color-green)' : 'var(--color-rose)',
+          backgroundColor: "var(--glass-bg)",
+          color: faceDetected ? "var(--color-green)" : "var(--color-rose)",
         }}
       >
         {isForPupilTest
-          ? faceDetected ? 'Tracking' : 'No Face'
-          : faceDetected ? 'Face OK' : 'No Face'}
+          ? faceDetected
+            ? "Tracking"
+            : "No Face"
+          : faceDetected
+            ? "Face OK"
+            : "No Face"}
       </div>
 
       {/* Centering progress (camera setup phase only) */}
@@ -318,12 +341,16 @@ export default function EyeTracker({
               className="h-full rounded-full transition-[width] duration-100"
               style={{
                 width: `${centeringProgress}%`,
-                backgroundColor: isCenteringComplete ? 'var(--color-green)' : 'var(--color-sky)',
+                backgroundColor: isCenteringComplete
+                  ? "var(--color-green)"
+                  : "var(--color-sky)",
               }}
             />
           </div>
           <span className="text-[8px]">
-            {isCenteringComplete ? 'Ready!' : `${Math.round(centeringProgress / 20)}/5`}
+            {isCenteringComplete
+              ? "Ready!"
+              : `${Math.round(centeringProgress / 20)}/5`}
           </span>
         </div>
       )}
@@ -334,13 +361,13 @@ export default function EyeTracker({
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
         style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          position: 'absolute',
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          position: "absolute",
           top: 0,
           left: 0,
-          transform: 'scaleX(-1)',
+          transform: "scaleX(-1)",
         }}
       />
       <canvas
@@ -348,15 +375,15 @@ export default function EyeTracker({
         width={VIDEO_WIDTH}
         height={VIDEO_HEIGHT}
         style={{
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
+          width: "100%",
+          height: "100%",
+          position: "absolute",
           top: 0,
           left: 0,
-          pointerEvents: 'none',
-          transform: 'scaleX(-1)',
+          pointerEvents: "none",
+          transform: "scaleX(-1)",
         }}
       />
     </div>
-  )
+  );
 }

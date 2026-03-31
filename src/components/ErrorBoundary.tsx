@@ -1,25 +1,25 @@
-import { Component } from 'react'
-import type { ReactNode, ErrorInfo } from 'react'
-import { RotateCcw, AlertTriangle } from 'lucide-react'
+import { Component } from "react";
+import type { ReactNode, ErrorInfo } from "react";
+import { RotateCcw, AlertTriangle } from "lucide-react";
 
 interface Props {
-  children: ReactNode
-  fallbackTitle?: string
+  children: ReactNode;
+  fallbackTitle?: string;
 }
 
 interface State {
-  hasError: boolean
+  hasError: boolean;
 }
 
 export default class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false }
+  state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
-    return { hasError: true }
+    return { hasError: true };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.warn('[ErrorBoundary]', error.message, info.componentStack)
+    console.warn("[ErrorBoundary]", error.message, info.componentStack);
   }
 
   render() {
@@ -30,7 +30,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             <AlertTriangle size={28} className="text-rose" />
           </div>
           <p className="text-[16px] font-bold text-ink text-center">
-            {this.props.fallbackTitle || 'Something went wrong'}
+            {this.props.fallbackTitle || "Something went wrong"}
           </p>
           <p className="text-[12px] text-ink-muted text-center max-w-[260px]">
             An unexpected error occurred. Try again or reload the app.
@@ -42,8 +42,8 @@ export default class ErrorBoundary extends Component<Props, State> {
             <RotateCcw size={14} /> Try Again
           </button>
         </div>
-      )
+      );
     }
-    return this.props.children
+    return this.props.children;
   }
 }

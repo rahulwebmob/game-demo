@@ -1,74 +1,78 @@
-import { useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
-import { Eye } from 'lucide-react'
-import GameResult from './GameResult'
-import { useSound } from '../../hooks/useSound'
+import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
+import { Eye } from "lucide-react";
+import GameResult from "./GameResult";
+import { useSound } from "../../hooks/useSound";
 
-const ROUNDS = 10
+const ROUNDS = 10;
 
 function generateRound(level: number) {
-  const hue = Math.floor(Math.random() * 360)
-  const sat = 60 + Math.random() * 30
-  const light = 45 + Math.random() * 20
+  const hue = Math.floor(Math.random() * 360);
+  const sat = 60 + Math.random() * 30;
+  const light = 45 + Math.random() * 20;
   // Difference decreases as level increases
-  const diff = Math.max(4, 25 - level * 2.2)
-  const base = `hsl(${hue}, ${sat}%, ${light}%)`
-  const odd = `hsl(${hue}, ${sat}%, ${light + diff}%)`
+  const diff = Math.max(4, 25 - level * 2.2);
+  const base = `hsl(${hue}, ${sat}%, ${light}%)`;
+  const odd = `hsl(${hue}, ${sat}%, ${light + diff}%)`;
 
-  const gridSize = level < 3 ? 9 : level < 6 ? 16 : 25
-  const cols = Math.sqrt(gridSize)
-  const oddIndex = Math.floor(Math.random() * gridSize)
+  const gridSize = level < 3 ? 9 : level < 6 ? 16 : 25;
+  const cols = Math.sqrt(gridSize);
+  const oddIndex = Math.floor(Math.random() * gridSize);
 
-  return { base, odd, gridSize, cols, oddIndex }
+  return { base, odd, gridSize, cols, oddIndex };
 }
 
 interface Props {
-  onComplete: (score: number) => void
+  onComplete: (score: number) => void;
 }
 
 export default function ColorVision({ onComplete }: Props) {
-  const sfx = useSound()
-  const [round, setRound] = useState(0)
-  const [score, setScore] = useState(0)
-  const [level, setLevel] = useState(generateRound(0))
-  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null)
-  const [done, setDone] = useState(false)
+  const sfx = useSound();
+  const [round, setRound] = useState(0);
+  const [score, setScore] = useState(0);
+  const [level, setLevel] = useState(generateRound(0));
+  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
+  const [done, setDone] = useState(false);
 
-  const next = useCallback((correct: boolean) => {
-    setFeedback(correct ? 'correct' : 'wrong')
-    const newScore = correct ? score + (round + 1) * 10 : score
-    setScore(newScore)
+  const next = useCallback(
+    (correct: boolean) => {
+      setFeedback(correct ? "correct" : "wrong");
+      const newScore = correct ? score + (round + 1) * 10 : score;
+      setScore(newScore);
 
-    setTimeout(() => {
-      setFeedback(null)
-      if (round + 1 >= ROUNDS) {
-        setDone(true)
-        onComplete(newScore)
-      } else {
-        setRound(r => r + 1)
-        setLevel(generateRound(round + 1))
-      }
-    }, 500)
-  }, [round, score, onComplete])
+      setTimeout(() => {
+        setFeedback(null);
+        if (round + 1 >= ROUNDS) {
+          setDone(true);
+          onComplete(newScore);
+        } else {
+          setRound((r) => r + 1);
+          setLevel(generateRound(round + 1));
+        }
+      }, 500);
+    },
+    [round, score, onComplete],
+  );
 
   function handleTap(idx: number) {
-    if (feedback) return
-    sfx('tap')
-    const correct = idx === level.oddIndex
-    if (correct) sfx('success'); else sfx('error')
-    next(correct)
+    if (feedback) return;
+    sfx("tap");
+    const correct = idx === level.oddIndex;
+    if (correct) sfx("success");
+    else sfx("error");
+    next(correct);
   }
 
   function reset() {
-    setRound(0)
-    setScore(0)
-    setLevel(generateRound(0))
-    setFeedback(null)
-    setDone(false)
+    setRound(0);
+    setScore(0);
+    setLevel(generateRound(0));
+    setFeedback(null);
+    setDone(false);
   }
 
   if (done) {
-    const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1
+    const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1;
     return (
       <GameResult
         icon={<Eye size={36} className="text-violet" />}
@@ -80,7 +84,7 @@ export default function ColorVision({ onComplete }: Props) {
         accentColor="bg-violet"
         onReset={reset}
       />
-    )
+    );
   }
 
   return (
@@ -94,7 +98,9 @@ export default function ColorVision({ onComplete }: Props) {
             transition={{ duration: 0.3 }}
           />
         </div>
-        <span className="text-[13px] font-semibold text-ink-secondary">{round + 1}/{ROUNDS}</span>
+        <span className="text-[13px] font-semibold text-ink-secondary">
+          {round + 1}/{ROUNDS}
+        </span>
       </div>
 
       <p className="text-center text-[14px] font-medium text-ink-secondary">
@@ -103,7 +109,13 @@ export default function ColorVision({ onComplete }: Props) {
 
       {/* Feedback flash */}
       <motion.div
-        animate={feedback === 'correct' ? { scale: [1, 1.02, 1] } : feedback === 'wrong' ? { x: [-4, 4, -4, 0] } : {}}
+        animate={
+          feedback === "correct"
+            ? { scale: [1, 1.02, 1] }
+            : feedback === "wrong"
+              ? { x: [-4, 4, -4, 0] }
+              : {}
+        }
         transition={{ duration: 0.3 }}
       >
         <div
@@ -118,17 +130,23 @@ export default function ColorVision({ onComplete }: Props) {
               key={`${round}-${i}`}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: i * 0.02, type: 'spring', stiffness: 400, damping: 20 }}
+              transition={{
+                delay: i * 0.02,
+                type: "spring",
+                stiffness: 400,
+                damping: 20,
+              }}
               whileTap={{ scale: 0.85 }}
               onClick={() => handleTap(i)}
               className="aspect-square rounded-xl md:rounded-2xl border-none cursor-pointer"
               style={{
                 background: i === level.oddIndex ? level.odd : level.base,
-                boxShadow: feedback === 'correct' && i === level.oddIndex
-                  ? '0 0 0 3px var(--color-green)'
-                  : feedback === 'wrong' && i === level.oddIndex
-                    ? '0 0 0 3px var(--color-coral)'
-                    : 'none',
+                boxShadow:
+                  feedback === "correct" && i === level.oddIndex
+                    ? "0 0 0 3px var(--color-green)"
+                    : feedback === "wrong" && i === level.oddIndex
+                      ? "0 0 0 3px var(--color-coral)"
+                      : "none",
               }}
             />
           ))}
@@ -136,8 +154,10 @@ export default function ColorVision({ onComplete }: Props) {
       </motion.div>
 
       <div className="text-center">
-        <span className="text-[13px] font-bold text-ink tabular-nums">Score: {score}</span>
+        <span className="text-[13px] font-bold text-ink tabular-nums">
+          Score: {score}
+        </span>
       </div>
     </div>
-  )
+  );
 }
