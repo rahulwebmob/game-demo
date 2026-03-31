@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSound } from "../hooks/use-sound";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import { claimDaily } from "../store/player-slice";
+import { addToast, setShowPupilTest } from "../store/ui-slice";
+import { MAX_ENERGY } from "../constants";
 import {
   Gift,
   CheckCircle,
@@ -22,26 +26,13 @@ import Confetti from "../components/confetti";
 import { dailyRewards } from "../data/avatars";
 import ParallaxHeader from "../components/parallax-header";
 
-interface Props {
-  coins: number;
-  streak: number;
-  claimed: boolean;
-  onClaim: () => void;
-  energy: number;
-  maxEnergy: number;
-  onStartEyeCheck: () => void;
-}
-
-export default function DailyLogin({
-  coins,
-  streak,
-  claimed,
-  onClaim,
-  energy,
-  maxEnergy,
-  onStartEyeCheck,
-}: Props) {
+export default function DailyLogin() {
   const sfx = useSound();
+  const dispatch = useAppDispatch();
+  const { coins, streak, claimedToday, energy } = useAppSelector(
+    (s) => s.player,
+  );
+
   const noEnergy = energy === 0;
   const todayIdx = streak % 7;
   const days6 = dailyRewards.slice(0, 6);
@@ -49,8 +40,14 @@ export default function DailyLogin({
   const [showConfetti, setShowConfetti] = useState(false);
 
   const handleClaim = () => {
+    if (claimedToday) return;
+    const reward = dailyRewards[todayIdx].coins;
     sfx("streak");
-    onClaim();
+    dispatch(claimDaily(reward));
+    sfx("success");
+    dispatch(
+      addToast({ message: `+${reward} coins claimed!`, type: "success" }),
+    );
     setShowConfetti(true);
     setTimeout(() => sfx("coinEarn"), 300);
     setTimeout(() => setShowConfetti(false), 1500);
@@ -70,7 +67,7 @@ export default function DailyLogin({
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <EnergyBadge energy={energy} maxEnergy={maxEnergy} />
+            <EnergyBadge energy={energy} maxEnergy={MAX_ENERGY} />
             <CoinBadge amount={coins} small />
           </div>
         </div>
@@ -95,7 +92,7 @@ export default function DailyLogin({
             whileTap={{ scale: 0.93 }}
             onClick={() => {
               sfx("tap");
-              onStartEyeCheck();
+              dispatch(setShowPupilTest(true));
             }}
             className="px-3 py-1.5 rounded-xl bg-coral text-white text-[12px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] flex-shrink-0"
           >
@@ -113,7 +110,7 @@ export default function DailyLogin({
           <motion.div
             key={streak}
             initial={{ scale: 1 }}
-            animate={claimed ? { scale: [1, 1.25, 1] } : {}}
+            animate={claimedToday ? { scale: [1, 1.25, 1] } : {}}
             transition={{ duration: 0.4 }}
           >
             <AnimatedNumber
@@ -133,13 +130,13 @@ export default function DailyLogin({
         {/* Week dots */}
         <div className="flex items-center">
           {[0, 1, 2, 3, 4, 5, 6].map((d) => {
-            const filled = d < todayIdx || (d === todayIdx && claimed);
-            const current = d === todayIdx && !claimed;
+            const filled = d < todayIdx || (d === todayIdx && claimedToday);
+            const current = d === todayIdx && !claimedToday;
             return (
               <div key={d} className="flex items-center">
                 {d > 0 && (
                   <div
-                    className={`w-[10px] md:w-[14px] h-[3px] transition-colors ${d <= todayIdx && (d < todayIdx || claimed) ? "bg-coral" : "bg-muted"}`}
+                    className={`w-[10px] md:w-[14px] h-[3px] transition-colors ${d <= todayIdx && (d < todayIdx || claimedToday) ? "bg-coral" : "bg-muted"}`}
                   />
                 )}
                 <motion.div
@@ -256,16 +253,16 @@ export default function DailyLogin({
         <Confetti active={showConfetti} />
         <motion.button
           whileTap={{ scale: 0.96, y: 2 }}
-          whileHover={!claimed ? { boxShadow: "var(--shadow-btn)" } : undefined}
+          whileHover={!claimedToday ? { boxShadow: "var(--shadow-btn)" } : undefined}
           onClick={handleClaim}
-          disabled={claimed}
+          disabled={claimedToday}
           className={`w-full py-4 md:py-5 rounded-2xl font-bold text-[15px] md:text-[17px] border-none cursor-pointer transition-all ${
-            claimed
+            claimedToday
               ? "bg-green-light text-green"
               : "bg-coral text-white pulse-claim"
           }`}
         >
-          {claimed ? (
+          {claimedToday ? (
             <span className="flex items-center justify-center gap-2">
               <CheckCircle size={18} /> Claimed Today
             </span>

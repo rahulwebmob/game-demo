@@ -272,23 +272,6 @@ body {
   }
 }
 
-/* ── Avatar sleeping zzz ── */
-@keyframes zzz-float {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-10deg);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateY(-8px) rotate(10deg);
-    opacity: 1;
-  }
-}
-
-.zzz-anim {
-  animation: zzz-float 2s ease-in-out infinite;
-}
-
 /* ── Card flip (MemoryMatch) ── */
 .card-face {
   backface-visibility: hidden;

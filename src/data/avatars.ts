@@ -31,20 +31,90 @@ export const avatars: Avatar[] = [
   { id: "penguin", name: "Waddle", bg: "var(--color-sky)", price: 200 },
 ];
 
+/**
+ * Per-avatar accessory positioning.
+ * cx/cy = center point as % of avatar size.
+ * width = accessory width as % of avatar size.
+ * rotate = optional tilt in degrees.
+ */
+export interface AccessoryPlacement {
+  cx: number;
+  cy: number;
+  width: number;
+  rotate?: number;
+}
+
 export interface Accessory {
   id: string;
   name: string;
   icon: string;
+  src: string;
   price: number;
+  /** Per-avatar placement — key is AvatarId, "default" is fallback */
+  placement: Record<string, AccessoryPlacement>;
 }
 
 export const accessories: Accessory[] = [
-  { id: "glasses", name: "Glasses", icon: "glasses", price: 50 },
-  { id: "mask", name: "Shield", icon: "shield", price: 30 },
-  { id: "crown", name: "Crown", icon: "crown", price: 500 },
-  { id: "bow", name: "Bow Tie", icon: "ribbon", price: 80 },
-  { id: "hat", name: "Top Hat", icon: "hat", price: 150 },
-  { id: "star", name: "Star", icon: "star", price: 200 },
+  {
+    id: "crown",
+    name: "Crown",
+    icon: "crown",
+    src: "/accessories/crown.png",
+    price: 500,
+    placement: {
+      default:  { cx: 50, cy: -2,  width: 72 },
+      owl:      { cx: 50, cy: 2,   width: 68 },
+      dog:      { cx: 50, cy: -2,  width: 65 },
+      cat:      { cx: 50, cy: -10, width: 62 },
+      cat2:     { cx: 50, cy: -4,  width: 62 },
+      penguin:  { cx: 50, cy: 0,   width: 60 },
+    },
+  },
+  {
+    id: "glasses",
+    name: "Glasses",
+    icon: "glasses",
+    src: "/accessories/glasses.png",
+    price: 50,
+    placement: {
+      default:  { cx: 50, cy: 40,  width: 72 },
+      owl:      { cx: 50, cy: 30,  width: 75 },
+      dog:      { cx: 50, cy: 38,  width: 68 },
+      cat:      { cx: 50, cy: 45,  width: 65 },
+      cat2:     { cx: 50, cy: 43,  width: 65 },
+      penguin:  { cx: 50, cy: 37,  width: 58 },
+    },
+  },
+  {
+    id: "mask",
+    name: "Face Mask",
+    icon: "shield",
+    src: "/accessories/mask.png",
+    price: 30,
+    placement: {
+      default:  { cx: 50, cy: 60,  width: 70 },
+      owl:      { cx: 50, cy: 60,  width: 68 },
+      dog:      { cx: 50, cy: 58,  width: 65 },
+      cat:      { cx: 50, cy: 65,  width: 62 },
+      cat2:     { cx: 50, cy: 63,  width: 62 },
+      penguin:  { cx: 50, cy: 52,  width: 55 },
+    },
+  },
+  {
+    id: "grad-cap",
+    name: "Grad Cap",
+    icon: "hat",
+    src: "/accessories/grad-cap.png",
+    price: 150,
+    placement: {
+      default:  { cx: 48, cy: -2,  width: 72, rotate: -5 },
+      owl:      { cx: 48, cy: 2,   width: 68, rotate: -5 },
+      dog:      { cx: 48, cy: -2,  width: 65, rotate: -5 },
+      cat:      { cx: 48, cy: -2,  width: 68, rotate: -5 },
+      cat2:     { cx: 48, cy: -2,  width: 68, rotate: -5 },
+      penguin:  { cx: 48, cy: 0,   width: 60, rotate: -5 },
+    },
+  },
 ];
 
 export const dailyRewards = [

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSound } from "../hooks/use-sound";
 import {
@@ -31,33 +31,23 @@ import {
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
 import AnimatedNumber from "../components/animated-number";
-import type { AvatarId } from "../data/avatars";
 import { avatars, playerStats } from "../data/avatars";
 import type { Tab } from "../components/nav-bar";
-import type { ThemeId } from "../hooks/use-theme";
 import ThemePicker from "../components/theme-picker";
 import ParallaxHeader from "../components/parallax-header";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import {
+  setName,
+  setEmail,
+  toggleSound,
+  toggleNotifications,
+  toggleTwoFactor,
+} from "../store/player-slice";
+import { addToast } from "../store/ui-slice";
+import { useTheme } from "../hooks/use-theme";
 
 interface Props {
-  coins: number;
-  score: number;
-  streak: number;
-  avatar: AvatarId;
-  name: string;
-  email: string;
   navigate: (t: Tab) => void;
-  themeId: ThemeId;
-  onThemeChange: (id: ThemeId) => void;
-  soundEnabled: boolean;
-  onSoundToggle: () => void;
-  notificationsEnabled: boolean;
-  onNotificationsToggle: () => void;
-  twoFactorEnabled: boolean;
-  onTwoFactorToggle: () => void;
-  onNameChange: (name: string) => void;
-  onEmailChange: (email: string) => void;
-  onPasswordChange: (password: string) => void;
-  showToast: (msg: string, type?: "success" | "purchase") => void;
 }
 
 const fade = {
@@ -157,28 +147,23 @@ const skillBreakdown = [
   { label: "Vision", pct: 55, fg: "var(--color-gold)" },
 ];
 
-export default function Profile({
-  coins,
-  score,
-  streak,
-  avatar,
-  name,
-  email,
-  navigate,
-  themeId,
-  onThemeChange,
-  soundEnabled,
-  onSoundToggle,
-  notificationsEnabled,
-  onNotificationsToggle,
-  twoFactorEnabled,
-  onTwoFactorToggle,
-  onNameChange,
-  onEmailChange,
-  onPasswordChange,
-  showToast,
-}: Props) {
+export default function Profile({ navigate }: Props) {
   const sfx = useSound();
+  const dispatch = useAppDispatch();
+  const {
+    coins,
+    score,
+    streak,
+    avatar,
+    accessory,
+    name,
+    email,
+    soundEnabled,
+    notificationsEnabled,
+    twoFactorEnabled,
+  } = useAppSelector((s) => s.player);
+  const theme = useTheme();
+
   const [editingField, setEditingField] = useState<
     "name" | "email" | "password" | null
   >(null);
@@ -194,12 +179,12 @@ export default function Profile({
     setConfirmPassword("");
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = useCallback(() => {
     sfx("modalClose");
     setEditingField(null);
     setEditValue("");
     setConfirmPassword("");
-  };
+  }, [sfx]);
 
   // Escape key closes modals
   useEffect(() => {
@@ -215,34 +200,33 @@ export default function Profile({
     };
     document.addEventListener("keydown", handleKey);
     return () => document.removeEventListener("keydown", handleKey);
-  }, [editingField, showLogout]);
+  }, [editingField, showLogout, cancelEdit, sfx]);
 
   const saveEdit = () => {
     if (!editingField) return;
     const trimmed = editValue.trim();
     if (editingField === "name") {
       if (trimmed && trimmed !== name) {
-        onNameChange(trimmed);
-        showToast("Name updated!");
+        dispatch(setName(trimmed));
+        dispatch(addToast({ message: "Name updated!" }));
         sfx("success");
       }
     } else if (editingField === "email") {
       if (trimmed && trimmed !== email && trimmed.includes("@")) {
-        onEmailChange(trimmed);
-        showToast("Email updated!");
+        dispatch(setEmail(trimmed));
+        dispatch(addToast({ message: "Email updated!" }));
         sfx("success");
       }
     } else if (editingField === "password") {
       if (trimmed.length >= 6 && trimmed === confirmPassword) {
-        onPasswordChange(trimmed);
-        showToast("Password updated!");
+        dispatch(addToast({ message: "Password updated!" }));
         sfx("success");
       } else if (trimmed !== confirmPassword) {
-        showToast("Passwords don't match");
+        dispatch(addToast({ message: "Passwords don't match" }));
         sfx("error");
         return;
       } else if (trimmed.length < 6) {
-        showToast("Min 6 characters");
+        dispatch(addToast({ message: "Min 6 characters" }));
         sfx("error");
         return;
       }
@@ -288,7 +272,7 @@ export default function Profile({
             }}
             className="cursor-pointer"
           >
-            <AvatarImg avatar={avatar} size={72} level={playerStats.level} />
+            <AvatarImg avatar={avatar} accessory={accessory} size={72} level={playerStats.level} />
           </motion.div>
           <div className="flex-1 min-w-0">
             <h2 className="text-[18px] md:text-[22px] font-bold text-ink truncate">
@@ -664,7 +648,7 @@ export default function Profile({
             className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
             onClick={() => {
               sfx("toggle", !twoFactorEnabled);
-              onTwoFactorToggle();
+              dispatch(toggleTwoFactor());
             }}
           >
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-violet-light flex items-center justify-center flex-shrink-0">
@@ -692,7 +676,7 @@ export default function Profile({
         </h3>
         <div className="flex flex-col gap-2.5 md:gap-3">
           {/* Theme */}
-          <ThemePicker themeId={themeId} onThemeChange={onThemeChange} />
+          <ThemePicker themeId={theme.themeId} onThemeChange={theme.setThemeId} />
 
           {/* Sound */}
           <motion.div
@@ -700,7 +684,7 @@ export default function Profile({
             className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
             onClick={() => {
               sfx("toggle", !soundEnabled);
-              onSoundToggle();
+              dispatch(toggleSound());
             }}
           >
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-teal-light flex items-center justify-center flex-shrink-0">
@@ -727,7 +711,7 @@ export default function Profile({
             className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
             onClick={() => {
               sfx("toggle", !notificationsEnabled);
-              onNotificationsToggle();
+              dispatch(toggleNotifications());
             }}
           >
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-gold-light flex items-center justify-center flex-shrink-0">

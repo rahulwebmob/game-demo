@@ -17,20 +17,14 @@ import {
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
 import { avatars, accessories } from "../data/avatars";
-import type { AvatarId } from "../data/avatars";
 import type { Tab } from "../components/nav-bar";
 import { useSound } from "../hooks/use-sound";
 import ParallaxHeader from "../components/parallax-header";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setAvatar, setAccessory, buyAvatar, buyAccessory } from "../store/player-slice";
+import { addToast } from "../store/ui-slice";
 
 interface Props {
-  coins: number;
-  avatar: AvatarId;
-  accessory: string | null;
-  ownedAvatars: AvatarId[];
-  ownedAccessories: string[];
-  onSelectAvatar: (id: AvatarId) => void;
-  onSelectAccessory: (id: string | null) => void;
-  onBuy: (type: "avatar" | "accessory", id: string, price: number) => void;
   navigate: (t: Tab) => void;
 }
 
@@ -48,18 +42,11 @@ const gridItem = {
   visible: { opacity: 1, scale: 1 },
 };
 
-export default function Customize({
-  coins,
-  avatar,
-  accessory,
-  ownedAvatars,
-  ownedAccessories,
-  onSelectAvatar,
-  onSelectAccessory,
-  onBuy,
-  navigate,
-}: Props) {
+export default function Customize({ navigate }: Props) {
   const sfx = useSound();
+  const dispatch = useAppDispatch();
+  const { coins, avatar, accessory, ownedAvatars, ownedAccessories } =
+    useAppSelector((s) => s.player);
   const cur = avatars.find((a) => a.id === avatar);
 
   return (
@@ -109,6 +96,7 @@ export default function Customize({
             >
               <AvatarImg
                 avatar={avatar}
+                accessory={accessory}
                 size={110}
                 className="md:!w-[140px] md:!h-[140px]"
               />
@@ -151,10 +139,16 @@ export default function Customize({
                 onClick={() => {
                   if (owned) {
                     sfx("tap");
-                    onSelectAvatar(a.id);
+                    dispatch(setAvatar(a.id));
                   } else if (!locked) {
                     sfx("coinSpend");
-                    onBuy("avatar", a.id, a.price);
+                    dispatch(buyAvatar({ id: a.id, price: a.price }));
+                    dispatch(
+                      addToast({
+                        message: `Unlocked ${a.name}!`,
+                        type: "purchase",
+                      }),
+                    );
                   }
                 }}
                 className={`relative flex flex-col items-center gap-2 p-2.5 md:p-3 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] transition-all ${
@@ -222,7 +216,7 @@ export default function Customize({
             whileHover={{ y: -2 }}
             onClick={() => {
               sfx("tap");
-              onSelectAccessory(null);
+              dispatch(setAccessory(null));
             }}
             className={`flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] ${
               !accessory ? "border-coral !bg-coral-light" : "border-transparent"
@@ -247,10 +241,17 @@ export default function Customize({
                 onClick={() => {
                   if (owned) {
                     sfx("tap");
-                    onSelectAccessory(ac.id);
+                    // Toggle off if already active, otherwise equip
+                    dispatch(setAccessory(active ? null : ac.id));
                   } else if (!locked) {
                     sfx("coinSpend");
-                    onBuy("accessory", ac.id, ac.price);
+                    dispatch(buyAccessory({ id: ac.id, price: ac.price }));
+                    dispatch(
+                      addToast({
+                        message: `Unlocked ${ac.name}!`,
+                        type: "purchase",
+                      }),
+                    );
                   }
                 }}
                 className={`relative flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] ${

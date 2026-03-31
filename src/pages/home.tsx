@@ -25,29 +25,23 @@ import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import EnergyControl from "../components/energy-control";
 import AnimatedNumber from "../components/animated-number";
-import type { AvatarId } from "../data/avatars";
 import { dailyQuests, playerStats } from "../data/avatars";
 import { games } from "../data/games";
 import type { Tab } from "../components/nav-bar";
-import type { ThemeId } from "../hooks/use-theme";
+import { useTheme } from "../hooks/use-theme";
 import { useSound } from "../hooks/use-sound";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  addEnergy,
+  spendEnergy,
+  resetEnergy,
+} from "../store/player-slice";
+import { setShowPupilTest } from "../store/ui-slice";
 import ParallaxHeader from "../components/parallax-header";
+import { MAX_ENERGY } from "../constants";
 
 interface Props {
-  coins: number;
-  score: number;
-  streak: number;
-  avatar: AvatarId;
-  name: string;
   navigate: (t: Tab) => void;
-  themeId: ThemeId;
-  onThemeChange: (id: ThemeId) => void;
-  energy: number;
-  maxEnergy: number;
-  onStartEyeCheck: () => void;
-  onAddEnergy: () => void;
-  onSpendEnergy: () => void;
-  onResetEnergy: () => void;
 }
 
 const fade = {
@@ -84,24 +78,14 @@ const cats = [
 
 const featuredGames = games.slice(0, 3);
 
-export default function Home({
-  coins,
-  score,
-  streak,
-  avatar,
-  name,
-  navigate,
-  themeId,
-  onThemeChange,
-  energy,
-  maxEnergy,
-  onStartEyeCheck,
-  onAddEnergy,
-  onSpendEnergy,
-  onResetEnergy,
-}: Props) {
+export default function Home({ navigate }: Props) {
   const sfx = useSound();
+  const theme = useTheme();
+  const dispatch = useAppDispatch();
+  const { coins, score, streak, avatar, accessory, name, energy } =
+    useAppSelector((s) => s.player);
   const noEnergy = energy === 0;
+
   return (
     <motion.div
       initial="initial"
@@ -125,18 +109,18 @@ export default function Home({
             whileTap={{ scale: 0.85, rotate: 30 }}
             whileHover={{ scale: 1.1 }}
             onClick={() => {
-              sfx("toggle", themeId === "cool");
-              onThemeChange(themeId === "cool" ? "warm" : "cool");
+              sfx("toggle", theme.themeId === "cool");
+              theme.setThemeId(theme.themeId === "cool" ? "warm" : "cool");
             }}
             className="w-10 h-10 md:w-11 md:h-11 rounded-full glass-card border border-border flex items-center justify-center cursor-pointer shadow-[var(--shadow-soft)]"
           >
             <motion.div
-              key={themeId}
+              key={theme.themeId}
               initial={{ scale: 0, rotate: -90 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 400, damping: 18 }}
             >
-              {themeId === "cool" ? (
+              {theme.themeId === "cool" ? (
                 <Moon size={18} className="text-coral" />
               ) : (
                 <Sun size={18} className="text-coral" />
@@ -154,6 +138,7 @@ export default function Home({
               size={48}
               level={playerStats.level}
               sleeping={noEnergy}
+              accessory={accessory}
             />
           </motion.div>
         </div>
@@ -196,7 +181,7 @@ export default function Home({
       >
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2.5">
-            <AvatarImg avatar={avatar} size={36} />
+            <AvatarImg avatar={avatar} size={36} accessory={accessory} />
             <div>
               <span className="text-[13px] md:text-[15px] font-bold text-ink">
                 Level {playerStats.level}
@@ -207,7 +192,7 @@ export default function Home({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <EnergyBadge energy={energy} maxEnergy={maxEnergy} />
+            <EnergyBadge energy={energy} maxEnergy={MAX_ENERGY} />
             <CoinBadge amount={coins} small />
           </div>
         </div>
@@ -231,11 +216,11 @@ export default function Home({
       <motion.div variants={fade}>
         <EnergyControl
           energy={energy}
-          maxEnergy={maxEnergy}
-          onAdd={onAddEnergy}
-          onSpend={onSpendEnergy}
-          onReset={onResetEnergy}
-          onStartEyeCheck={onStartEyeCheck}
+          maxEnergy={MAX_ENERGY}
+          onAdd={() => dispatch(addEnergy())}
+          onSpend={() => dispatch(spendEnergy())}
+          onReset={() => dispatch(resetEnergy())}
+          onStartEyeCheck={() => dispatch(setShowPupilTest(true))}
         />
       </motion.div>
 
@@ -269,7 +254,7 @@ export default function Home({
           whileHover={{ y: -2 }}
           onClick={() => {
             sfx("tap");
-            onStartEyeCheck();
+            dispatch(setShowPupilTest(true));
           }}
           className="w-full border-none rounded-2xl p-5 md:p-6 flex items-center gap-4 cursor-pointer shadow-[var(--shadow-elevated)] relative overflow-hidden text-left"
           style={{

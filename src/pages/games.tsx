@@ -22,6 +22,10 @@ import ErrorBoundary from "../components/error-boundary";
 import { games, categories } from "../data/games";
 import type { GameId, GameCategory } from "../data/games";
 import ParallaxHeader from "../components/parallax-header";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import { addCoins, spendEnergy, addEnergy, resetEnergy } from "../store/player-slice";
+import { addToast, setShowPupilTest } from "../store/ui-slice";
+import { MAX_ENERGY } from "../constants";
 
 // Lazy-load game components
 const MemoryMatch = lazy(() => import("../components/games/memory-match"));
@@ -52,35 +56,15 @@ const gameComponents: Record<
   "contrast-test": ContrastTest,
 };
 
-interface Props {
-  coins: number;
-  onEarnCoins: (amount: number) => void;
-  showToast: (msg: string, type?: "success" | "purchase") => void;
-  energy: number;
-  maxEnergy: number;
-  onSpendEnergy: () => void;
-  onStartEyeCheck: () => void;
-  onAddEnergy: () => void;
-  onResetEnergy: () => void;
-}
-
 const gridItem = {
   hidden: { opacity: 0, y: 14, scale: 0.95 },
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
-export default function Games({
-  coins,
-  onEarnCoins,
-  showToast,
-  energy,
-  maxEnergy,
-  onSpendEnergy,
-  onStartEyeCheck,
-  onAddEnergy,
-  onResetEnergy,
-}: Props) {
+export default function Games() {
   const sfx = useSound();
+  const dispatch = useAppDispatch();
+  const { coins, energy } = useAppSelector((s) => s.player);
   const noEnergy = energy === 0;
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const [filter, setFilter] = useState<GameCategory | "all">("all");
@@ -93,10 +77,13 @@ export default function Games({
     if (!activeGameDef) return;
     const earned = Math.round((score / 100) * activeGameDef.coinReward);
     if (earned > 0) {
-      onEarnCoins(earned);
-      showToast(
-        `Earned ${earned} coins from ${activeGameDef.name}!`,
-        "success",
+      dispatch(addCoins(earned));
+      sfx("coinEarn");
+      dispatch(
+        addToast({
+          message: `Earned ${earned} coins from ${activeGameDef.name}!`,
+          type: "success",
+        }),
       );
     }
   }
@@ -190,7 +177,7 @@ export default function Games({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <EnergyBadge energy={energy} maxEnergy={maxEnergy} />
+            <EnergyBadge energy={energy} maxEnergy={MAX_ENERGY} />
             <CoinBadge amount={coins} small />
           </div>
         </div>
@@ -215,7 +202,7 @@ export default function Games({
             whileTap={{ scale: 0.93 }}
             onClick={() => {
               sfx("tap");
-              onStartEyeCheck();
+              dispatch(setShowPupilTest(true));
             }}
             className="px-3 py-1.5 rounded-xl bg-coral text-white text-[12px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] flex-shrink-0"
           >
@@ -227,11 +214,11 @@ export default function Games({
       {/* Energy Control (demo) */}
       <EnergyControl
         energy={energy}
-        maxEnergy={maxEnergy}
-        onAdd={onAddEnergy}
-        onSpend={onSpendEnergy}
-        onReset={onResetEnergy}
-        onStartEyeCheck={onStartEyeCheck}
+        maxEnergy={MAX_ENERGY}
+        onAdd={() => dispatch(addEnergy())}
+        onSpend={() => dispatch(spendEnergy())}
+        onReset={() => dispatch(resetEnergy())}
+        onStartEyeCheck={() => dispatch(setShowPupilTest(true))}
       />
 
       {/* Category filter */}
@@ -283,7 +270,7 @@ export default function Games({
             onClick={() => {
               if (noEnergy) return;
               sfx("gameStart");
-              onSpendEnergy();
+              dispatch(spendEnergy());
               setActiveGame(game.id);
             }}
             className={`flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none text-left shadow-[var(--shadow-soft)] relative overflow-hidden border border-border/30 ${noEnergy ? "cursor-not-allowed" : "cursor-pointer"}`}

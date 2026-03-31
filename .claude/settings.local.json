@@ -21,7 +21,10 @@
       "Bash(cd D:/gamerify && for word in ArrowLeft LogOut Heart TrendingUp Lock Check Star; do echo -n \"$word: \"; grep -c \"<$word\\\\b\" src/pages/Profile.tsx || echo 0; done)",
       "Bash(npx eslint:*)",
       "Bash(wc -l /d/gamerify/src/App.tsx /d/gamerify/src/pages/*.tsx /d/gamerify/src/components/*.tsx)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(/c/Users/luv/AppData/Local/Microsoft/WindowsApps/python3.exe -c \"from PIL import Image; print\\('Pillow available'\\)\" 2>&1)",
+      "Bash(npx --yes sharp-cli --version 2>&1 | head -5)",
+      "Bash(cd D:/gamerify && node extract-assets.mjs 2>&1)"
     ]
   }
 }
