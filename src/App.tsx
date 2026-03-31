@@ -7,28 +7,28 @@ import {
   Suspense,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import NavBar from "./components/NavBar";
-import SleepOverlay from "./components/SleepOverlay";
-import ToastContainer from "./components/Toast";
-import ErrorBoundary from "./components/ErrorBoundary";
-import type { ToastData } from "./components/Toast";
-import Skeleton from "./components/Skeleton";
-import type { Tab } from "./components/NavBar";
+import NavBar from "./components/nav-bar";
+import SleepOverlay from "./components/sleep-overlay";
+import ToastContainer from "./components/toast";
+import ErrorBoundary from "./components/error-boundary";
+import type { ToastData } from "./components/toast";
+import Skeleton from "./components/skeleton";
+import type { Tab } from "./components/nav-bar";
 import type { AvatarId } from "./data/avatars";
 import { dailyRewards, accessories, avatars } from "./data/avatars";
-import { useLocalStorage } from "./hooks/useLocalStorage";
-import { useTheme, isDarkTheme } from "./hooks/useTheme";
-import { useSound } from "./hooks/useSound";
+import { useLocalStorage } from "./hooks/use-local-storage";
+import { useTheme, isDarkTheme } from "./hooks/use-theme";
+import { useSound } from "./hooks/use-sound";
 import { STORAGE_KEYS, MAX_ENERGY } from "./constants";
 
 // Lazy-loaded pages
-const Home = lazy(() => import("./pages/Home"));
-const Games = lazy(() => import("./pages/Games"));
-const Customize = lazy(() => import("./pages/Customize"));
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
-const DailyLogin = lazy(() => import("./pages/DailyLogin"));
-const Profile = lazy(() => import("./pages/Profile"));
-const PupilTest = lazy(() => import("./components/PupilTest"));
+const Home = lazy(() => import("./pages/home"));
+const Games = lazy(() => import("./pages/games"));
+const Customize = lazy(() => import("./pages/customize"));
+const Leaderboard = lazy(() => import("./pages/leaderboard"));
+const DailyLogin = lazy(() => import("./pages/daily-login"));
+const Profile = lazy(() => import("./pages/profile"));
+const PupilTest = lazy(() => import("./components/pupil-test"));
 
 const TAB_ORDER: Tab[] = [
   "home",

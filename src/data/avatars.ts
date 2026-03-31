@@ -97,28 +97,5 @@ export const dailyQuests = [
   },
 ];
 
-export const featuredItems = [
-  {
-    id: "crown",
-    name: "Crown",
-    originalPrice: 500,
-    salePrice: 350,
-    color: "var(--color-coral)",
-  },
-  {
-    id: "star",
-    name: "Star",
-    originalPrice: 200,
-    salePrice: 120,
-    color: "var(--color-teal)",
-  },
-  {
-    id: "hat",
-    name: "Top Hat",
-    originalPrice: 150,
-    salePrice: 99,
-    color: "var(--color-sky)",
-  },
-];
 
 export const playerStats = { level: 12, xp: 340, xpToNext: 500 };
