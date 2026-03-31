@@ -1,15 +1,9 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, lazy, Suspense } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import NavBar from './components/NavBar'
-import Home from './pages/Home'
-import Games from './pages/Games'
-import Customize from './pages/Customize'
-import Leaderboard from './pages/Leaderboard'
-import DailyLogin from './pages/DailyLogin'
-import Profile from './pages/Profile'
-import PupilTest from './components/PupilTest'
 import SleepOverlay from './components/SleepOverlay'
 import ToastContainer from './components/Toast'
+import ErrorBoundary from './components/ErrorBoundary'
 import type { ToastData } from './components/Toast'
 import Skeleton from './components/Skeleton'
 import type { Tab } from './components/NavBar'
@@ -18,7 +12,16 @@ import { dailyRewards, accessories, avatars } from './data/avatars'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useTheme, isDarkTheme } from './hooks/useTheme'
 import { useSound } from './hooks/useSound'
-import { STORAGE_KEYS, MAX_ENERGY } from './constants'
+import { STORAGE_KEYS, MAX_ENERGY, Z } from './constants'
+
+// Lazy-loaded pages
+const Home = lazy(() => import('./pages/Home'))
+const Games = lazy(() => import('./pages/Games'))
+const Customize = lazy(() => import('./pages/Customize'))
+const Leaderboard = lazy(() => import('./pages/Leaderboard'))
+const DailyLogin = lazy(() => import('./pages/DailyLogin'))
+const Profile = lazy(() => import('./pages/Profile'))
+const PupilTest = lazy(() => import('./components/PupilTest'))
 
 const TAB_ORDER: Tab[] = ['home', 'games', 'customize', 'leaderboard', 'daily', 'profile']
 
@@ -33,14 +36,16 @@ export default function App() {
   const [direction, setDirection] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  // Scroll to top on hard refresh
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [])
+  // Scroll to top on hard refresh + clean up legacy password storage
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    localStorage.removeItem('gamerify-password')
+  }, [])
 
   // Energy state (not persisted — resets on refresh)
   const [energy, setEnergy] = useState(0)
   const [showPupilTest, setShowPupilTest] = useState(false)
   const [showSleepOverlay, setShowSleepOverlay] = useState(true)
-  // MAX_ENERGY imported from constants
 
   const fillEnergy = useCallback(() => {
     setEnergy(MAX_ENERGY)
@@ -62,7 +67,6 @@ export default function App() {
   const [ownedAccessories, setOwnedAccessories] = useLocalStorage<string[]>(STORAGE_KEYS.ownedAccessories, [])
   const [playerName, setPlayerName] = useLocalStorage(STORAGE_KEYS.name, 'Gamer')
   const [playerEmail, setPlayerEmail] = useLocalStorage(STORAGE_KEYS.email, '')
-  const [, setPlayerPassword] = useLocalStorage(STORAGE_KEYS.password, '')
   const [soundEnabled, setSoundEnabled] = useLocalStorage(STORAGE_KEYS.sound, true)
   const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage(STORAGE_KEYS.notifications, true)
   const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage(STORAGE_KEYS.twoFactor, false)
@@ -79,6 +83,25 @@ export default function App() {
 
   const dismissToast = useCallback((id: number) => {
     setToasts(prev => prev.filter(t => t.id !== id))
+  }, [])
+
+  // SW update + offline/online listeners
+  const showToastRef = useRef(showToast)
+  useEffect(() => { showToastRef.current = showToast }, [showToast])
+
+  useEffect(() => {
+    const onUpdate = () => showToastRef.current('New version available — refresh to update!', 'success')
+    const onOffline = () => showToastRef.current('You are offline', 'success')
+    const onOnline = () => showToastRef.current('Back online!', 'success')
+
+    window.addEventListener('sw-update-available', onUpdate)
+    window.addEventListener('app-offline', onOffline)
+    window.addEventListener('app-online', onOnline)
+    return () => {
+      window.removeEventListener('sw-update-available', onUpdate)
+      window.removeEventListener('app-offline', onOffline)
+      window.removeEventListener('app-online', onOnline)
+    }
   }, [])
 
   // Navigate with direction + skeleton
@@ -130,6 +153,11 @@ export default function App() {
     showToast(`Claimed ${reward} coins! Day ${todayIndex + 1}`, 'success')
   }, [claimedToday, streak, sfx, setCoins, setStreak, setClaimedToday, showToast])
 
+  // Password change is a no-op (never store passwords in localStorage)
+  const handlePasswordChange = useCallback((_: string) => {
+    showToast('Password updated!')
+  }, [showToast])
+
   const pageVariants = {
     enter: (d: number) => ({ opacity: 0, x: d * 60, scale: 0.98 }),
     center: { opacity: 1, x: 0, scale: 1 },
@@ -154,19 +182,23 @@ export default function App() {
 
       {/* Pupil Test overlay */}
       {showPupilTest && (
-        <PupilTest
-          onComplete={() => {
-            fillEnergy()
-            setShowPupilTest(false)
-            showToast('Energy restored! 5/5', 'success')
-            sfx('success')
-          }}
-          onClose={() => setShowPupilTest(false)}
-          onError={(msg) => {
-            showToast(msg, 'success')
-            setShowPupilTest(false)
-          }}
-        />
+        <Suspense fallback={null}>
+          <ErrorBoundary fallbackTitle="Eye check failed">
+            <PupilTest
+              onComplete={() => {
+                fillEnergy()
+                setShowPupilTest(false)
+                showToast('Energy restored! 5/5', 'success')
+                sfx('success')
+              }}
+              onClose={() => setShowPupilTest(false)}
+              onError={(msg) => {
+                showToast(msg, 'success')
+                setShowPupilTest(false)
+              }}
+            />
+          </ErrorBoundary>
+        </Suspense>
       )}
 
       {/* Toasts */}
@@ -210,36 +242,40 @@ export default function App() {
               exit="exit"
               transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              {tab === 'home' && (
-                <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name={playerName} navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onSpendEnergy={spendEnergy} onResetEnergy={resetEnergy} />
-              )}
-              {tab === 'games' && (
-                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} maxEnergy={MAX_ENERGY} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onResetEnergy={resetEnergy} />
-              )}
-              {tab === 'customize' && (
-                <Customize
-                  coins={coins} avatar={selectedAvatar} accessory={selectedAccessory}
-                  ownedAvatars={ownedAvatars} ownedAccessories={ownedAccessories}
-                  onSelectAvatar={setSelectedAvatar} onSelectAccessory={setSelectedAccessory}
-                  onBuy={buy} navigate={navigate}
-                />
-              )}
-              {tab === 'leaderboard' && <Leaderboard />}
-              {tab === 'daily' && (
-                <DailyLogin coins={coins} streak={streak} claimed={claimedToday} onClaim={claimDaily} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} />
-              )}
-              {tab === 'profile' && (
-                <Profile
-                  coins={coins} score={score} streak={streak} avatar={selectedAvatar}
-                  name={playerName} email={playerEmail} navigate={navigate}
-                  themeId={theme.themeId} onThemeChange={theme.setThemeId}
-                  soundEnabled={soundEnabled} onSoundToggle={() => setSoundEnabled(v => !v)}
-                  notificationsEnabled={notificationsEnabled} onNotificationsToggle={() => setNotificationsEnabled(v => !v)}
-                  twoFactorEnabled={twoFactorEnabled} onTwoFactorToggle={() => setTwoFactorEnabled(v => !v)}
-                  onNameChange={setPlayerName} onEmailChange={setPlayerEmail}
-                  onPasswordChange={setPlayerPassword} showToast={showToast}
-                />
-              )}
+              <Suspense fallback={<Skeleton variant="home" />}>
+                <ErrorBoundary fallbackTitle="Page failed to load">
+                  {tab === 'home' && (
+                    <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name={playerName} navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onSpendEnergy={spendEnergy} onResetEnergy={resetEnergy} />
+                  )}
+                  {tab === 'games' && (
+                    <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} maxEnergy={MAX_ENERGY} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onResetEnergy={resetEnergy} />
+                  )}
+                  {tab === 'customize' && (
+                    <Customize
+                      coins={coins} avatar={selectedAvatar} accessory={selectedAccessory}
+                      ownedAvatars={ownedAvatars} ownedAccessories={ownedAccessories}
+                      onSelectAvatar={setSelectedAvatar} onSelectAccessory={setSelectedAccessory}
+                      onBuy={buy} navigate={navigate}
+                    />
+                  )}
+                  {tab === 'leaderboard' && <Leaderboard />}
+                  {tab === 'daily' && (
+                    <DailyLogin coins={coins} streak={streak} claimed={claimedToday} onClaim={claimDaily} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} />
+                  )}
+                  {tab === 'profile' && (
+                    <Profile
+                      coins={coins} score={score} streak={streak} avatar={selectedAvatar}
+                      name={playerName} email={playerEmail} navigate={navigate}
+                      themeId={theme.themeId} onThemeChange={theme.setThemeId}
+                      soundEnabled={soundEnabled} onSoundToggle={() => setSoundEnabled(v => !v)}
+                      notificationsEnabled={notificationsEnabled} onNotificationsToggle={() => setNotificationsEnabled(v => !v)}
+                      twoFactorEnabled={twoFactorEnabled} onTwoFactorToggle={() => setTwoFactorEnabled(v => !v)}
+                      onNameChange={setPlayerName} onEmailChange={setPlayerEmail}
+                      onPasswordChange={handlePasswordChange} showToast={showToast}
+                    />
+                  )}
+                </ErrorBoundary>
+              </Suspense>
             </motion.div>
           )}
         </AnimatePresence>

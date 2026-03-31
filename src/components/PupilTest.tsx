@@ -172,7 +172,8 @@ export default function PupilTest({ onComplete, onClose, onError }: PupilTestPro
           <motion.button
             whileTap={{ scale: 0.85 }}
             onClick={() => { sfx('modalClose'); onClose() }}
-            className="w-10 h-10 md:w-11 md:h-11 rounded-full glass-card border border-border flex items-center justify-center border-none cursor-pointer shadow-[var(--shadow-soft)]"
+            aria-label="Close eye check"
+            className="w-11 h-11 md:w-12 md:h-12 rounded-full glass-card border border-border flex items-center justify-center border-none cursor-pointer shadow-[var(--shadow-soft)]"
           >
             <X size={16} className="text-ink" />
           </motion.button>

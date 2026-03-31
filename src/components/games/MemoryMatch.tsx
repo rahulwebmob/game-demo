@@ -18,9 +18,13 @@ interface Card {
 }
 
 function shuffle(): Card[] {
-  return [...EMOJIS, ...EMOJIS]
-    .sort(() => Math.random() - 0.5)
-    .map((emoji, i) => ({ id: i, emoji, flipped: false, matched: false }))
+  const cards = [...EMOJIS, ...EMOJIS].map((emoji, i) => ({ id: i, emoji, flipped: false, matched: false }))
+  // Fisher-Yates shuffle (unbiased)
+  for (let i = cards.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cards[i], cards[j]] = [cards[j], cards[i]]
+  }
+  return cards
 }
 
 export default function MemoryMatch({ onComplete }: Props) {
@@ -141,6 +145,7 @@ export default function MemoryMatch({ onComplete }: Props) {
         {cards.map(card => (
           <motion.button
             key={card.id}
+            aria-label={card.flipped || card.matched ? card.emoji : `Card ${card.id + 1}`}
             whileTap={!card.flipped && !card.matched ? { scale: 0.9 } : undefined}
             onClick={() => flip(card.id)}
             className="aspect-square rounded-2xl border-none cursor-pointer relative"
@@ -149,20 +154,16 @@ export default function MemoryMatch({ onComplete }: Props) {
             <motion.div
               animate={{ rotateY: card.flipped || card.matched ? 180 : 0 }}
               transition={{ duration: 0.35, ease: 'easeInOut' }}
-              className="w-full h-full relative"
-              style={{ transformStyle: 'preserve-3d' }}
+              className="w-full h-full relative card-3d"
             >
               {/* Back of card */}
-              <div
-                className="absolute inset-0 rounded-2xl bg-coral flex items-center justify-center shadow-[var(--shadow-soft)]"
-                style={{ backfaceVisibility: 'hidden' }}
-              >
+              <div className="absolute inset-0 rounded-2xl bg-coral flex items-center justify-center shadow-[var(--shadow-soft)] card-face">
                 <span className="text-white text-[18px] font-bold">?</span>
               </div>
               {/* Front of card */}
               <div
-                className={`absolute inset-0 rounded-2xl flex items-center justify-center shadow-[var(--shadow-soft)] ${card.matched ? 'bg-green-light' : 'bg-card'}`}
-                style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                className={`absolute inset-0 rounded-2xl flex items-center justify-center shadow-[var(--shadow-soft)] card-face ${card.matched ? 'bg-green-light' : 'bg-card'}`}
+                style={{ transform: 'rotateY(180deg)' }}
               >
                 <span className="text-[28px] md:text-[32px]">{card.emoji}</span>
               </div>

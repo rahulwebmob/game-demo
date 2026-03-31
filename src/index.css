@@ -192,3 +192,13 @@ body {
 .zzz-anim {
   animation: zzz-float 2s ease-in-out infinite;
 }
+
+/* ── Card flip (MemoryMatch) ── */
+.card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.card-3d {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}

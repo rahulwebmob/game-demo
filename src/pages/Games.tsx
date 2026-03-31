@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useSound } from '../hooks/useSound'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -8,14 +8,17 @@ import {
 import CoinBadge from '../components/CoinBadge'
 import EnergyBadge from '../components/EnergyBadge'
 import EnergyControl from '../components/EnergyControl'
-import MemoryMatch from '../components/games/MemoryMatch'
-import ColorVision from '../components/games/ColorVision'
-import ReactionTime from '../components/games/ReactionTime'
-import PatternRecall from '../components/games/PatternRecall'
-import NumberSequence from '../components/games/NumberSequence'
-import ContrastTest from '../components/games/ContrastTest'
+import ErrorBoundary from '../components/ErrorBoundary'
 import { games, categories } from '../data/games'
 import type { GameId, GameCategory } from '../data/games'
+
+// Lazy-load game components
+const MemoryMatch = lazy(() => import('../components/games/MemoryMatch'))
+const ColorVision = lazy(() => import('../components/games/ColorVision'))
+const ReactionTime = lazy(() => import('../components/games/ReactionTime'))
+const PatternRecall = lazy(() => import('../components/games/PatternRecall'))
+const NumberSequence = lazy(() => import('../components/games/NumberSequence'))
+const ContrastTest = lazy(() => import('../components/games/ContrastTest'))
 
 const iconMap: Record<string, React.ReactNode> = {
   grid: <LayoutGrid size={24} />,
@@ -113,7 +116,11 @@ export default function Games({ coins, onEarnCoins, showToast, energy, maxEnergy
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.2 }}
           >
-            <GameComponent onComplete={handleComplete} />
+            <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-3 border-muted border-t-coral rounded-full animate-spin" /></div>}>
+              <ErrorBoundary fallbackTitle="Game crashed — try again">
+                <GameComponent onComplete={handleComplete} />
+              </ErrorBoundary>
+            </Suspense>
           </motion.div>
         </AnimatePresence>
       </div>

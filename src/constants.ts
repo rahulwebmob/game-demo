@@ -13,9 +13,16 @@ export const STORAGE_KEYS = {
   sound: 'gamerify-sound',
   theme: 'gamerify-theme',
   email: 'gamerify-email',
-  password: 'gamerify-password',
   notifications: 'gamerify-notifications',
   twoFactor: 'gamerify-2fa',
 } as const
 
 export const MAX_ENERGY = 5
+
+// z-index layers
+export const Z = {
+  NAV: 50,
+  OVERLAY: 55,
+  PUPIL_TEST: 60,
+  TOAST: 100,
+} as const

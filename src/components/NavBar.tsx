@@ -21,7 +21,7 @@ interface Props {
 export default function NavBar({ active, onChange, dot }: Props) {
   const sfx = useSound()
   return (
-    <nav className="fixed bottom-0 left-0 right-0 safe-bottom z-50">
+    <nav role="navigation" aria-label="Main navigation" className="fixed bottom-0 left-0 right-0 safe-bottom z-50">
       <div className="nav-glass max-w-[430px] md:max-w-[768px] lg:max-w-[960px] mx-auto flex justify-around items-end px-3 md:px-6 pt-2 pb-3 md:pb-4">
         {tabs.map(t => {
           const on = active === t.id || (t.id === 'profile' && active === 'customize')

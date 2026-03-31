@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSound } from '../hooks/useSound'
 import {
@@ -94,6 +94,19 @@ export default function Profile({
     setEditValue('')
     setConfirmPassword('')
   }
+
+  // Escape key closes modals
+  useEffect(() => {
+    if (!editingField && !showLogout) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (editingField) cancelEdit()
+        else if (showLogout) { sfx('modalClose'); setShowLogout(false) }
+      }
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [editingField, showLogout])
 
   const saveEdit = () => {
     if (!editingField) return
@@ -279,6 +292,9 @@ export default function Profile({
                 onClick={cancelEdit}
               >
                 <motion.div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="edit-modal-title"
                   initial={{ scale: 0.9, opacity: 0, y: 20 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -287,13 +303,14 @@ export default function Profile({
                   className="glass-card rounded-2xl p-5 md:p-6 w-full max-w-[400px] shadow-[var(--shadow-elevated)]"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-[16px] md:text-[18px] font-bold text-ink">
+                    <h4 id="edit-modal-title" className="text-[16px] md:text-[18px] font-bold text-ink">
                       {editingField === 'name' ? 'Change Name' : editingField === 'email' ? 'Change Email' : 'Change Password'}
                     </h4>
                     <motion.button
                       whileTap={{ scale: 0.85 }}
                       onClick={cancelEdit}
-                      className="w-8 h-8 rounded-full bg-muted flex items-center justify-center border-none cursor-pointer"
+                      aria-label="Close"
+                      className="w-10 h-10 rounded-full bg-muted flex items-center justify-center border-none cursor-pointer"
                     >
                       <X size={14} className="text-ink" />
                     </motion.button>
@@ -517,6 +534,9 @@ export default function Profile({
             onClick={() => { sfx('modalClose'); setShowLogout(false) }}
           >
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="logout-modal-title"
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -528,7 +548,7 @@ export default function Profile({
                 <LogOut size={24} className="text-rose" />
               </div>
               <div className="text-center">
-                <h4 className="text-[16px] md:text-[18px] font-bold text-ink">Log Out?</h4>
+                <h4 id="logout-modal-title" className="text-[16px] md:text-[18px] font-bold text-ink">Log Out?</h4>
                 <p className="text-[12px] md:text-[13px] text-ink-muted mt-1">This will clear all your data, coins, avatars, and progress. This action cannot be undone.</p>
               </div>
               <div className="flex items-center gap-2 w-full mt-1">

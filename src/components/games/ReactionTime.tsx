@@ -100,7 +100,7 @@ export default function ReactionTime({ onComplete }: Props) {
   }
 
   const bgColor = phase === 'waiting' ? 'var(--color-coral)' : phase === 'ready' ? 'var(--color-green)' : 'var(--color-muted)'
-  const textColor = phase === 'waiting' || phase === 'ready' ? '#fff' : 'var(--color-ink)'
+  const textColor = phase === 'waiting' || phase === 'ready' ? 'white' : 'var(--color-ink)'
 
   return (
     <div className="flex flex-col gap-4">

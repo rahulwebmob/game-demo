@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, ShoppingBag, X } from 'lucide-react'
+import { Z } from '../constants'
 
 export interface ToastData {
   id: number
@@ -9,7 +10,12 @@ export interface ToastData {
 
 export default function ToastContainer({ toasts, onDismiss }: { toasts: ToastData[]; onDismiss: (id: number) => void }) {
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex flex-col gap-2 pointer-events-none w-[90%] max-w-[380px]">
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed top-4 left-1/2 -translate-x-1/2 flex flex-col gap-2 pointer-events-none w-[90%] max-w-[380px]"
+      style={{ zIndex: Z.TOAST, paddingTop: 'env(safe-area-inset-top)' }}
+    >
       <AnimatePresence>
         {toasts.map(t => (
           <motion.div

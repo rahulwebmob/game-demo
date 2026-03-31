@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 export function useLocalStorage<T>(key: string, initial: T): [T, (v: T | ((prev: T) => T)) => void] {
   const [value, setValue] = useState<T>(() => {
@@ -10,10 +10,20 @@ export function useLocalStorage<T>(key: string, initial: T): [T, (v: T | ((prev:
     }
   })
 
+  const prevSerialized = useRef<string>('')
+
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify(value))
-    } catch { /* quota exceeded */ }
+      const serialized = JSON.stringify(value)
+      if (serialized !== prevSerialized.current) {
+        prevSerialized.current = serialized
+        localStorage.setItem(key, serialized)
+      }
+    } catch (e: unknown) {
+      if (e instanceof DOMException && e.name === 'QuotaExceededError') {
+        console.warn('[Storage] Quota exceeded for key:', key)
+      }
+    }
   }, [key, value])
 
   return [value, setValue]

@@ -24,6 +24,7 @@ export default function AvatarImg({ avatar, size = 80, className = '', ring, lev
         <img
           src={sleeping && avatarSleepSrc[avatar] ? avatarSleepSrc[avatar]! : avatarSrc[avatar]}
           alt={avatar}
+          loading="lazy"
           draggable={false}
           className="w-full h-full object-contain select-none"
           style={sleeping && !avatarSleepSrc[avatar] ? { filter: 'grayscale(0.4) brightness(0.85)' } : undefined}
