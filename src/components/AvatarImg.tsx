@@ -9,6 +9,9 @@ const src: Record<AvatarId, string> = {
 
 const sleepSrc: Partial<Record<AvatarId, string>> = {
   owl: '/avatars/owl-sleep.png',
+  cat: '/avatars/cat-sleep.png',
+  cat2: '/avatars/cat2-sleep.png',
+  dog: '/avatars/dog-sleep.png',
 }
 
 interface Props {
