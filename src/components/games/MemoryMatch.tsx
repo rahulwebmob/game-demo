@@ -75,7 +75,9 @@ export default function MemoryMatch({ onComplete }: Props) {
     if (sel.length === 2) {
       setMoves(m => m + 1)
       const [a, b] = sel
-      if (next[a].emoji === next[b].emoji) {
+      const cardA = next.find(c => c.id === a)!
+      const cardB = next.find(c => c.id === b)!
+      if (cardA.emoji === cardB.emoji) {
         const newMatches = matches + 1
         setTimeout(() => {
           sfx('success')
