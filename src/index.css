@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #FFF5EE;
+  --color-card: #FFFFFF;
+  --color-muted: #F7EBE3;
+  --color-border: #F0DDD3;
+
+  --color-coral: #E86A50;
+  --color-coral-light: #FDEBE6;
+  --color-coral-dark: #D0503A;
+
+  --color-teal: #2AB89E;
+  --color-teal-light: #DFF6F0;
+
+  --color-gold: #F5A623;
+  --color-gold-light: #FEF3DC;
+
+  --color-violet: #8B6CC1;
+  --color-violet-light: #EDE5F8;
+
+  --color-sky: #4DA3E8;
+  --color-sky-light: #E0EFFE;
+
+  --color-green: #4CB870;
+  --color-green-light: #E0F5E9;
+
+  --color-rose: #E86A76;
+  --color-rose-light: #FDE8EA;
+
+  --color-ink: #1E1B18;
+  --color-ink-secondary: #6B6560;
+  --color-ink-muted: #A9A19A;
+
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+
+  --shadow-card: 0 2px 12px rgba(120, 80, 50, 0.06);
+  --shadow-btn: 0 4px 16px rgba(232, 106, 80, 0.22);
+  --shadow-soft: 0 1px 4px rgba(120, 80, 50, 0.04);
+  --shadow-elevated: 0 4px 24px rgba(120, 80, 50, 0.08), 0 1px 3px rgba(120, 80, 50, 0.04);
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+  background: var(--color-bg);
+  color: var(--color-ink-secondary);
+  font-family: var(--font-sans);
+}
+
+#root { min-height: 100dvh; }
+
+::-webkit-scrollbar { width: 0; height: 0; }
+* { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+
+/* ── Gradient text ── */
+.text-gradient-coral {
+  background: linear-gradient(135deg, #E86A50 0%, #F5A623 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #F5A623 0%, #E86A50 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Tabular numbers for counters ── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Glass card ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ── Nav glass ── */
+.nav-glass {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 -1px 16px rgba(120, 80, 50, 0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+
+/* ── Progress bar shimmer ── */
+@keyframes bar-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+  animation: bar-shimmer 2s ease-in-out infinite;
+}
+
+/* ── Claim button pulse ── */
+@keyframes claim-pulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(232, 106, 80, 0.22); }
+  50% { box-shadow: 0 4px 28px rgba(232, 106, 80, 0.40); }
+}
+.pulse-claim { animation: claim-pulse 2s ease-in-out infinite; }
+
+/* ── Gentle pulse ── */
+@keyframes gentle-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* ── Float up (coin diff) ── */
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-18px); }
+}
+
+/* ── XP bar gradient ── */
+.xp-gradient {
+  background: linear-gradient(90deg, #E86A50, #F5A623);
+}
+
+/* ── Skeleton loader ── */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-bone {
+  background: linear-gradient(90deg, var(--color-muted) 25%, var(--color-border) 50%, var(--color-muted) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}

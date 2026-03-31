@@ -1,0 +1,308 @@
+import { motion } from 'framer-motion'
+import {
+  Zap, Flame, Star, Trophy,
+  Gamepad2, BarChart3, Search,
+  Megaphone, ArrowRight, Medal, Gift, Coins, Paintbrush,
+  Clock, Brain, Eye, Heart, Activity,
+} from 'lucide-react'
+import AvatarImg from '../components/AvatarImg'
+import CoinBadge from '../components/CoinBadge'
+import AnimatedNumber from '../components/AnimatedNumber'
+import type { AvatarId } from '../data/avatars'
+import { dailyQuests, playerStats } from '../data/avatars'
+import { games } from '../data/games'
+import type { Tab } from '../components/NavBar'
+
+interface Props {
+  coins: number
+  score: number
+  streak: number
+  avatar: AvatarId
+  name: string
+  navigate: (t: Tab) => void
+}
+
+const fade = {
+  initial: { y: 18, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+}
+
+const cats = [
+  { icon: Brain, label: 'Brain', bg: '#DFF6F0', fg: '#2AB89E' },
+  { icon: Eye, label: 'Eye Care', bg: '#EDE5F8', fg: '#8B6CC1' },
+  { icon: Heart, label: 'Memory', bg: '#FDEBE6', fg: '#E86A50' },
+  { icon: Activity, label: 'Stats', bg: '#E0EFFE', fg: '#4DA3E8' },
+]
+
+const featuredGames = games.slice(0, 3)
+
+export default function Home({ coins, score, streak, avatar, name, navigate }: Props) {
+  return (
+    <motion.div
+      initial="initial" animate="animate"
+      transition={{ staggerChildren: 0.045 }}
+      className="flex flex-col gap-5 md:gap-7 px-5 md:px-8 lg:px-10 pt-7 md:pt-10 pb-2"
+    >
+      {/* ── Header ── */}
+      <motion.div variants={fade} className="flex items-center justify-between">
+        <div>
+          <h1 className="text-[22px] md:text-[28px] font-bold text-ink leading-tight tracking-tight">Hello, {name}</h1>
+          <p className="text-[12px] md:text-[14px] text-ink-muted mt-0.5 flex items-center gap-1">
+            <MapPin /> Level {playerStats.level} player
+          </p>
+        </div>
+        <motion.div whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.04 }} onClick={() => navigate('customize')} className="cursor-pointer">
+          <AvatarImg avatar={avatar} size={48} ring level={playerStats.level} />
+        </motion.div>
+      </motion.div>
+
+      {/* ── Hero text ── */}
+      <motion.div variants={fade}>
+        <h2 className="text-[20px] md:text-[26px] font-bold text-ink leading-snug tracking-tight">
+          Train Your Brain<br />Stay <span className="text-gradient-coral">Sharp!</span>
+        </h2>
+        <p className="text-[12px] md:text-[14px] text-ink-muted mt-1.5">
+          Medical games for cognitive health & eye care
+        </p>
+      </motion.div>
+
+      {/* ── Search ── */}
+      <motion.div variants={fade} className="flex items-center gap-3 glass-card rounded-2xl pl-4 md:pl-5 pr-1.5 py-1.5 md:py-2 shadow-[var(--shadow-card)]">
+        <Search size={18} className="text-ink-muted flex-shrink-0" />
+        <span className="flex-1 text-[13px] md:text-[15px] text-ink-muted">Search games...</span>
+        <motion.div
+          whileTap={{ scale: 0.9, y: 1 }}
+          whileHover={{ scale: 1.05 }}
+          className="w-10 h-10 md:w-12 md:h-12 rounded-[14px] bg-coral flex items-center justify-center shadow-[var(--shadow-btn)] cursor-pointer"
+        >
+          <Search size={16} color="#fff" strokeWidth={2.4} />
+        </motion.div>
+      </motion.div>
+
+      {/* ── XP bar ── */}
+      <motion.div variants={fade} className="glass-card rounded-2xl p-4 md:p-5 shadow-[var(--shadow-card)]">
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2.5">
+            <AvatarImg avatar={avatar} size={36} />
+            <div>
+              <span className="text-[13px] md:text-[15px] font-bold text-ink">Level {playerStats.level}</span>
+              <p className="text-[10px] md:text-[12px] text-ink-muted tabular-nums">{playerStats.xp}/{playerStats.xpToNext} XP</p>
+            </div>
+          </div>
+          <CoinBadge amount={coins} small />
+        </div>
+        <div className="w-full h-[6px] md:h-[8px] bg-muted rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${(playerStats.xp / playerStats.xpToNext) * 100}%` }}
+            transition={{ duration: 1, delay: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+            className="h-full xp-gradient rounded-full progress-bar"
+          />
+        </div>
+      </motion.div>
+
+      {/* ── Categories ── */}
+      <motion.div variants={fade} className="grid grid-cols-4 gap-3 md:gap-5">
+        {cats.map(c => (
+          <motion.button
+            key={c.label}
+            whileTap={{ scale: 0.9, y: 1 }}
+            whileHover={{ y: -3 }}
+            onClick={() => navigate('games')}
+            className="flex flex-col items-center gap-1.5 md:gap-2 bg-transparent border-none cursor-pointer"
+          >
+            <div className="w-[54px] h-[54px] md:w-[68px] md:h-[68px] rounded-2xl md:rounded-[20px] flex items-center justify-center shadow-[var(--shadow-soft)]" style={{ background: c.bg }}>
+              <c.icon size={24} style={{ color: c.fg }} strokeWidth={1.8} />
+            </div>
+            <span className="text-[11px] md:text-[13px] font-medium text-ink-secondary">{c.label}</span>
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {/* ── Featured Games ── */}
+      <motion.div variants={fade}>
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h3 className="text-[15px] md:text-[18px] font-bold text-ink">Featured Games</h3>
+          <motion.span whileHover={{ x: 2 }} className="text-[12px] md:text-[14px] font-semibold text-coral cursor-pointer" onClick={() => navigate('games')}>
+            See all
+          </motion.span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+          {featuredGames.map(g => (
+            <motion.div
+              key={g.id}
+              whileTap={{ scale: 0.97, y: 1 }}
+              whileHover={{ y: -3, boxShadow: '0 8px 28px rgba(120,80,50,0.10)' }}
+              onClick={() => navigate('games')}
+              className="rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 cursor-pointer relative overflow-hidden shadow-[var(--shadow-soft)]"
+              style={{ background: g.bg }}
+            >
+              <div className="w-[56px] h-[56px] md:w-[64px] md:h-[64px] rounded-2xl bg-white/50 flex items-center justify-center flex-shrink-0">
+                {g.icon === 'grid' && <Gamepad2 size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
+                {g.icon === 'eye' && <Eye size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
+                {g.icon === 'zap' && <Zap size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
+                {g.icon === 'brain' && <Brain size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
+              </div>
+              <div className="flex flex-col justify-center md:justify-start gap-1">
+                <span className="text-[15px] md:text-[17px] font-bold text-ink">{g.name}</span>
+                <div className="flex items-center gap-3 text-ink-secondary">
+                  <span className="flex items-center gap-1 text-[11px] md:text-[12px] font-medium">
+                    <Clock size={12} /> {g.time}
+                  </span>
+                  <span className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    g.difficulty === 'Easy' ? 'bg-green-light text-green' :
+                    g.difficulty === 'Medium' ? 'bg-gold-light text-gold' :
+                    'bg-rose-light text-rose'
+                  }`}>
+                    {g.difficulty}
+                  </span>
+                  <span className="flex items-center gap-0.5 text-[11px] md:text-[12px] font-bold text-gold">
+                    <Coins size={11} /> {g.coinReward}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* ── Stats strip ── */}
+      <motion.div variants={fade} className="grid grid-cols-4 gap-2 md:gap-3">
+        {[
+          { icon: Zap, label: 'Score', val: score, bg: '#FDEBE6', fg: '#E86A50' },
+          { icon: Flame, label: 'Streak', val: streak, bg: '#FEF3DC', fg: '#F5A623', suffix: 'd' },
+          { icon: Trophy, label: 'Rank', val: 42, bg: '#DFF6F0', fg: '#2AB89E', prefix: '#' },
+          { icon: Star, label: 'Level', val: playerStats.level, bg: '#EDE5F8', fg: '#8B6CC1' },
+        ].map((s, i) => (
+          <motion.div
+            key={s.label}
+            whileHover={{ y: -2 }}
+            className="glass-card rounded-2xl py-3 md:py-5 flex flex-col items-center gap-1.5 md:gap-2 shadow-[var(--shadow-soft)]"
+          >
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center" style={{ background: s.bg }}>
+              <s.icon size={16} style={{ color: s.fg }} strokeWidth={2} />
+            </div>
+            <AnimatedNumber
+              value={s.val}
+              prefix={s.prefix}
+              suffix={s.suffix}
+              duration={800 + i * 150}
+              className="text-[14px] md:text-[18px] font-bold text-ink"
+            />
+            <span className="text-[9px] md:text-[10px] font-semibold text-ink-muted uppercase tracking-[0.08em]">{s.label}</span>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* ── Daily Quests ── */}
+      <motion.div variants={fade}>
+        <div className="flex items-center justify-between mb-3 md:mb-4">
+          <h3 className="text-[15px] md:text-[18px] font-bold text-ink">Daily Quests</h3>
+          <motion.span whileHover={{ x: 2 }} className="text-[12px] md:text-[14px] font-semibold text-coral cursor-pointer" onClick={() => navigate('games')}>See all</motion.span>
+        </div>
+        <div className="flex flex-col gap-2.5 md:gap-3">
+          {dailyQuests.map((q, qi) => {
+            const done = q.progress >= q.total
+            const colors = [
+              { bg: '#FDEBE6', fg: '#E86A50' },
+              { bg: '#DFF6F0', fg: '#2AB89E' },
+              { bg: '#EDE5F8', fg: '#8B6CC1' },
+            ]
+            const qc = colors[qi % 3]
+            const pct = (q.progress / q.total) * 100
+            return (
+              <motion.div
+                key={q.id}
+                whileHover={{ y: -1 }}
+                className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)]"
+              >
+                <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: done ? '#E0F5E9' : qc.bg }}
+                >
+                  {q.icon === 'gamepad' && <Gamepad2 size={20} style={{ color: done ? '#4CB870' : qc.fg }} />}
+                  {q.icon === 'trophy' && <Trophy size={20} style={{ color: done ? '#4CB870' : qc.fg }} />}
+                  {q.icon === 'bar-chart' && <BarChart3 size={20} style={{ color: done ? '#4CB870' : qc.fg }} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] md:text-[15px] font-semibold text-ink">{q.title}</p>
+                  <div className="w-full h-[5px] md:h-[6px] bg-muted rounded-full mt-2 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.8, delay: 0.3 + qi * 0.12, ease: [0.34, 1.56, 0.64, 1] }}
+                      className="h-full rounded-full progress-bar"
+                      style={{ background: done ? '#4CB870' : qc.fg }}
+                    />
+                  </div>
+                </div>
+                <span className="text-[11px] md:text-[13px] font-bold text-gold flex items-center gap-0.5 flex-shrink-0 tabular-nums">
+                  <Coins size={13} /> {q.reward}
+                </span>
+              </motion.div>
+            )
+          })}
+        </div>
+      </motion.div>
+
+      {/* ── Quick actions ── */}
+      <motion.div variants={fade} className="grid grid-cols-4 gap-2 md:gap-3">
+        <QBtn icon={Gamepad2} label="Games" bg="#FDEBE6" fg="#E86A50" onClick={() => navigate('games')} />
+        <QBtn icon={Medal} label="Ranks" bg="#DFF6F0" fg="#2AB89E" onClick={() => navigate('leaderboard')} />
+        <QBtn icon={Gift} label="Daily" bg="#FEF3DC" fg="#F5A623" onClick={() => navigate('daily')} />
+        <QBtn icon={Paintbrush} label="Shop" bg="#EDE5F8" fg="#8B6CC1" onClick={() => navigate('customize')} />
+      </motion.div>
+
+      {/* ── Health tip banner ── */}
+      <motion.div variants={fade} className="glass-card rounded-2xl p-4 md:p-5 flex items-start gap-3.5 shadow-[var(--shadow-soft)]">
+        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-teal-light flex items-center justify-center flex-shrink-0">
+          <Brain size={20} className="text-teal" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] md:text-[15px] font-bold text-ink">Did You Know?</p>
+          <p className="text-[11px] md:text-[13px] text-ink-muted mt-0.5">
+            15 minutes of daily brain training can improve memory retention by up to 30%
+          </p>
+        </div>
+      </motion.div>
+
+      {/* ── Announcement ── */}
+      <motion.div variants={fade} whileHover={{ y: -1 }} onClick={() => navigate('games')} className="glass-card rounded-2xl p-4 md:p-5 flex items-center gap-3.5 shadow-[var(--shadow-soft)] cursor-pointer">
+        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-coral-light flex items-center justify-center flex-shrink-0">
+          <Megaphone size={20} className="text-coral" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[13px] md:text-[15px] font-bold text-ink">New: Alzheimer's Prevention Pack</p>
+          <p className="text-[11px] md:text-[13px] text-ink-muted mt-0.5">6 medical games now available</p>
+        </div>
+        <ArrowRight size={18} className="text-ink-muted flex-shrink-0" />
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function MapPin() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E86A50" strokeWidth="2.2"
+      strokeLinecap="round" strokeLinejoin="round" className="inline -mt-px">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
+}
+
+function QBtn({ icon: Icon, label, bg, fg, onClick }: {
+  icon: typeof Medal; label: string; bg: string; fg: string; onClick: () => void
+}) {
+  return (
+    <motion.button
+      whileTap={{ scale: 0.93, y: 2 }}
+      whileHover={{ y: -3, boxShadow: '0 6px 20px rgba(120,80,50,0.08)' }}
+      onClick={onClick}
+      className="flex flex-col items-center gap-1.5 md:gap-2 py-4 md:py-6 rounded-2xl text-[11px] md:text-[13px] font-semibold border-none cursor-pointer shadow-[var(--shadow-soft)]"
+      style={{ background: bg, color: fg }}
+    >
+      <Icon size={20} strokeWidth={1.8} />
+      {label}
+    </motion.button>
+  )
+}

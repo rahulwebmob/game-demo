@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd D:/gamerify && npm create vite@latest . -- --template react-ts 2>&1)",
+      "Bash(cd D:/gamerify && echo \"y\" | npm create vite@latest . -- --template react-ts 2>&1)",
+      "Bash(cd D:/gamerify && npx --yes create-vite@latest . --template react-ts 2>&1)",
+      "Bash(cd D:/gamerify && npx --yes create-vite@latest tmpapp --template react-ts 2>&1)",
+      "Bash(cd D:/gamerify && cp -r tmpapp/* tmpapp/.* . 2>/dev/null; rm -rf tmpapp)",
+      "Bash(cd D:/gamerify && npm install 2>&1)",
+      "Bash(cd D:/gamerify && npm install framer-motion lucide-react 2>&1)",
+      "Bash(cd D:/gamerify && npm install -D tailwindcss @tailwindcss/vite 2>&1)",
+      "Bash(cd D:/gamerify && rm -f src/App.css)",
+      "Bash(python --version 2>&1 && python -c \"from PIL import Image; print\\('Pillow OK'\\)\" 2>&1)",
+      "Bash(python3 --version 2>&1 || py --version 2>&1)",
+      "Bash(magick --version 2>&1 || convert --version 2>&1 || ffmpeg -version 2>&1 | head -1)",
+      "Bash(node -e \"console.log\\('node ok'\\)\" 2>&1)",
+      "Bash(cd D:/gamerify && npm install --save-dev sharp 2>&1)"
+    ]
+  }
+}
