@@ -71,7 +71,8 @@ export default function ThemePicker({ themeId, onThemeChange }: Props) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.15 }}
-            className="absolute left-0 right-0 top-full mt-1.5 z-20 glass-card rounded-2xl p-2 shadow-[var(--shadow-elevated)] flex flex-col gap-0.5 max-h-[320px] overflow-y-auto thin-scrollbar"
+            className="absolute left-0 right-0 top-full mt-1.5 z-20 rounded-2xl p-2 shadow-[var(--shadow-elevated)] flex flex-col gap-0.5 max-h-[320px] overflow-y-auto thin-scrollbar border border-border"
+            style={{ background: 'var(--color-card)' }}
           >
             {(Object.keys(themeMeta) as ThemeId[]).map(id => {
               const active = themeId === id
