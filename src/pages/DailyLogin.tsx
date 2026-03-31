@@ -94,12 +94,15 @@ export default function DailyLogin({ coins, streak, claimed, onClaim, energy, ma
         </div>
 
         {/* Week dots */}
-        <div className="flex items-center gap-[5px] md:gap-2">
+        <div className="flex items-center">
           {[0, 1, 2, 3, 4, 5, 6].map(d => {
             const filled = d < todayIdx || (d === todayIdx && claimed)
             const current = d === todayIdx && !claimed
             return (
               <div key={d} className="flex items-center">
+                {d > 0 && (
+                  <div className={`w-[10px] md:w-[14px] h-[3px] transition-colors ${d <= todayIdx && (d < todayIdx || claimed) ? 'bg-coral' : 'bg-muted'}`} />
+                )}
                 <motion.div
                   initial={false}
                   animate={filled ? { scale: [1, 1.15, 1] } : {}}
@@ -115,9 +118,6 @@ export default function DailyLogin({ coins, streak, claimed, onClaim, energy, ma
                 >
                   {filled ? <Check size={14} strokeWidth={3} /> : d + 1}
                 </motion.div>
-                {d < 6 && (
-                  <div className={`w-[6px] md:w-[10px] h-[3px] rounded-full transition-colors ${filled ? 'bg-coral' : 'bg-muted'}`} />
-                )}
               </div>
             )
           })}

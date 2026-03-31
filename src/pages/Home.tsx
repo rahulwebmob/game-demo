@@ -94,7 +94,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
       {/* ── Hero text ── */}
       <motion.div variants={fade}>
         <h2 className="text-[20px] md:text-[26px] font-bold text-ink leading-snug tracking-tight">
-          Train Your Brain<br />Stay <span className="text-gradient-coral">Sharp!</span>
+          Train Your Brain Stay <span className="text-gradient-coral">Sharp!</span>
         </h2>
         <p className="text-[12px] md:text-[14px] text-ink-muted mt-1.5">
           Medical games for cognitive health & eye care
