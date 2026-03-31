@@ -121,11 +121,13 @@ export default function Customize({
                   active ? 'border-coral !bg-coral-light' : 'border-transparent'
                 } ${locked ? 'opacity-30' : ''}`}
               >
-                <div className="w-[50px] h-[50px] md:w-[64px] md:h-[64px] rounded-xl overflow-hidden relative" style={{ background: a.bg + '18' }}>
+                <div className="w-[50px] h-[50px] md:w-[64px] md:h-[64px] rounded-xl overflow-hidden relative" style={{ background: `color-mix(in srgb, ${a.bg} 10%, transparent)` }}>
                   <AvatarImg avatar={a.id} size={50} className="md:!w-[64px] md:!h-[64px]" />
                   {locked && (
-                    <div className="absolute inset-0 bg-black/15 flex items-center justify-center rounded-xl">
-                      <Lock size={15} className="text-white" />
+                    <div className="absolute inset-0 flex items-center justify-center rounded-xl"
+                      style={{ background: 'color-mix(in srgb, var(--color-bg) 60%, transparent)' }}
+                    >
+                      <Lock size={15} className="text-ink-muted" />
                     </div>
                   )}
                 </div>

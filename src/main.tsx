@@ -9,9 +9,23 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-// Register service worker for PWA
+// Register service worker — auto-reload on new deployments
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {})
+    navigator.serviceWorker.register('/sw.js').then(reg => {
+      // Check for updates every 60 seconds
+      setInterval(() => reg.update().catch(() => {}), 60_000)
+
+      // When a new SW is installed, reload to pick up the new version
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing
+        if (!newWorker) return
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+            window.location.reload()
+          }
+        })
+      })
+    }).catch(() => {})
   })
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gamerify-v1'
+const CACHE_NAME = 'gamerify-v__BUILD_ID__'
 const PRECACHE = ['/', '/index.html']
 
 self.addEventListener('install', (e) => {
@@ -19,6 +19,20 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return
+  // For navigation requests, always go network-first to pick up new deployments
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .then(response => {
+          const clone = response.clone()
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone))
+          return response
+        })
+        .catch(() => caches.match(e.request))
+    )
+    return
+  }
+  // For assets, use stale-while-revalidate
   e.respondWith(
     caches.match(e.request).then(cached => {
       const fetched = fetch(e.request).then(response => {

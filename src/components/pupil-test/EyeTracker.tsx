@@ -300,8 +300,8 @@ export default function EyeTracker({
       <div
         className="absolute top-2 left-2 z-[2] px-2 py-0.5 rounded text-[10px] font-bold"
         style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          color: faceDetected ? '#4caf50' : 'red',
+          backgroundColor: 'var(--glass-bg)',
+          color: faceDetected ? 'var(--color-green)' : 'var(--color-rose)',
         }}
       >
         {isForPupilTest
@@ -318,7 +318,7 @@ export default function EyeTracker({
               className="h-full rounded-full transition-[width] duration-100"
               style={{
                 width: `${centeringProgress}%`,
-                backgroundColor: isCenteringComplete ? '#4caf50' : '#2196f3',
+                backgroundColor: isCenteringComplete ? 'var(--color-green)' : 'var(--color-sky)',
               }}
             />
           </div>
