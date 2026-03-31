@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import NavBar from './components/NavBar'
 import Home from './pages/Home'
@@ -29,6 +29,9 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home')
   const [direction, setDirection] = useState(0)
   const [loading, setLoading] = useState(false)
+
+  // Scroll to top on hard refresh
+  useEffect(() => { window.scrollTo({ top: 0, behavior: 'instant' }) }, [])
 
   // Energy state (not persisted — resets on refresh)
   const [energy, setEnergy] = useState(0)
@@ -80,8 +83,13 @@ export default function App() {
     setDirection(getDirection(tab, to))
     setLoading(true)
     setTab(to)
-    window.scrollTo(0, 0)
-    setTimeout(() => setLoading(false), 180)
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+    setTimeout(() => {
+      setLoading(false)
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }, 180)
   }, [tab])
 
   const earnCoins = useCallback((amount: number) => {
