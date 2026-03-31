@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Star, Eye } from 'lucide-react'
+import { Eye } from 'lucide-react'
+import GameResult from './GameResult'
+import { useSound } from '../../hooks/useSound'
 
 const ROUNDS = 10
 
@@ -25,6 +27,7 @@ interface Props {
 }
 
 export default function ColorVision({ onComplete }: Props) {
+  const sfx = useSound()
   const [round, setRound] = useState(0)
   const [score, setScore] = useState(0)
   const [level, setLevel] = useState(generateRound(0))
@@ -50,7 +53,10 @@ export default function ColorVision({ onComplete }: Props) {
 
   function handleTap(idx: number) {
     if (feedback) return
-    next(idx === level.oddIndex)
+    sfx('tap')
+    const correct = idx === level.oddIndex
+    if (correct) sfx('success'); else sfx('error')
+    next(correct)
   }
 
   function reset() {
@@ -64,31 +70,16 @@ export default function ColorVision({ onComplete }: Props) {
   if (done) {
     const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1
     return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex flex-col items-center gap-5 py-10"
-      >
-        <div className="w-20 h-20 rounded-3xl bg-violet-light flex items-center justify-center">
-          <Eye size={36} className="text-violet" />
-        </div>
-        <h3 className="text-[22px] font-bold text-ink">Vision Score</h3>
-        <div className="flex gap-1">
-          {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
-          ))}
-        </div>
-        <p className="text-[36px] font-extrabold text-gradient-coral">{score}</p>
-        <p className="text-[13px] text-ink-muted">out of {ROUNDS * (ROUNDS + 1) * 5}</p>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-violet text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: 'var(--shadow-btn)' }}
-        >
-          <RotateCcw size={16} /> Try Again
-        </motion.button>
-      </motion.div>
+      <GameResult
+        icon={<Eye size={36} className="text-violet" />}
+        iconBg="bg-violet-light"
+        title="Vision Score"
+        stars={stars}
+        score={score}
+        subtitle={`out of ${ROUNDS * (ROUNDS + 1) * 5}`}
+        accentColor="bg-violet"
+        onReset={reset}
+      />
     )
   }
 

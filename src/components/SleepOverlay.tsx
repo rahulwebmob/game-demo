@@ -1,20 +1,8 @@
 import { motion } from 'framer-motion'
 import { Eye, Battery, X } from 'lucide-react'
+import { avatarSrc, avatarSleepSrc } from '../data/avatars'
 import type { AvatarId } from '../data/avatars'
-
-const avatarSrc: Record<AvatarId, string> = {
-  owl: '/avatars/owl.png',
-  dog: '/avatars/dog.png',
-  cat: '/avatars/cat.png',
-  cat2: '/avatars/cat2.png',
-}
-
-const sleepSrc: Partial<Record<AvatarId, string>> = {
-  owl: '/avatars/owl-sleep.png',
-  cat: '/avatars/cat-sleep.png',
-  cat2: '/avatars/cat2-sleep.png',
-  dog: '/avatars/dog-sleep.png',
-}
+import { useSound } from '../hooks/useSound'
 
 interface Props {
   avatar: AvatarId
@@ -94,6 +82,7 @@ function Moon() {
 }
 
 export default function SleepOverlay({ avatar, onStartEyeCheck, onClose }: Props) {
+  const sfx = useSound()
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -174,11 +163,11 @@ export default function SleepOverlay({ avatar, onStartEyeCheck, onClose }: Props
           transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
         >
           <img
-            src={sleepSrc[avatar] || avatarSrc[avatar]}
+            src={avatarSleepSrc[avatar] || avatarSrc[avatar]}
             alt={avatar}
             draggable={false}
             className="w-full h-full object-contain select-none"
-            style={sleepSrc[avatar] ? undefined : { filter: 'grayscale(0.45) brightness(0.65) saturate(0.7)' }}
+            style={avatarSleepSrc[avatar] ? undefined : { filter: 'grayscale(0.45) brightness(0.65) saturate(0.7)' }}
           />
           {/* Sleepy dim overlay */}
           <motion.div
@@ -275,7 +264,7 @@ export default function SleepOverlay({ avatar, onStartEyeCheck, onClose }: Props
         transition={{ delay: 0.7, duration: 0.5 }}
         whileTap={{ scale: 0.93 }}
         whileHover={{ scale: 1.04 }}
-        onClick={onStartEyeCheck}
+        onClick={() => { sfx('tap'); onStartEyeCheck() }}
         className="relative flex items-center gap-3 px-8 py-4 rounded-2xl border-none cursor-pointer overflow-hidden"
         style={{
           background: 'linear-gradient(135deg, #7BA7B5, #4DC9A0)',

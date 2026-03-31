@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Star, Zap } from 'lucide-react'
+import { Zap } from 'lucide-react'
+import GameResult from './GameResult'
+import { useSound } from '../../hooks/useSound'
 
 type Phase = 'idle' | 'waiting' | 'ready' | 'result' | 'done'
 const TOTAL_ROUNDS = 5
@@ -10,6 +12,7 @@ interface Props {
 }
 
 export default function ReactionTime({ onComplete }: Props) {
+  const sfx = useSound()
   const [phase, setPhase] = useState<Phase>('idle')
   const [times, setTimes] = useState<number[]>([])
   const [currentTime, setCurrentTime] = useState(0)
@@ -29,16 +32,19 @@ export default function ReactionTime({ onComplete }: Props) {
 
   const handleTap = useCallback(() => {
     if (phase === 'idle') {
+      sfx('tap')
       start()
       return
     }
     if (phase === 'waiting') {
       clearTimeout(timeout.current)
+      sfx('error')
       setTooEarly(true)
       setPhase('idle')
       return
     }
     if (phase === 'ready') {
+      sfx('success')
       const ms = Math.round(performance.now() - readyAt.current)
       setCurrentTime(ms)
       const newTimes = [...times, ms]
@@ -53,9 +59,10 @@ export default function ReactionTime({ onComplete }: Props) {
       }
     }
     if (phase === 'result') {
+      sfx('tap')
       start()
     }
-  }, [phase, times, start, onComplete])
+  }, [phase, times, start, onComplete, sfx])
 
   function reset() {
     setPhase('idle')
@@ -71,22 +78,16 @@ export default function ReactionTime({ onComplete }: Props) {
     const stars = avg < 250 ? 3 : avg < 350 ? 2 : 1
     const rating = avg < 200 ? 'Lightning Fast!' : avg < 300 ? 'Great Reflexes!' : avg < 400 ? 'Good Speed' : 'Keep Practicing'
     return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex flex-col items-center gap-5 py-10"
+      <GameResult
+        icon={<Zap size={36} className="text-gold" />}
+        iconBg="bg-gold-light"
+        title={rating}
+        stars={stars}
+        score={`${avg}ms`}
+        subtitle="average reaction time"
+        accentColor="bg-gold"
+        onReset={reset}
       >
-        <div className="w-20 h-20 rounded-3xl bg-gold-light flex items-center justify-center">
-          <Zap size={36} className="text-gold" />
-        </div>
-        <h3 className="text-[22px] font-bold text-ink">{rating}</h3>
-        <div className="flex gap-1">
-          {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
-          ))}
-        </div>
-        <p className="text-[42px] font-extrabold text-gradient-coral leading-none">{avg}ms</p>
-        <p className="text-[13px] text-ink-muted">average reaction time</p>
         <div className="flex gap-2 flex-wrap justify-center">
           {times.map((t, i) => (
             <span key={i} className="px-3 py-1.5 rounded-xl bg-muted text-[12px] font-semibold text-ink tabular-nums">
@@ -94,15 +95,7 @@ export default function ReactionTime({ onComplete }: Props) {
             </span>
           ))}
         </div>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-gold text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: 'var(--shadow-btn)' }}
-        >
-          <RotateCcw size={16} /> Try Again
-        </motion.button>
-      </motion.div>
+      </GameResult>
     )
   }
 

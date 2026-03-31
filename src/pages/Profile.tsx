@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useSound } from '../hooks/useSound'
 import {
   User, Sun, Moon, Volume2, VolumeX, Bell, BellOff,
   Coins, Zap, Flame, Trophy, Gamepad2, Eye, Brain,
@@ -73,6 +74,7 @@ export default function Profile({
   twoFactorEnabled, onTwoFactorToggle,
   onNameChange, onEmailChange, onPasswordChange, showToast,
 }: Props) {
+  const sfx = useSound()
   const [editingField, setEditingField] = useState<'name' | 'email' | 'password' | null>(null)
   const [editValue, setEditValue] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -94,13 +96,13 @@ export default function Profile({
     if (!editingField) return
     const trimmed = editValue.trim()
     if (editingField === 'name') {
-      if (trimmed && trimmed !== name) { onNameChange(trimmed); showToast('Name updated!') }
+      if (trimmed && trimmed !== name) { onNameChange(trimmed); showToast('Name updated!'); sfx('success') }
     } else if (editingField === 'email') {
-      if (trimmed && trimmed !== email && trimmed.includes('@')) { onEmailChange(trimmed); showToast('Email updated!') }
+      if (trimmed && trimmed !== email && trimmed.includes('@')) { onEmailChange(trimmed); showToast('Email updated!'); sfx('success') }
     } else if (editingField === 'password') {
-      if (trimmed.length >= 6 && trimmed === confirmPassword) { onPasswordChange(trimmed); showToast('Password updated!') }
-      else if (trimmed !== confirmPassword) { showToast('Passwords don\'t match'); return }
-      else if (trimmed.length < 6) { showToast('Min 6 characters'); return }
+      if (trimmed.length >= 6 && trimmed === confirmPassword) { onPasswordChange(trimmed); showToast('Password updated!'); sfx('success') }
+      else if (trimmed !== confirmPassword) { showToast('Passwords don\'t match'); sfx('error'); return }
+      else if (trimmed.length < 6) { showToast('Min 6 characters'); sfx('error'); return }
     }
     cancelEdit()
   }
@@ -501,7 +503,7 @@ export default function Profile({
           <Info size={18} className="text-sky" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] md:text-[15px] font-bold text-ink">Gamerify v1.0</p>
+          <p className="text-[13px] md:text-[15px] font-bold text-ink">Pupilfy v1.0</p>
           <p className="text-[11px] md:text-[13px] text-ink-muted mt-0.5">
             Medical games for cognitive health & eye care. Train your brain daily!
           </p>

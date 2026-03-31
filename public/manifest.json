@@ -1,7 +1,7 @@
 {
-  "name": "Gamerify",
-  "short_name": "Gamerify",
-  "description": "Your gaming rewards companion",
+  "name": "Pupilfy",
+  "short_name": "Pupilfy",
+  "description": "Train your eyes & brain with fun games",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#EDF3F8",

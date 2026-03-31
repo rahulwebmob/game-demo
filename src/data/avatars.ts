@@ -1,4 +1,20 @@
-export type AvatarId = 'owl' | 'dog' | 'cat' | 'cat2'
+export type AvatarId = 'owl' | 'dog' | 'cat' | 'cat2' | 'penguin'
+
+export const avatarSrc: Record<AvatarId, string> = {
+  owl: '/avatars/owl.png',
+  dog: '/avatars/dog.png',
+  cat: '/avatars/cat.png',
+  cat2: '/avatars/cat2.png',
+  penguin: '/avatars/penguin.png',
+}
+
+export const avatarSleepSrc: Partial<Record<AvatarId, string>> = {
+  owl: '/avatars/owl-sleep.png',
+  cat: '/avatars/cat-sleep.png',
+  cat2: '/avatars/cat2-sleep.png',
+  dog: '/avatars/dog-sleep.png',
+  penguin: '/avatars/penguin-sleep.png',
+}
 
 export interface Avatar {
   id: AvatarId
@@ -12,6 +28,7 @@ export const avatars: Avatar[] = [
   { id: 'dog', name: 'Buddy', bg: 'var(--color-teal)', price: 0 },
   { id: 'cat', name: 'Whiskers', bg: 'var(--color-gold)', price: 0 },
   { id: 'cat2', name: 'Ginger', bg: 'var(--color-violet)', price: 150 },
+  { id: 'penguin', name: 'Waddle', bg: 'var(--color-sky)', price: 200 },
 ]
 
 export interface Accessory {

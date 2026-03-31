@@ -1,18 +1,5 @@
+import { avatarSrc, avatarSleepSrc } from '../data/avatars'
 import type { AvatarId } from '../data/avatars'
-
-const src: Record<AvatarId, string> = {
-  owl: '/avatars/owl.png',
-  dog: '/avatars/dog.png',
-  cat: '/avatars/cat.png',
-  cat2: '/avatars/cat2.png',
-}
-
-const sleepSrc: Partial<Record<AvatarId, string>> = {
-  owl: '/avatars/owl-sleep.png',
-  cat: '/avatars/cat-sleep.png',
-  cat2: '/avatars/cat2-sleep.png',
-  dog: '/avatars/dog-sleep.png',
-}
 
 interface Props {
   avatar: AvatarId
@@ -35,11 +22,11 @@ export default function AvatarImg({ avatar, size = 80, className = '', ring, lev
         style={{ borderRadius: r }}
       >
         <img
-          src={sleeping && sleepSrc[avatar] ? sleepSrc[avatar]! : src[avatar]}
+          src={sleeping && avatarSleepSrc[avatar] ? avatarSleepSrc[avatar]! : avatarSrc[avatar]}
           alt={avatar}
           draggable={false}
           className="w-full h-full object-contain select-none"
-          style={sleeping && !sleepSrc[avatar] ? { filter: 'grayscale(0.4) brightness(0.85)' } : undefined}
+          style={sleeping && !avatarSleepSrc[avatar] ? { filter: 'grayscale(0.4) brightness(0.85)' } : undefined}
         />
       </div>
       {sleeping && (

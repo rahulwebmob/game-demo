@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Star, Brain } from 'lucide-react'
+import { Brain } from 'lucide-react'
+import GameResult from './GameResult'
+import { useSound } from '../../hooks/useSound'
 
 const GRID = 9
 const COLS = 3
@@ -10,6 +12,7 @@ interface Props {
 }
 
 export default function PatternRecall({ onComplete }: Props) {
+  const sfx = useSound()
   const [level, setLevel] = useState(1)
   const [pattern, setPattern] = useState<number[]>([])
   const [userPattern, setUserPattern] = useState<number[]>([])
@@ -48,23 +51,25 @@ export default function PatternRecall({ onComplete }: Props) {
     timeouts.current.push(t3)
   }, [])
 
-  useEffect(() => {
-    startRound(1)
-    return clearTimeouts
-  }, [])
-
-  function startRound(lvl: number) {
+  const startRound = useCallback((lvl: number) => {
     const len = lvl + 2 // starts at 3 cells
     const pat = generatePattern(len)
     setLevel(lvl)
     setPattern(pat)
     setUserPattern([])
     showPattern(pat)
-  }
+  }, [generatePattern, showPattern])
+
+  useEffect(() => {
+    startRound(1)
+    return clearTimeouts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleTap(cell: number) {
     if (phase !== 'input') return
 
+    sfx('tap')
     const next = [...userPattern, cell]
     setUserPattern(next)
 
@@ -75,6 +80,7 @@ export default function PatternRecall({ onComplete }: Props) {
     const idx = next.length - 1
     if (next[idx] !== pattern[idx]) {
       // Wrong!
+      sfx('error')
       const newLives = lives - 1
       setLives(newLives)
       if (newLives <= 0) {
@@ -89,6 +95,7 @@ export default function PatternRecall({ onComplete }: Props) {
 
     if (next.length === pattern.length) {
       // Correct!
+      sfx('success')
       const pts = level * 15
       setScore(s => s + pts)
       setPhase('correct')
@@ -114,31 +121,16 @@ export default function PatternRecall({ onComplete }: Props) {
   if (phase === 'done') {
     const stars = score >= 100 ? 3 : score >= 50 ? 2 : 1
     return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex flex-col items-center gap-5 py-10"
-      >
-        <div className="w-20 h-20 rounded-3xl bg-teal-light flex items-center justify-center">
-          <Brain size={36} className="text-teal" />
-        </div>
-        <h3 className="text-[22px] font-bold text-ink">Pattern Master</h3>
-        <div className="flex gap-1">
-          {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
-          ))}
-        </div>
-        <p className="text-[36px] font-extrabold text-gradient-coral">{score}</p>
-        <p className="text-[13px] text-ink-muted">Reached level {level}</p>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-teal text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: 'var(--shadow-btn)' }}
-        >
-          <RotateCcw size={16} /> Play Again
-        </motion.button>
-      </motion.div>
+      <GameResult
+        icon={<Brain size={36} className="text-teal" />}
+        iconBg="bg-teal-light"
+        title="Pattern Master"
+        stars={stars}
+        score={score}
+        subtitle={`Reached level ${level}`}
+        accentColor="bg-teal"
+        onReset={reset}
+      />
     )
   }
 

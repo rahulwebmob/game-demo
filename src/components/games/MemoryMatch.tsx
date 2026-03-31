@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Trophy, Clock, Star } from 'lucide-react'
+import { Trophy, Clock } from 'lucide-react'
+import GameResult from './GameResult'
+import { useSound } from '../../hooks/useSound'
 
 const EMOJIS = ['🧠', '👁️', '❤️', '⚡', '🎯', '🌟', '🔬', '💊']
 
@@ -22,6 +24,7 @@ function shuffle(): Card[] {
 }
 
 export default function MemoryMatch({ onComplete }: Props) {
+  const sfx = useSound()
   const [cards, setCards] = useState<Card[]>(shuffle)
   const [selected, setSelected] = useState<number[]>([])
   const [moves, setMoves] = useState(0)
@@ -42,15 +45,6 @@ export default function MemoryMatch({ onComplete }: Props) {
     }
   }, [started, done])
 
-  useEffect(() => {
-    if (matches === 8 && matches > 0) {
-      setDone(true)
-      clearInterval(interval.current)
-      const score = Math.max(100 - moves * 2 - timer, 10)
-      setTimeout(() => onComplete(score), 600)
-    }
-  }, [matches, moves, timer, onComplete])
-
   function reset() {
     setCards(shuffle())
     setSelected([])
@@ -66,6 +60,7 @@ export default function MemoryMatch({ onComplete }: Props) {
     const card = cards[id]
     if (card.flipped || card.matched) return
 
+    sfx('tap')
     if (!started) setStarted(true)
 
     const next = cards.map(c => c.id === id ? { ...c, flipped: true } : c)
@@ -77,15 +72,24 @@ export default function MemoryMatch({ onComplete }: Props) {
       setMoves(m => m + 1)
       const [a, b] = sel
       if (next[a].emoji === next[b].emoji) {
+        const newMatches = matches + 1
         setTimeout(() => {
+          sfx('success')
           setCards(prev => prev.map(c =>
             c.id === a || c.id === b ? { ...c, matched: true } : c
           ))
-          setMatches(m => m + 1)
+          setMatches(newMatches)
           setSelected([])
+          if (newMatches === 8) {
+            setDone(true)
+            clearInterval(interval.current)
+            const score = Math.max(100 - (moves + 1) * 2 - timer, 10)
+            setTimeout(() => onComplete(score), 600)
+          }
         }, 400)
       } else {
         setTimeout(() => {
+          sfx('error')
           setCards(prev => prev.map(c =>
             c.id === a || c.id === b ? { ...c, flipped: false } : c
           ))
@@ -101,20 +105,14 @@ export default function MemoryMatch({ onComplete }: Props) {
     const score = Math.max(100 - moves * 2 - timer, 10)
     const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1
     return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex flex-col items-center gap-5 py-10"
+      <GameResult
+        icon={<Trophy size={36} className="text-gold" />}
+        iconBg="bg-gold-light"
+        title="Complete!"
+        stars={stars}
+        score={score}
+        onReset={reset}
       >
-        <div className="w-20 h-20 rounded-3xl bg-gold-light flex items-center justify-center">
-          <Trophy size={36} className="text-gold" />
-        </div>
-        <h3 className="text-[22px] font-bold text-ink">Complete!</h3>
-        <div className="flex gap-1">
-          {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
-          ))}
-        </div>
         <div className="flex gap-6 text-center">
           <div>
             <p className="text-[20px] font-bold text-ink">{moves}</p>
@@ -124,19 +122,8 @@ export default function MemoryMatch({ onComplete }: Props) {
             <p className="text-[20px] font-bold text-ink">{fmt(timer)}</p>
             <p className="text-[11px] text-ink-muted font-medium">Time</p>
           </div>
-          <div>
-            <p className="text-[20px] font-bold text-gradient-coral">{score}</p>
-            <p className="text-[11px] text-ink-muted font-medium">Score</p>
-          </div>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-coral text-white font-semibold text-[14px] border-none cursor-pointer shadow-[var(--shadow-btn)]"
-        >
-          <RotateCcw size={16} /> Play Again
-        </motion.button>
-      </motion.div>
+      </GameResult>
     )
   }
 

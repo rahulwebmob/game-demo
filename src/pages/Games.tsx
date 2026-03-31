@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSound } from '../hooks/useSound'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Gamepad2, ArrowLeft, Coins, Clock, Zap, Star,
@@ -51,6 +52,7 @@ const gridItem = {
 }
 
 export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEnergy, onStartEyeCheck, onAddEnergy, onResetEnergy }: Props) {
+  const sfx = useSound()
   const noEnergy = energy === 0
   const [activeGame, setActiveGame] = useState<GameId | null>(null)
   const [filter, setFilter] = useState<GameCategory | 'all'>('all')
@@ -208,6 +210,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
             whileHover={noEnergy ? undefined : { y: -3, boxShadow: 'var(--shadow-elevated)' }}
             onClick={() => {
               if (noEnergy) return
+              sfx('gameStart')
               onSpendEnergy()
               setActiveGame(game.id)
             }}

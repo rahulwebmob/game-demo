@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useSound } from '../hooks/useSound'
 import {
   Gift, CheckCircle, Flame, Target, Lock, Coins,
   Crown, Rocket, Clock, CalendarHeart, Check,
@@ -17,12 +18,14 @@ interface Props {
 }
 
 export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
+  const sfx = useSound()
   const todayIdx = streak % 7
   const days6 = dailyRewards.slice(0, 6)
   const day7 = dailyRewards[6]
   const [showConfetti, setShowConfetti] = useState(false)
 
   const handleClaim = () => {
+    sfx('tap')
     onClaim()
     setShowConfetti(true)
     setTimeout(() => setShowConfetti(false), 1500)
@@ -77,7 +80,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
                       ? 'bg-coral text-white'
                       : current
                         ? 'bg-coral text-white shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-coral)_18%,transparent)]'
-                        : 'bg-muted text-ink-muted'
+                        : 'bg-muted text-ink-secondary'
                   }`}
                   style={current ? { animation: 'gentle-pulse 2s ease-in-out infinite' } : undefined}
                 >
@@ -123,7 +126,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
                   ? <Gift size={24} className="text-coral" />
                   : <Lock size={20} className="text-ink-muted" />
               }
-              <span className="text-[10px] md:text-[12px] font-semibold text-ink-muted">{rw.label}</span>
+              <span className="text-[10px] md:text-[12px] font-semibold text-ink-secondary">{rw.label}</span>
               <span className="text-[14px] md:text-[16px] font-bold text-gold flex items-center gap-0.5 tabular-nums">
                 <Coins size={13} /> {rw.coins}
               </span>

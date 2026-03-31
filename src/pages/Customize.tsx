@@ -1,13 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Check, Users, Wand2, Lock, Coins, ArrowLeft,
-  Glasses, Crown, Star, Shield, GraduationCap, Ban, Heart, Paintbrush,
+  Glasses, Crown, Star, Shield, GraduationCap, Ban, Heart,
 } from 'lucide-react'
 import AvatarImg from '../components/AvatarImg'
 import CoinBadge from '../components/CoinBadge'
 import { avatars, accessories } from '../data/avatars'
 import type { AvatarId } from '../data/avatars'
 import type { Tab } from '../components/NavBar'
+import { useSound } from '../hooks/useSound'
 
 interface Props {
   coins: number
@@ -39,6 +40,7 @@ export default function Customize({
   coins, avatar, accessory, ownedAvatars, ownedAccessories,
   onSelectAvatar, onSelectAccessory, onBuy, navigate,
 }: Props) {
+  const sfx = useSound()
   const cur = avatars.find(a => a.id === avatar)
 
   return (
@@ -111,7 +113,7 @@ export default function Customize({
                 variants={gridItem}
                 whileTap={{ scale: 0.92, y: 1 }}
                 whileHover={!locked ? { y: -2 } : undefined}
-                onClick={() => owned ? onSelectAvatar(a.id) : !locked && onBuy('avatar', a.id, a.price)}
+                onClick={() => { sfx('tap'); if (owned) onSelectAvatar(a.id); else if (!locked) onBuy('avatar', a.id, a.price) }}
                 className={`relative flex flex-col items-center gap-2 p-2.5 md:p-3 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] transition-all ${
                   active ? 'border-coral !bg-coral-light' : 'border-transparent'
                 } ${locked ? 'opacity-30' : ''}`}
@@ -157,7 +159,7 @@ export default function Customize({
             variants={gridItem}
             whileTap={{ scale: 0.92, y: 1 }}
             whileHover={{ y: -2 }}
-            onClick={() => onSelectAccessory(null)}
+            onClick={() => { sfx('tap'); onSelectAccessory(null) }}
             className={`flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] ${
               !accessory ? 'border-coral !bg-coral-light' : 'border-transparent'
             }`}
@@ -176,7 +178,7 @@ export default function Customize({
                 variants={gridItem}
                 whileTap={{ scale: 0.92, y: 1 }}
                 whileHover={!locked ? { y: -2 } : undefined}
-                onClick={() => owned ? onSelectAccessory(ac.id) : !locked && onBuy('accessory', ac.id, ac.price)}
+                onClick={() => { sfx('tap'); if (owned) onSelectAccessory(ac.id); else if (!locked) onBuy('accessory', ac.id, ac.price) }}
                 className={`relative flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] ${
                   active ? 'border-coral !bg-coral-light' : 'border-transparent'
                 } ${locked ? 'opacity-30' : ''}`}

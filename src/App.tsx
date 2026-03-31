@@ -17,6 +17,7 @@ import type { AvatarId } from './data/avatars'
 import { dailyRewards, accessories, avatars } from './data/avatars'
 import { useLocalStorage } from './hooks/useLocalStorage'
 import { useTheme } from './hooks/useTheme'
+import { useSound } from './hooks/useSound'
 
 const TAB_ORDER: Tab[] = ['home', 'games', 'customize', 'leaderboard', 'daily', 'profile']
 
@@ -26,6 +27,7 @@ function getDirection(from: Tab, to: Tab) {
 
 export default function App() {
   const theme = useTheme()
+  const sfx = useSound()
   const [tab, setTab] = useState<Tab>('home')
   const [direction, setDirection] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -42,10 +44,11 @@ export default function App() {
   const fillEnergy = useCallback(() => {
     setEnergy(MAX_ENERGY)
     setShowSleepOverlay(false)
-  }, [])
-  const spendEnergy = useCallback(() => setEnergy(e => Math.max(0, e - 1)), [])
-  const addEnergy = useCallback(() => setEnergy(e => Math.min(MAX_ENERGY, e + 1)), [])
-  const resetEnergy = useCallback(() => setEnergy(0), [])
+    sfx('wakeUp')
+  }, [sfx])
+  const spendEnergy = useCallback(() => { setEnergy(e => Math.max(0, e - 1)); sfx('energyDown') }, [sfx])
+  const addEnergy = useCallback(() => { setEnergy(e => Math.min(MAX_ENERGY, e + 1)); sfx('energyUp') }, [sfx])
+  const resetEnergy = useCallback(() => { setEnergy(0); sfx('error') }, [sfx])
 
   // Persisted state
   const [coins, setCoins] = useLocalStorage('gamerify-coins', 250)
@@ -80,6 +83,7 @@ export default function App() {
   // Navigate with direction + skeleton
   const navigate = useCallback((to: Tab) => {
     if (to === tab) return
+    sfx('navigate')
     setDirection(getDirection(tab, to))
     setLoading(true)
     setTab(to)
@@ -90,14 +94,16 @@ export default function App() {
       setLoading(false)
       window.scrollTo({ top: 0, behavior: 'instant' })
     }, 180)
-  }, [tab])
+  }, [tab, sfx])
 
   const earnCoins = useCallback((amount: number) => {
     setCoins(c => c + amount)
-  }, [setCoins])
+    sfx('coinEarn')
+  }, [setCoins, sfx])
 
   const buy = useCallback((type: 'avatar' | 'accessory', id: string, price: number) => {
     if (coins < price) return
+    sfx('coinSpend')
     setCoins(c => c - price)
     if (type === 'avatar') {
       setOwnedAvatars(o => [...o, id as AvatarId])
@@ -110,17 +116,18 @@ export default function App() {
       const name = accessories.find(a => a.id === id)?.name || id
       showToast(`Bought ${name}!`, 'purchase')
     }
-  }, [coins, setCoins, setOwnedAvatars, setSelectedAvatar, setOwnedAccessories, setSelectedAccessory, showToast])
+  }, [coins, sfx, setCoins, setOwnedAvatars, setSelectedAvatar, setOwnedAccessories, setSelectedAccessory, showToast])
 
   const claimDaily = useCallback(() => {
     if (claimedToday) return
+    sfx('success')
     const todayIndex = streak % 7
     const reward = dailyRewards[todayIndex].coins
     setCoins(c => c + reward)
     setStreak(s => s + 1)
     setClaimedToday(true)
     showToast(`Claimed ${reward} coins! Day ${todayIndex + 1}`, 'success')
-  }, [claimedToday, streak, setCoins, setStreak, setClaimedToday, showToast])
+  }, [claimedToday, streak, sfx, setCoins, setStreak, setClaimedToday, showToast])
 
   const pageVariants = {
     enter: (d: number) => ({ opacity: 0, x: d * 60, scale: 0.98 }),
@@ -151,6 +158,7 @@ export default function App() {
             fillEnergy()
             setShowPupilTest(false)
             showToast('Energy restored! 5/5', 'success')
+            sfx('success')
           }}
           onClose={() => setShowPupilTest(false)}
           onError={(msg) => {

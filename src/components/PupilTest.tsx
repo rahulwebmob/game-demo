@@ -92,17 +92,20 @@ export default function PupilTest({ onComplete, onClose, onError }: PupilTestPro
   }, [shouldStartTest])
 
   // Face tracking loss detection
+  const handleRetestRef = useRef(handleRetest)
+  const onErrorRef = useRef(onError)
+  useEffect(() => { handleRetestRef.current = handleRetest }, [handleRetest])
+  useEffect(() => { onErrorRef.current = onError }, [onError])
+
   useEffect(() => {
     if (isAndroid()) return
-
-    if (eyeTrackerReady && shouldStartTest && !isTestCompleted) {
-      if (!faceDetected && faceWasDetectedRef.current && activeStep === 2) {
-        onError?.('Face tracking lost! The test will restart.')
-        handleRetest()
-      }
-      faceWasDetectedRef.current = faceDetected
+    if (!eyeTrackerReady || !shouldStartTest || isTestCompleted) return
+    if (!faceDetected && faceWasDetectedRef.current && activeStep === 2) {
+      onErrorRef.current?.('Face tracking lost! The test will restart.')
+      queueMicrotask(() => handleRetestRef.current())
     }
-  }, [faceDetected, eyeTrackerReady, shouldStartTest, activeStep, isTestCompleted, onError, handleRetest])
+    faceWasDetectedRef.current = faceDetected
+  }, [faceDetected, eyeTrackerReady, shouldStartTest, activeStep, isTestCompleted])
 
   // Step 3: Full-screen pupil test
   if (activeStep === 2) {

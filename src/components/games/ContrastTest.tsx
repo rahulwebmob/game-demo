@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Star, ScanEye } from 'lucide-react'
+import { ScanEye } from 'lucide-react'
+import GameResult from './GameResult'
+import { useSound } from '../../hooks/useSound'
 
 const TOTAL = 12
 
@@ -8,17 +10,18 @@ interface Props {
   onComplete: (score: number) => void
 }
 
+function generatePositions(size: number) {
+  return { oddIdx: Math.floor(Math.random() * size) }
+}
+
 export default function ContrastTest({ onComplete }: Props) {
+  const sfx = useSound()
   const [round, setRound] = useState(0)
   const [score, setScore] = useState(0)
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null)
   const [done, setDone] = useState(false)
 
   const [positions, setPositions] = useState(() => generatePositions(4))
-
-  function generatePositions(size: number) {
-    return { oddIdx: Math.floor(Math.random() * size) }
-  }
 
   const nextRound = useCallback((correct: boolean) => {
     setFeedback(correct ? 'correct' : 'wrong')
@@ -40,7 +43,10 @@ export default function ContrastTest({ onComplete }: Props) {
 
   function handleTap(idx: number) {
     if (feedback) return
-    nextRound(idx === positions.oddIdx)
+    sfx('tap')
+    const correct = idx === positions.oddIdx
+    if (correct) sfx('success'); else sfx('error')
+    nextRound(correct)
   }
 
   function reset() {
@@ -55,31 +61,16 @@ export default function ContrastTest({ onComplete }: Props) {
     const stars = score >= 120 ? 3 : score >= 70 ? 2 : 1
     const rating = score >= 120 ? 'Eagle Eyes!' : score >= 70 ? 'Good Vision' : 'Keep Training'
     return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex flex-col items-center gap-5 py-10"
-      >
-        <div className="w-20 h-20 rounded-3xl bg-rose-light flex items-center justify-center">
-          <ScanEye size={36} className="text-rose" />
-        </div>
-        <h3 className="text-[22px] font-bold text-ink">{rating}</h3>
-        <div className="flex gap-1">
-          {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
-          ))}
-        </div>
-        <p className="text-[36px] font-extrabold text-gradient-coral">{score}</p>
-        <p className="text-[13px] text-ink-muted">Contrast sensitivity score</p>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-rose text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: 'var(--shadow-btn)' }}
-        >
-          <RotateCcw size={16} /> Try Again
-        </motion.button>
-      </motion.div>
+      <GameResult
+        icon={<ScanEye size={36} className="text-rose" />}
+        iconBg="bg-rose-light"
+        title={rating}
+        stars={stars}
+        score={score}
+        subtitle="Contrast sensitivity score"
+        accentColor="bg-rose"
+        onReset={reset}
+      />
     )
   }
 

@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { RotateCcw, Star, Hash } from 'lucide-react'
+import { Hash } from 'lucide-react'
+import GameResult from './GameResult'
+import { useSound } from '../../hooks/useSound'
 
 const TOTAL = 8
 
@@ -45,6 +47,7 @@ interface Props {
 }
 
 export default function NumberSequence({ onComplete }: Props) {
+  const sfx = useSound()
   const [round, setRound] = useState(0)
   const [score, setScore] = useState(0)
   const [problem, setProblem] = useState(() => genSequence(0))
@@ -73,8 +76,11 @@ export default function NumberSequence({ onComplete }: Props) {
 
   function handleChoice(val: number) {
     if (selected !== null) return
+    sfx('tap')
+    const correct = val === problem.answer
+    if (correct) sfx('success'); else sfx('error')
     setSelected(val)
-    nextRound(val === problem.answer)
+    nextRound(correct)
   }
 
   function reset() {
@@ -90,30 +96,15 @@ export default function NumberSequence({ onComplete }: Props) {
   if (done) {
     const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1
     return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        className="flex flex-col items-center gap-5 py-10"
-      >
-        <div className="w-20 h-20 rounded-3xl bg-sky-light flex items-center justify-center">
-          <Hash size={36} className="text-sky" />
-        </div>
-        <h3 className="text-[22px] font-bold text-ink">Math Wizard!</h3>
-        <div className="flex gap-1">
-          {[1, 2, 3].map(i => (
-            <Star key={i} size={28} className={i <= stars ? 'text-gold' : 'text-muted'} fill={i <= stars ? 'var(--color-gold)' : 'none'} />
-          ))}
-        </div>
-        <p className="text-[36px] font-extrabold text-gradient-coral">{score}</p>
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={reset}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-sky text-white font-semibold text-[14px] border-none cursor-pointer"
-          style={{ boxShadow: 'var(--shadow-btn)' }}
-        >
-          <RotateCcw size={16} /> Play Again
-        </motion.button>
-      </motion.div>
+      <GameResult
+        icon={<Hash size={36} className="text-sky" />}
+        iconBg="bg-sky-light"
+        title="Math Wizard!"
+        stars={stars}
+        score={score}
+        accentColor="bg-sky"
+        onReset={reset}
+      />
     )
   }
 
