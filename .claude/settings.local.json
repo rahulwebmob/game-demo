@@ -18,7 +18,8 @@
       "Bash(magick --version 2>&1 | head -1)",
       "Bash(node -e \"console.log\\('ok'\\)\")",
       "Bash(cd D:/gamerify && npx tsc --noEmit --noUnusedLocals --noUnusedParameters 2>&1 | head -40)",
-      "Bash(cd D:/gamerify && for word in ArrowLeft LogOut Heart TrendingUp Lock Check Star; do echo -n \"$word: \"; grep -c \"<$word\\\\b\" src/pages/Profile.tsx || echo 0; done)"
+      "Bash(cd D:/gamerify && for word in ArrowLeft LogOut Heart TrendingUp Lock Check Star; do echo -n \"$word: \"; grep -c \"<$word\\\\b\" src/pages/Profile.tsx || echo 0; done)",
+      "Bash(npx eslint:*)"
     ]
   }
 }

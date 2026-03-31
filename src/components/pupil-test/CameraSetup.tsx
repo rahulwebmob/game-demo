@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Camera, User, Eye, MonitorSmartphone } from 'lucide-react'
+import { useSound } from '../../hooks/useSound'
 
 const checks = [
   { icon: User, text: 'Your face is centered and clearly visible on the screen' },
@@ -21,6 +22,7 @@ const colors = [
 ]
 
 export default function CameraSetup({ shouldStartTest, setShouldStartTest }: Props) {
+  const sfx = useSound()
   return (
     <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 shadow-[var(--shadow-card)]">
       <h3 className="text-[16px] md:text-[20px] font-bold text-ink mb-4 md:mb-5">
@@ -43,7 +45,7 @@ export default function CameraSetup({ shouldStartTest, setShouldStartTest }: Pro
           <motion.button
             whileTap={{ scale: 0.93 }}
             whileHover={{ scale: 1.04 }}
-            onClick={() => setShouldStartTest(true)}
+            onClick={() => { sfx('tap'); setShouldStartTest(true) }}
             className="px-6 md:px-8 py-3 md:py-3.5 rounded-xl bg-coral text-white text-[14px] md:text-[15px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)]"
           >
             <Camera size={16} className="inline -mt-0.5 mr-1.5" />

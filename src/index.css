@@ -64,6 +64,13 @@ body {
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* ── Thin scrollbar for dropdowns ── */
+.thin-scrollbar { scrollbar-width: thin; scrollbar-color: var(--color-border) transparent; }
+.thin-scrollbar::-webkit-scrollbar { width: 4px; }
+.thin-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.thin-scrollbar::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 4px; }
+.thin-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--color-ink-muted); }
+
 
 /* ── Gradient text ── */
 .text-gradient-coral {
@@ -87,19 +94,19 @@ body {
 
 /* ── Glass card ── */
 .glass-card {
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--glass-bg, rgba(255, 255, 255, 0.72));
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.5));
 }
 
 /* ── Nav glass ── */
 .nav-glass {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--nav-glass-bg, rgba(255, 255, 255, 0.88));
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 -1px 16px rgba(30, 48, 56, 0.05);
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 -1px 16px var(--nav-glass-shadow, rgba(30, 48, 56, 0.05));
+  border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.5));
 }
 
 
@@ -128,8 +135,8 @@ body {
 
 /* ── Claim button pulse ── */
 @keyframes claim-pulse {
-  0%, 100% { box-shadow: 0 4px 16px rgba(123, 167, 181, 0.22); }
-  50% { box-shadow: 0 4px 28px rgba(123, 167, 181, 0.40); }
+  0%, 100% { box-shadow: var(--shadow-btn); }
+  50% { box-shadow: 0 4px 28px color-mix(in srgb, var(--color-coral) 40%, transparent); }
 }
 .pulse-claim { animation: claim-pulse 2s ease-in-out infinite; }
 
@@ -147,7 +154,7 @@ body {
 
 /* ── XP bar gradient ── */
 .xp-gradient {
-  background: linear-gradient(90deg, #7BA7B5, #4DC9A0);
+  background: linear-gradient(90deg, var(--color-coral), var(--color-teal));
 }
 
 /* ── Skeleton loader ── */

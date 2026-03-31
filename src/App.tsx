@@ -16,8 +16,9 @@ import type { Tab } from './components/NavBar'
 import type { AvatarId } from './data/avatars'
 import { dailyRewards, accessories, avatars } from './data/avatars'
 import { useLocalStorage } from './hooks/useLocalStorage'
-import { useTheme } from './hooks/useTheme'
+import { useTheme, isDarkTheme } from './hooks/useTheme'
 import { useSound } from './hooks/useSound'
+import { STORAGE_KEYS, MAX_ENERGY } from './constants'
 
 const TAB_ORDER: Tab[] = ['home', 'games', 'customize', 'leaderboard', 'daily', 'profile']
 
@@ -39,7 +40,7 @@ export default function App() {
   const [energy, setEnergy] = useState(0)
   const [showPupilTest, setShowPupilTest] = useState(false)
   const [showSleepOverlay, setShowSleepOverlay] = useState(true)
-  const MAX_ENERGY = 5
+  // MAX_ENERGY imported from constants
 
   const fillEnergy = useCallback(() => {
     setEnergy(MAX_ENERGY)
@@ -51,20 +52,20 @@ export default function App() {
   const resetEnergy = useCallback(() => { setEnergy(0); sfx('error') }, [sfx])
 
   // Persisted state
-  const [coins, setCoins] = useLocalStorage('gamerify-coins', 250)
-  const [score] = useLocalStorage('gamerify-score', 4820)
-  const [streak, setStreak] = useLocalStorage('gamerify-streak', 3)
-  const [claimedToday, setClaimedToday] = useLocalStorage('gamerify-claimed', false)
-  const [selectedAvatar, setSelectedAvatar] = useLocalStorage<AvatarId>('gamerify-avatar', 'owl')
-  const [selectedAccessory, setSelectedAccessory] = useLocalStorage<string | null>('gamerify-accessory', null)
-  const [ownedAvatars, setOwnedAvatars] = useLocalStorage<AvatarId[]>('gamerify-owned-avatars', ['owl', 'dog', 'cat'])
-  const [ownedAccessories, setOwnedAccessories] = useLocalStorage<string[]>('gamerify-owned-accessories', [])
-  const [playerName, setPlayerName] = useLocalStorage('gamerify-name', 'Gamer')
-  const [playerEmail, setPlayerEmail] = useLocalStorage('gamerify-email', '')
-  const [, setPlayerPassword] = useLocalStorage('gamerify-password', '')
-  const [soundEnabled, setSoundEnabled] = useLocalStorage('gamerify-sound', true)
-  const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage('gamerify-notifications', true)
-  const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage('gamerify-2fa', false)
+  const [coins, setCoins] = useLocalStorage(STORAGE_KEYS.coins, 250)
+  const [score] = useLocalStorage(STORAGE_KEYS.score, 4820)
+  const [streak, setStreak] = useLocalStorage(STORAGE_KEYS.streak, 3)
+  const [claimedToday, setClaimedToday] = useLocalStorage(STORAGE_KEYS.claimed, false)
+  const [selectedAvatar, setSelectedAvatar] = useLocalStorage<AvatarId>(STORAGE_KEYS.avatar, 'owl')
+  const [selectedAccessory, setSelectedAccessory] = useLocalStorage<string | null>(STORAGE_KEYS.accessory, null)
+  const [ownedAvatars, setOwnedAvatars] = useLocalStorage<AvatarId[]>(STORAGE_KEYS.ownedAvatars, ['owl', 'dog', 'cat'])
+  const [ownedAccessories, setOwnedAccessories] = useLocalStorage<string[]>(STORAGE_KEYS.ownedAccessories, [])
+  const [playerName, setPlayerName] = useLocalStorage(STORAGE_KEYS.name, 'Gamer')
+  const [playerEmail, setPlayerEmail] = useLocalStorage(STORAGE_KEYS.email, '')
+  const [, setPlayerPassword] = useLocalStorage(STORAGE_KEYS.password, '')
+  const [soundEnabled, setSoundEnabled] = useLocalStorage(STORAGE_KEYS.sound, true)
+  const [notificationsEnabled, setNotificationsEnabled] = useLocalStorage(STORAGE_KEYS.notifications, true)
+  const [twoFactorEnabled, setTwoFactorEnabled] = useLocalStorage(STORAGE_KEYS.twoFactor, false)
 
   // Toast state
   const [toasts, setToasts] = useState<ToastData[]>([])
@@ -171,25 +172,29 @@ export default function App() {
       {/* Toasts */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Ambient background blobs */}
-      <motion.div
-        className="fixed w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-coral) 8%, transparent), transparent 70%)', top: '-8%', right: '-12%' }}
-        animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="fixed w-[220px] h-[220px] md:w-[320px] md:h-[320px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-gold) 6%, transparent), transparent 70%)', bottom: '10%', left: '-10%' }}
-        animate={{ x: [0, -15, 0], y: [0, 20, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="fixed w-[180px] h-[180px] md:w-[260px] md:h-[260px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-violet) 5%, transparent), transparent 70%)', top: '40%', right: '-5%' }}
-        animate={{ x: [0, 12, 0], y: [0, 18, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      {/* Ambient background blobs (hidden on dark themes) */}
+      {!isDarkTheme(theme.themeId) && (
+        <>
+          <motion.div
+            className="fixed w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-coral) 8%, transparent), transparent 70%)', top: '-8%', right: '-12%' }}
+            animate={{ x: [0, 20, 0], y: [0, -15, 0] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="fixed w-[220px] h-[220px] md:w-[320px] md:h-[320px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-gold) 6%, transparent), transparent 70%)', bottom: '10%', left: '-10%' }}
+            animate={{ x: [0, -15, 0], y: [0, 20, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="fixed w-[180px] h-[180px] md:w-[260px] md:h-[260px] rounded-full pointer-events-none"
+            style={{ background: 'radial-gradient(circle, color-mix(in srgb, var(--color-violet) 5%, transparent), transparent 70%)', top: '40%', right: '-5%' }}
+            animate={{ x: [0, 12, 0], y: [0, 18, 0] }}
+            transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </>
+      )}
 
       <div className="relative z-10 pb-24 md:pb-28 min-h-dvh">
         <AnimatePresence mode="wait" custom={direction}>
@@ -209,7 +214,7 @@ export default function App() {
                 <Home coins={coins} score={score} streak={streak} avatar={selectedAvatar} name={playerName} navigate={navigate} themeId={theme.themeId} onThemeChange={theme.setThemeId} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onSpendEnergy={spendEnergy} onResetEnergy={resetEnergy} />
               )}
               {tab === 'games' && (
-                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onResetEnergy={resetEnergy} />
+                <Games coins={coins} onEarnCoins={earnCoins} showToast={showToast} energy={energy} maxEnergy={MAX_ENERGY} onSpendEnergy={spendEnergy} onStartEyeCheck={() => setShowPupilTest(true)} onAddEnergy={addEnergy} onResetEnergy={resetEnergy} />
               )}
               {tab === 'customize' && (
                 <Customize
@@ -221,7 +226,7 @@ export default function App() {
               )}
               {tab === 'leaderboard' && <Leaderboard />}
               {tab === 'daily' && (
-                <DailyLogin coins={coins} streak={streak} claimed={claimedToday} onClaim={claimDaily} />
+                <DailyLogin coins={coins} streak={streak} claimed={claimedToday} onClaim={claimDaily} energy={energy} maxEnergy={MAX_ENERGY} onStartEyeCheck={() => setShowPupilTest(true)} />
               )}
               {tab === 'profile' && (
                 <Profile

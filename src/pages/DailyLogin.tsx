@@ -3,9 +3,10 @@ import { motion } from 'framer-motion'
 import { useSound } from '../hooks/useSound'
 import {
   Gift, CheckCircle, Flame, Target, Lock, Coins,
-  Crown, Rocket, Clock, CalendarHeart, Check,
+  Crown, Rocket, Clock, CalendarHeart, Check, Eye,
 } from 'lucide-react'
 import CoinBadge from '../components/CoinBadge'
+import EnergyBadge from '../components/EnergyBadge'
 import AnimatedNumber from '../components/AnimatedNumber'
 import Confetti from '../components/Confetti'
 import { dailyRewards } from '../data/avatars'
@@ -15,19 +16,24 @@ interface Props {
   streak: number
   claimed: boolean
   onClaim: () => void
+  energy: number
+  maxEnergy: number
+  onStartEyeCheck: () => void
 }
 
-export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
+export default function DailyLogin({ coins, streak, claimed, onClaim, energy, maxEnergy, onStartEyeCheck }: Props) {
   const sfx = useSound()
+  const noEnergy = energy === 0
   const todayIdx = streak % 7
   const days6 = dailyRewards.slice(0, 6)
   const day7 = dailyRewards[6]
   const [showConfetti, setShowConfetti] = useState(false)
 
   const handleClaim = () => {
-    sfx('tap')
+    sfx('streak')
     onClaim()
     setShowConfetti(true)
+    setTimeout(() => sfx('coinEarn'), 300)
     setTimeout(() => setShowConfetti(false), 1500)
   }
 
@@ -41,8 +47,31 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
           </div>
           <h1 className="text-[22px] md:text-[28px] font-bold text-ink tracking-tight">Daily Rewards</h1>
         </div>
-        <CoinBadge amount={coins} small />
+        <div className="flex items-center gap-2">
+          <EnergyBadge energy={energy} maxEnergy={maxEnergy} />
+          <CoinBadge amount={coins} small />
+        </div>
       </div>
+
+      {/* No energy banner */}
+      {noEnergy && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-4 flex items-center gap-3 shadow-[var(--shadow-card)]"
+          style={{ background: 'linear-gradient(135deg, var(--color-coral-light), var(--color-teal-light))' }}
+        >
+          <Eye size={20} className="text-coral flex-shrink-0" />
+          <p className="text-[13px] font-semibold text-ink flex-1">Low Energy — complete an eye check!</p>
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            onClick={() => { sfx('tap'); onStartEyeCheck() }}
+            className="px-3 py-1.5 rounded-xl bg-coral text-white text-[12px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] flex-shrink-0"
+          >
+            Eye Check
+          </motion.button>
+        </motion.div>
+      )}
 
       {/* Streak hero */}
       <div className="glass-card rounded-3xl p-6 md:p-8 flex flex-col items-center gap-4 md:gap-5 shadow-[var(--shadow-elevated)]">
@@ -115,7 +144,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
               whileHover={!locked ? { y: -2 } : undefined}
               className={`flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl shadow-[var(--shadow-soft)] ${locked ? 'opacity-30' : ''}`}
               style={{
-                background: today ? 'var(--color-coral-light)' : done ? 'var(--color-green-light)' : 'rgba(255,255,255,0.72)',
+                background: today ? 'var(--color-coral-light)' : done ? 'var(--color-green-light)' : 'var(--glass-bg)',
                 border: today ? '2px solid var(--color-coral)' : '2px solid transparent',
                 backdropFilter: 'blur(8px)',
               }}
@@ -144,7 +173,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
           border: todayIdx >= 6 ? '2px solid var(--color-gold)' : '2px solid transparent',
         }}
       >
-        <div className="w-[52px] h-[52px] md:w-[60px] md:h-[60px] rounded-2xl bg-white/60 flex items-center justify-center flex-shrink-0">
+        <div className="w-[52px] h-[52px] md:w-[60px] md:h-[60px] rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--color-card) 60%, transparent)' }}>
           <Crown size={28} className="text-gold" />
         </div>
         <div className="flex-1">
@@ -184,7 +213,7 @@ export default function DailyLogin({ coins, streak, claimed, onClaim }: Props) {
 
       {/* 2x bonus */}
       <div className="bg-violet-light rounded-2xl p-4 md:p-5 flex items-center gap-3.5">
-        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-white/60 flex items-center justify-center flex-shrink-0">
+        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'color-mix(in srgb, var(--color-card) 60%, transparent)' }}>
           <Rocket size={22} className="text-violet" />
         </div>
         <div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { CheckCircle } from 'lucide-react'
+import { useSound } from '../../hooks/useSound'
 
 interface Props {
   onComplete: (videoBlob?: Blob) => void
@@ -12,7 +13,16 @@ type Phase = 'COUNTDOWN' | 'TEST' | 'DONE'
 
 const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
+const TEST_DURATION = 20
+const COLOR_STAGES = [
+  { from: 0, to: 5, color: 'black' },
+  { from: 5, to: 10, color: 'blue' },
+  { from: 10, to: 15, color: 'black' },
+  { from: 15, to: 20, color: 'blue' },
+]
+
 export default function PupilTestScreen({ onComplete, onTestComplete, onMediaRecorderStarted, onError }: Props) {
+  const sfx = useSound()
   const chunksRef = useRef<Blob[]>([])
   const intervalRef = useRef<number | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
@@ -23,21 +33,11 @@ export default function PupilTestScreen({ onComplete, onTestComplete, onMediaRec
   const [timer, setTimer] = useState<number>(0)
   const [phase, setPhase] = useState<Phase>('COUNTDOWN')
 
-  const { TEST_DURATION, COLOR_STAGES } = useMemo(() => ({
-    TEST_DURATION: 20,
-    COLOR_STAGES: [
-      { from: 0, to: 5, color: 'black' },
-      { from: 5, to: 10, color: 'blue' },
-      { from: 10, to: 15, color: 'black' },
-      { from: 15, to: 20, color: 'blue' },
-    ],
-  }), [])
-
   const currentColor = useMemo(() => {
     if (phase !== 'TEST') return 'neutral'
     const stage = COLOR_STAGES.find(({ from, to }) => timer >= from && timer < to)
     return stage?.color || 'neutral'
-  }, [phase, timer, COLOR_STAGES])
+  }, [phase, timer])
 
   const startRecording = async () => {
     try {
@@ -207,9 +207,10 @@ export default function PupilTestScreen({ onComplete, onTestComplete, onMediaRec
       stopTimer()
       stopRecording()
       setPhase('DONE')
+      sfx('wakeUp')
       onTestComplete?.()
     }
-  }, [timer, phase, TEST_DURATION, onTestComplete])
+  }, [timer, phase, onTestComplete, sfx])
 
   // DONE phase - auto-dismiss after 1.5s
   useEffect(() => {

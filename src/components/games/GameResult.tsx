@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { RotateCcw, Star } from 'lucide-react'
+import { useSound } from '../../hooks/useSound'
 
 interface Props {
   icon: React.ReactNode
@@ -14,6 +16,11 @@ interface Props {
 }
 
 export default function GameResult({ icon, iconBg, title, stars, score, subtitle, accentColor = 'bg-coral', children, onReset }: Props) {
+  const sfx = useSound()
+
+  // Play celebration sound when result screen mounts
+  useEffect(() => { sfx('gameComplete') }, [sfx])
+
   return (
     <motion.div
       initial={{ scale: 0.8, opacity: 0 }}
@@ -34,7 +41,7 @@ export default function GameResult({ icon, iconBg, title, stars, score, subtitle
       {children}
       <motion.button
         whileTap={{ scale: 0.95 }}
-        onClick={onReset}
+        onClick={() => { sfx('gameStart'); onReset() }}
         className={`flex items-center gap-2 px-6 py-3 rounded-2xl ${accentColor} text-white font-semibold text-[14px] border-none cursor-pointer shadow-[var(--shadow-btn)]`}
       >
         <RotateCcw size={16} /> Play Again

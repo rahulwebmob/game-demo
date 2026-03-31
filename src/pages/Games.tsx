@@ -40,6 +40,7 @@ interface Props {
   onEarnCoins: (amount: number) => void
   showToast: (msg: string, type?: 'success' | 'purchase') => void
   energy: number
+  maxEnergy: number
   onSpendEnergy: () => void
   onStartEyeCheck: () => void
   onAddEnergy: () => void
@@ -51,7 +52,7 @@ const gridItem = {
   visible: { opacity: 1, y: 0, scale: 1 },
 }
 
-export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEnergy, onStartEyeCheck, onAddEnergy, onResetEnergy }: Props) {
+export default function Games({ coins, onEarnCoins, showToast, energy, maxEnergy, onSpendEnergy, onStartEyeCheck, onAddEnergy, onResetEnergy }: Props) {
   const sfx = useSound()
   const noEnergy = energy === 0
   const [activeGame, setActiveGame] = useState<GameId | null>(null)
@@ -78,7 +79,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.85 }}
-            onClick={() => setActiveGame(null)}
+            onClick={() => { sfx('tap'); setActiveGame(null) }}
             className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-muted flex items-center justify-center border-none cursor-pointer"
           >
             <ArrowLeft size={18} className="text-ink" />
@@ -134,7 +135,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <EnergyBadge energy={energy} maxEnergy={5} />
+          <EnergyBadge energy={energy} maxEnergy={maxEnergy} />
           <CoinBadge amount={coins} small />
         </div>
       </div>
@@ -151,7 +152,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
           <p className="text-[13px] font-semibold text-ink flex-1">Out of Energy — complete an eye check to play!</p>
           <motion.button
             whileTap={{ scale: 0.93 }}
-            onClick={onStartEyeCheck}
+            onClick={() => { sfx('tap'); onStartEyeCheck() }}
             className="px-3 py-1.5 rounded-xl bg-coral text-white text-[12px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] flex-shrink-0"
           >
             Start Eye Check
@@ -162,7 +163,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
       {/* Energy Control (demo) */}
       <EnergyControl
         energy={energy}
-        maxEnergy={5}
+        maxEnergy={maxEnergy}
         onAdd={onAddEnergy}
         onSpend={onSpendEnergy}
         onReset={onResetEnergy}
@@ -177,7 +178,7 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
             <motion.button
               key={c.id}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setFilter(c.id)}
+              onClick={() => { sfx('filter'); setFilter(c.id) }}
               className={`flex-1 py-2.5 md:py-3 rounded-xl text-[11px] md:text-[13px] font-semibold border-none cursor-pointer relative z-10 ${
                 on ? 'text-white' : 'bg-transparent text-ink-muted'
               }`}
@@ -214,16 +215,21 @@ export default function Games({ coins, onEarnCoins, showToast, energy, onSpendEn
               onSpendEnergy()
               setActiveGame(game.id)
             }}
-            className={`flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none text-left shadow-[var(--shadow-soft)] relative overflow-hidden ${noEnergy ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-            style={{ background: game.bg }}
+            className={`flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none text-left shadow-[var(--shadow-soft)] relative overflow-hidden border border-border/30 ${noEnergy ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+            style={{ background: `color-mix(in srgb, ${game.bg} 60%, var(--color-card))` }}
           >
             {noEnergy && (
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10 rounded-2xl">
-                <Lock size={22} className="text-white" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-10 rounded-2xl gap-1.5"
+                style={{ background: 'color-mix(in srgb, var(--color-bg) 70%, transparent)', backdropFilter: 'blur(3px)' }}
+              >
+                <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--color-rose) 15%, transparent)' }}>
+                  <Lock size={16} className="text-rose" />
+                </div>
+                <span className="text-[11px] font-bold text-ink-secondary">Low Energy</span>
               </div>
             )}
-            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/50 flex items-center justify-center flex-shrink-0"
-              style={{ color: game.fg }}
+            <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'color-mix(in srgb, var(--color-card) 50%, transparent)', color: game.fg }}
             >
               {iconMap[game.icon] || <Star size={24} />}
             </div>

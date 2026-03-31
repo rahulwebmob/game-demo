@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { Battery, Plus, Minus, RotateCcw, Eye } from 'lucide-react'
 import AnimatedNumber from './AnimatedNumber'
+import { useSound } from '../hooks/useSound'
 
 interface Props {
   energy: number
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function EnergyControl({ energy, maxEnergy, onAdd, onSpend, onReset, onStartEyeCheck }: Props) {
+  const sfx = useSound()
   const pct = (energy / maxEnergy) * 100
   const empty = energy === 0
   const full = energy >= maxEnergy
@@ -58,7 +60,7 @@ export default function EnergyControl({ energy, maxEnergy, onAdd, onSpend, onRes
         <motion.button
           whileTap={{ scale: 0.88 }}
           whileHover={{ scale: 1.06 }}
-          onClick={onSpend}
+          onClick={() => { sfx('energyDown'); onSpend() }}
           disabled={empty}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 md:py-3 rounded-xl text-[12px] md:text-[13px] font-bold border-none cursor-pointer transition-colors ${
             empty ? 'bg-muted text-ink-muted cursor-not-allowed' : 'bg-rose-light text-rose'
@@ -72,7 +74,7 @@ export default function EnergyControl({ energy, maxEnergy, onAdd, onSpend, onRes
         <motion.button
           whileTap={{ scale: 0.88 }}
           whileHover={{ scale: 1.06 }}
-          onClick={onAdd}
+          onClick={() => { sfx('energyUp'); onAdd() }}
           disabled={full}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 md:py-3 rounded-xl text-[12px] md:text-[13px] font-bold border-none cursor-pointer transition-colors ${
             full ? 'bg-muted text-ink-muted cursor-not-allowed' : 'bg-teal-light text-teal'
@@ -86,7 +88,7 @@ export default function EnergyControl({ energy, maxEnergy, onAdd, onSpend, onRes
         <motion.button
           whileTap={{ scale: 0.88, rotate: -90 }}
           whileHover={{ scale: 1.06 }}
-          onClick={onReset}
+          onClick={() => { sfx('tap'); onReset() }}
           className="flex-1 flex items-center justify-center gap-1.5 py-2.5 md:py-3 rounded-xl bg-gold-light text-gold text-[12px] md:text-[13px] font-bold border-none cursor-pointer"
         >
           <RotateCcw size={14} />
@@ -97,7 +99,7 @@ export default function EnergyControl({ energy, maxEnergy, onAdd, onSpend, onRes
         <motion.button
           whileTap={{ scale: 0.88 }}
           whileHover={{ scale: 1.06 }}
-          onClick={onStartEyeCheck}
+          onClick={() => { sfx('navigate'); onStartEyeCheck() }}
           className="flex-1 flex items-center justify-center gap-1.5 py-2.5 md:py-3 rounded-xl bg-coral text-white text-[12px] md:text-[13px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)]"
         >
           <Eye size={14} />

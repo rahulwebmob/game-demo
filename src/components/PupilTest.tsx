@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, X, Eye } from 'lucide-react'
+import { useSound } from '../hooks/useSound'
 import TestPreparation from './pupil-test/TestPreparation'
 import CameraSetup from './pupil-test/CameraSetup'
 import EyeTracker from './pupil-test/EyeTracker'
@@ -17,6 +18,7 @@ interface PupilTestProps {
 }
 
 export default function PupilTest({ onComplete, onClose, onError }: PupilTestProps) {
+  const sfx = useSound()
   const faceWasDetectedRef = useRef(false)
   const cameraVideoRef = useRef<HTMLDivElement>(null)
 
@@ -164,12 +166,12 @@ export default function PupilTest({ onComplete, onClose, onError }: PupilTestPro
             </div>
             <div>
               <h2 className="text-[22px] md:text-[28px] font-bold text-ink tracking-tight">Eye Check</h2>
-              <p className="text-[11px] md:text-[13px] text-ink-muted">Complete the test to restore energy</p>
+              <p className="text-[11px] md:text-[13px] text-ink-muted">Complete this test to earn energy & unlock games</p>
             </div>
           </div>
           <motion.button
             whileTap={{ scale: 0.85 }}
-            onClick={onClose}
+            onClick={() => { sfx('modalClose'); onClose() }}
             className="w-10 h-10 md:w-11 md:h-11 rounded-full glass-card border border-border flex items-center justify-center border-none cursor-pointer shadow-[var(--shadow-soft)]"
           >
             <X size={16} className="text-ink" />
@@ -222,7 +224,7 @@ export default function PupilTest({ onComplete, onClose, onError }: PupilTestPro
         <div className="flex items-center justify-between py-2 md:py-3">
           <motion.button
             whileTap={{ scale: 0.93 }}
-            onClick={handleBack}
+            onClick={() => { sfx('tap'); handleBack() }}
             className="flex items-center gap-1.5 px-5 md:px-6 py-2.5 md:py-3 rounded-xl bg-muted text-ink text-[13px] md:text-[14px] font-semibold border-none cursor-pointer"
           >
             <ArrowLeft size={15} />
@@ -230,7 +232,7 @@ export default function PupilTest({ onComplete, onClose, onError }: PupilTestPro
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.93 }}
-            onClick={handleNext}
+            onClick={() => { sfx('navigate'); handleNext() }}
             disabled={activeStep === 1 && !isAndroid() && (!eyeTrackerReady || !isCenteringComplete)}
             className={`flex items-center gap-1.5 px-5 md:px-6 py-2.5 md:py-3 rounded-xl text-[13px] md:text-[14px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] ${
               activeStep === 1 && !isAndroid() && (!eyeTrackerReady || !isCenteringComplete)

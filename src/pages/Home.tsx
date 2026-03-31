@@ -15,6 +15,7 @@ import { dailyQuests, playerStats } from '../data/avatars'
 import { games } from '../data/games'
 import type { Tab } from '../components/NavBar'
 import type { ThemeId } from '../hooks/useTheme'
+import { useSound } from '../hooks/useSound'
 
 interface Props {
   coins: number
@@ -48,6 +49,7 @@ const cats = [
 const featuredGames = games.slice(0, 3)
 
 export default function Home({ coins, score, streak, avatar, name, navigate, themeId, onThemeChange, energy, maxEnergy, onStartEyeCheck, onAddEnergy, onSpendEnergy, onResetEnergy }: Props) {
+  const sfx = useSound()
   const noEnergy = energy === 0
   return (
     <motion.div
@@ -68,7 +70,7 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
           <motion.button
             whileTap={{ scale: 0.85, rotate: 30 }}
             whileHover={{ scale: 1.1 }}
-            onClick={() => onThemeChange(themeId === 'cool' ? 'warm' : 'cool')}
+            onClick={() => { sfx('toggle', themeId === 'cool'); onThemeChange(themeId === 'cool' ? 'warm' : 'cool') }}
             className="w-10 h-10 md:w-11 md:h-11 rounded-full glass-card border border-border flex items-center justify-center cursor-pointer shadow-[var(--shadow-soft)]"
           >
             <motion.div
@@ -164,34 +166,36 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
         ))}
       </motion.div>
 
-      {/* ── Eye Check CTA (when no energy) ── */}
-      {noEnergy && (
-        <motion.div variants={fade}>
+      {/* ── Eye Check CTA (always visible) ── */}
+      <motion.div variants={fade}>
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ y: -2 }}
+          onClick={() => { sfx('tap'); onStartEyeCheck() }}
+          className="w-full border-none rounded-2xl p-5 md:p-6 flex items-center gap-4 cursor-pointer shadow-[var(--shadow-elevated)] relative overflow-hidden text-left"
+          style={{ background: 'linear-gradient(135deg, var(--color-coral), var(--color-teal))' }}
+        >
+          <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
+            <Eye size={28} color="white" strokeWidth={1.8} />
+          </div>
+          <div className="flex-1">
+            <p className="text-[16px] md:text-[18px] font-bold text-white">
+              {noEnergy ? 'Wake Up Your Brain' : 'Eye Check'}
+            </p>
+            <p className="text-[12px] md:text-[13px] text-white/80 mt-0.5">
+              {noEnergy ? 'Complete an eye check to restore energy' : 'Take a quick test to keep your eyes healthy'}
+            </p>
+          </div>
           <motion.div
-            whileTap={{ scale: 0.97 }}
-            whileHover={{ y: -2 }}
-            onClick={onStartEyeCheck}
-            className="rounded-2xl p-5 md:p-6 flex items-center gap-4 cursor-pointer shadow-[var(--shadow-elevated)] relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, var(--color-coral), var(--color-teal))' }}
+            animate={noEnergy ? { scale: [1, 1.08, 1] } : {}}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            className="px-4 py-2.5 rounded-xl bg-white font-bold text-[13px] flex-shrink-0"
+            style={{ color: 'var(--color-coral)' }}
           >
-            <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
-              <Eye size={28} color="white" strokeWidth={1.8} />
-            </div>
-            <div className="flex-1">
-              <p className="text-[16px] md:text-[18px] font-bold text-white">Wake Up Your Brain</p>
-              <p className="text-[12px] md:text-[13px] text-white/80 mt-0.5">Complete an eye check to restore energy</p>
-            </div>
-            <motion.div
-              animate={{ scale: [1, 1.08, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="px-4 py-2.5 rounded-xl bg-white font-bold text-[13px] flex-shrink-0"
-              style={{ color: 'var(--color-coral)' }}
-            >
-              Start
-            </motion.div>
+            Start
           </motion.div>
-        </motion.div>
-      )}
+        </motion.button>
+      </motion.div>
 
       {/* ── Featured Games ── */}
       <motion.div variants={fade}>
@@ -208,15 +212,21 @@ export default function Home({ coins, score, streak, avatar, name, navigate, the
               whileTap={noEnergy ? undefined : { scale: 0.97, y: 1 }}
               whileHover={noEnergy ? undefined : { y: -3, boxShadow: 'var(--shadow-elevated)' }}
               onClick={() => !noEnergy && navigate('games')}
-              className={`rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 relative overflow-hidden shadow-[var(--shadow-soft)] ${noEnergy ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              style={{ background: g.bg }}
+              className={`rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 relative overflow-hidden shadow-[var(--shadow-soft)] border border-border/30 ${noEnergy ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+              style={{ background: `color-mix(in srgb, ${g.bg} 60%, var(--color-card))` }}
             >
               {noEnergy && (
-                <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10 rounded-3xl">
-                  <Lock size={24} className="text-white" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 rounded-3xl gap-1.5"
+                  style={{ background: 'color-mix(in srgb, var(--color-bg) 70%, transparent)', backdropFilter: 'blur(3px)' }}
+                >
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center" style={{ background: 'color-mix(in srgb, var(--color-rose) 15%, transparent)' }}>
+                    <Lock size={16} className="text-rose" />
+                  </div>
+                  <span className="text-[11px] font-bold text-ink-secondary">Low Energy</span>
                 </div>
               )}
-              <div className="w-[56px] h-[56px] md:w-[64px] md:h-[64px] rounded-2xl bg-white/50 flex items-center justify-center flex-shrink-0">
+              <div className="w-[56px] h-[56px] md:w-[64px] md:h-[64px] rounded-2xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'color-mix(in srgb, var(--color-card) 50%, transparent)' }}>
                 {g.icon === 'grid' && <Gamepad2 size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
                 {g.icon === 'eye' && <Eye size={28} style={{ color: g.fg }} strokeWidth={1.8} />}
                 {g.icon === 'zap' && <Zap size={28} style={{ color: g.fg }} strokeWidth={1.8} />}

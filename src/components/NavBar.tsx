@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Home, User, Trophy, Gift, Gamepad2 } from 'lucide-react'
+import { useSound } from '../hooks/useSound'
 
 export type Tab = 'home' | 'games' | 'customize' | 'leaderboard' | 'daily' | 'profile'
 
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function NavBar({ active, onChange, dot }: Props) {
+  const sfx = useSound()
   return (
     <nav className="fixed bottom-0 left-0 right-0 safe-bottom z-50">
       <div className="nav-glass max-w-[430px] md:max-w-[768px] lg:max-w-[960px] mx-auto flex justify-around items-end px-3 md:px-6 pt-2 pb-3 md:pb-4">
@@ -27,9 +29,10 @@ export default function NavBar({ active, onChange, dot }: Props) {
           return (
             <motion.button
               key={t.id}
+              aria-label={t.label}
               whileTap={{ scale: 0.85, y: 1 }}
               whileHover={{ y: -1 }}
-              onClick={() => onChange(t.id)}
+              onClick={() => { sfx('navigate'); onChange(t.id) }}
               className="flex flex-col items-center gap-[3px] md:gap-1 bg-transparent border-none cursor-pointer relative px-2 md:px-4"
             >
               {on ? (

@@ -267,8 +267,8 @@ export default function SleepOverlay({ avatar, onStartEyeCheck, onClose }: Props
         onClick={() => { sfx('tap'); onStartEyeCheck() }}
         className="relative flex items-center gap-3 px-8 py-4 rounded-2xl border-none cursor-pointer overflow-hidden"
         style={{
-          background: 'linear-gradient(135deg, #7BA7B5, #4DC9A0)',
-          boxShadow: '0 8px 32px rgba(77, 201, 160, 0.3)',
+          background: 'linear-gradient(135deg, var(--color-coral), var(--color-teal))',
+          boxShadow: '0 8px 32px color-mix(in srgb, var(--color-teal) 30%, transparent)',
         }}
       >
         {/* Shimmer sweep */}

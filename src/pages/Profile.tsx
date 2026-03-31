@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSound } from '../hooks/useSound'
 import {
-  User, Sun, Moon, Volume2, VolumeX, Bell, BellOff,
+  User, Volume2, VolumeX, Bell, BellOff,
   Coins, Zap, Flame, Trophy, Gamepad2, Eye, Brain,
-  Clock, Target, Award, ChevronRight, Palette, Info,
+  Clock, Target, Award, ChevronRight, Info,
   BarChart3, Calendar, LogOut,
   Mail, KeyRound, Pencil, X, ShieldCheck,
 } from 'lucide-react'
@@ -15,7 +15,7 @@ import type { AvatarId } from '../data/avatars'
 import { avatars, playerStats } from '../data/avatars'
 import type { Tab } from '../components/NavBar'
 import type { ThemeId } from '../hooks/useTheme'
-import { themeLabels } from '../hooks/useTheme'
+import ThemePicker from '../components/ThemePicker'
 
 interface Props {
   coins: number
@@ -78,15 +78,18 @@ export default function Profile({
   const [editingField, setEditingField] = useState<'name' | 'email' | 'password' | null>(null)
   const [editValue, setEditValue] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showLogout, setShowLogout] = useState(false)
   const avatarDef = avatars.find(a => a.id === avatar)
 
   const startEdit = (field: 'name' | 'email' | 'password') => {
+    sfx('modalOpen')
     setEditingField(field)
     setEditValue(field === 'name' ? name : field === 'email' ? email : '')
     setConfirmPassword('')
   }
 
   const cancelEdit = () => {
+    sfx('modalClose')
     setEditingField(null)
     setEditValue('')
     setConfirmPassword('')
@@ -127,7 +130,7 @@ export default function Profile({
       {/* Profile card */}
       <motion.div variants={fade} className="glass-card rounded-2xl p-5 md:p-6 shadow-[var(--shadow-card)]">
         <div className="flex items-center gap-4 md:gap-5">
-          <motion.div whileTap={{ scale: 0.93 }} onClick={() => navigate('customize')} className="cursor-pointer">
+          <motion.div whileTap={{ scale: 0.93 }} onClick={() => { sfx('tap'); navigate('customize') }} className="cursor-pointer">
             <AvatarImg avatar={avatar} size={72} level={playerStats.level} />
           </motion.div>
           <div className="flex-1 min-w-0">
@@ -304,6 +307,7 @@ export default function Profile({
                       onChange={e => setEditValue(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && (editingField !== 'password' ? saveEdit() : confirmPassword && saveEdit())}
                       placeholder={editingField === 'name' ? 'Enter name' : editingField === 'email' ? 'Enter email' : 'New password'}
+                      aria-label={editingField === 'name' ? 'Display name' : editingField === 'email' ? 'Email address' : 'New password'}
                       maxLength={editingField === 'name' ? 16 : 64}
                       className="text-[14px] md:text-[15px] text-ink bg-muted rounded-xl px-4 py-3 border-none outline-none w-full placeholder:text-ink-muted"
                     />
@@ -315,6 +319,7 @@ export default function Profile({
                         onChange={e => setConfirmPassword(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && saveEdit()}
                         placeholder="Confirm password"
+                        aria-label="Confirm password"
                         maxLength={64}
                         className="text-[14px] md:text-[15px] text-ink bg-muted rounded-xl px-4 py-3 border-none outline-none w-full placeholder:text-ink-muted"
                       />
@@ -398,7 +403,7 @@ export default function Profile({
           <motion.div
             whileHover={{ y: -1 }}
             className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
-            onClick={onTwoFactorToggle}
+            onClick={() => { sfx('toggle', !twoFactorEnabled); onTwoFactorToggle() }}
           >
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-violet-light flex items-center justify-center flex-shrink-0">
               <ShieldCheck size={18} className="text-violet" />
@@ -417,41 +422,13 @@ export default function Profile({
         <h3 className="text-[15px] md:text-[18px] font-bold text-ink mb-3 md:mb-4">Settings</h3>
         <div className="flex flex-col gap-2.5 md:gap-3">
           {/* Theme */}
-          <motion.div
-            whileHover={{ y: -1 }}
-            className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
-            onClick={() => onThemeChange(themeId === 'cool' ? 'warm' : 'cool')}
-          >
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-coral-light flex items-center justify-center flex-shrink-0">
-              <Palette size={18} className="text-coral" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[13px] md:text-[15px] font-semibold text-ink">Theme</p>
-              <p className="text-[11px] md:text-[12px] text-ink-muted">{themeLabels[themeId]}</p>
-            </div>
-            <motion.div
-              whileTap={{ scale: 0.85, rotate: 30 }}
-              className="w-9 h-9 rounded-full bg-muted flex items-center justify-center"
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={themeId}
-                  initial={{ scale: 0, rotate: -90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ scale: 0, rotate: 90 }}
-                  transition={{ type: 'spring', stiffness: 400, damping: 18 }}
-                >
-                  {themeId === 'cool' ? <Moon size={16} className="text-coral" /> : <Sun size={16} className="text-coral" />}
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-          </motion.div>
+          <ThemePicker themeId={themeId} onThemeChange={onThemeChange} />
 
           {/* Sound */}
           <motion.div
             whileHover={{ y: -1 }}
             className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
-            onClick={onSoundToggle}
+            onClick={() => { sfx('toggle', !soundEnabled); onSoundToggle() }}
           >
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-teal-light flex items-center justify-center flex-shrink-0">
               {soundEnabled ? <Volume2 size={18} className="text-teal" /> : <VolumeX size={18} className="text-teal" />}
@@ -467,7 +444,7 @@ export default function Profile({
           <motion.div
             whileHover={{ y: -1 }}
             className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
-            onClick={onNotificationsToggle}
+            onClick={() => { sfx('toggle', !notificationsEnabled); onNotificationsToggle() }}
           >
             <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-gold-light flex items-center justify-center flex-shrink-0">
               {notificationsEnabled ? <Bell size={18} className="text-gold" /> : <BellOff size={18} className="text-gold" />}
@@ -515,10 +492,7 @@ export default function Profile({
         <motion.button
           whileTap={{ scale: 0.97 }}
           whileHover={{ y: -1 }}
-          onClick={() => {
-            localStorage.clear()
-            window.location.reload()
-          }}
+          onClick={() => { sfx('tap'); setShowLogout(true) }}
           className="w-full glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer border-none text-left"
         >
           <div className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-rose-light flex items-center justify-center flex-shrink-0">
@@ -530,6 +504,57 @@ export default function Profile({
           </div>
         </motion.button>
       </motion.div>
+
+      {/* Logout confirmation modal */}
+      <AnimatePresence>
+        {showLogout && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[55] flex items-center justify-center px-5"
+            style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)' }}
+            onClick={() => { sfx('modalClose'); setShowLogout(false) }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 28 }}
+              onClick={e => e.stopPropagation()}
+              className="glass-card rounded-2xl p-5 md:p-6 w-full max-w-[360px] shadow-[var(--shadow-elevated)] flex flex-col items-center gap-4"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-rose-light flex items-center justify-center">
+                <LogOut size={24} className="text-rose" />
+              </div>
+              <div className="text-center">
+                <h4 className="text-[16px] md:text-[18px] font-bold text-ink">Log Out?</h4>
+                <p className="text-[12px] md:text-[13px] text-ink-muted mt-1">This will clear all your data, coins, avatars, and progress. This action cannot be undone.</p>
+              </div>
+              <div className="flex items-center gap-2 w-full mt-1">
+                <motion.button
+                  whileTap={{ scale: 0.93 }}
+                  onClick={() => { sfx('modalClose'); setShowLogout(false) }}
+                  className="flex-1 py-2.5 md:py-3 rounded-xl bg-muted text-ink text-[13px] md:text-[14px] font-semibold border-none cursor-pointer"
+                >
+                  Cancel
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.93 }}
+                  onClick={() => {
+                    sfx('logout')
+                    setShowLogout(false)
+                    setTimeout(() => { localStorage.clear(); window.location.reload() }, 400)
+                  }}
+                  className="flex-1 py-2.5 md:py-3 rounded-xl bg-rose text-white text-[13px] md:text-[14px] font-bold border-none cursor-pointer"
+                >
+                  Log Out
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Member since */}
       <motion.div variants={fade} className="flex items-center justify-center gap-2 py-2">

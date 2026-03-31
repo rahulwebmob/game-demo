@@ -50,7 +50,7 @@ export default function Customize({
         <div className="flex items-center gap-2.5">
           <motion.button
             whileTap={{ scale: 0.85 }}
-            onClick={() => navigate('profile')}
+            onClick={() => { sfx('tap'); navigate('profile') }}
             className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-muted flex items-center justify-center border-none cursor-pointer"
           >
             <ArrowLeft size={18} className="text-ink" />
@@ -113,7 +113,10 @@ export default function Customize({
                 variants={gridItem}
                 whileTap={{ scale: 0.92, y: 1 }}
                 whileHover={!locked ? { y: -2 } : undefined}
-                onClick={() => { sfx('tap'); if (owned) onSelectAvatar(a.id); else if (!locked) onBuy('avatar', a.id, a.price) }}
+                onClick={() => {
+                  if (owned) { sfx('tap'); onSelectAvatar(a.id) }
+                  else if (!locked) { sfx('coinSpend'); onBuy('avatar', a.id, a.price) }
+                }}
                 className={`relative flex flex-col items-center gap-2 p-2.5 md:p-3 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] transition-all ${
                   active ? 'border-coral !bg-coral-light' : 'border-transparent'
                 } ${locked ? 'opacity-30' : ''}`}
@@ -178,7 +181,10 @@ export default function Customize({
                 variants={gridItem}
                 whileTap={{ scale: 0.92, y: 1 }}
                 whileHover={!locked ? { y: -2 } : undefined}
-                onClick={() => { sfx('tap'); if (owned) onSelectAccessory(ac.id); else if (!locked) onBuy('accessory', ac.id, ac.price) }}
+                onClick={() => {
+                  if (owned) { sfx('tap'); onSelectAccessory(ac.id) }
+                  else if (!locked) { sfx('coinSpend'); onBuy('accessory', ac.id, ac.price) }
+                }}
                 className={`relative flex flex-col items-center gap-2 py-4 md:py-5 rounded-2xl border-2 cursor-pointer glass-card shadow-[var(--shadow-soft)] ${
                   active ? 'border-coral !bg-coral-light' : 'border-transparent'
                 } ${locked ? 'opacity-30' : ''}`}

@@ -1,5 +1,6 @@
 import { useCallback, useRef } from 'react'
 import { useLocalStorage } from './useLocalStorage'
+import { STORAGE_KEYS } from '../constants'
 
 // Tiny Web Audio synthesizer — no audio files needed
 const win = window as unknown as Record<string, unknown>
@@ -11,11 +12,22 @@ const ctx = () => {
   return win.__gamerifyAudio as AudioContext
 }
 
-function play(fn: (ac: AudioContext) => void) {
+// Master volume — all sounds go through this gain node
+let masterGain: GainNode | null = null
+function getMaster(ac: AudioContext) {
+  if (!masterGain) {
+    masterGain = ac.createGain()
+    masterGain.gain.value = 3.5
+    masterGain.connect(ac.destination)
+  }
+  return masterGain
+}
+
+function play(fn: (ac: AudioContext, dest: AudioNode) => void) {
   try {
     const ac = ctx()
     if (ac.state === 'suspended') ac.resume()
-    fn(ac)
+    fn(ac, getMaster(ac))
   } catch { /* silent fail on unsupported browsers */ }
 }
 
@@ -25,7 +37,7 @@ function vibrate(ms: number | number[]) {
 
 // ── Sound definitions ──
 
-function tap(ac: AudioContext) {
+function tap(ac: AudioContext, dest: AudioNode) {
   const o = ac.createOscillator()
   const g = ac.createGain()
   o.type = 'sine'
@@ -33,11 +45,11 @@ function tap(ac: AudioContext) {
   o.frequency.exponentialRampToValueAtTime(400, ac.currentTime + 0.06)
   g.gain.setValueAtTime(0.08, ac.currentTime)
   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.06)
-  o.connect(g).connect(ac.destination)
+  o.connect(g).connect(dest)
   o.start(); o.stop(ac.currentTime + 0.06)
 }
 
-function coinEarn(ac: AudioContext) {
+function coinEarn(ac: AudioContext, dest: AudioNode) {
   const notes = [880, 1108, 1320]
   notes.forEach((freq, i) => {
     const o = ac.createOscillator()
@@ -47,12 +59,12 @@ function coinEarn(ac: AudioContext) {
     o.frequency.setValueAtTime(freq, t)
     g.gain.setValueAtTime(0.1, t)
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.15)
-    o.connect(g).connect(ac.destination)
+    o.connect(g).connect(dest)
     o.start(t); o.stop(t + 0.15)
   })
 }
 
-function coinSpend(ac: AudioContext) {
+function coinSpend(ac: AudioContext, dest: AudioNode) {
   const o = ac.createOscillator()
   const g = ac.createGain()
   o.type = 'triangle'
@@ -60,11 +72,11 @@ function coinSpend(ac: AudioContext) {
   o.frequency.exponentialRampToValueAtTime(250, ac.currentTime + 0.12)
   g.gain.setValueAtTime(0.1, ac.currentTime)
   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.12)
-  o.connect(g).connect(ac.destination)
+  o.connect(g).connect(dest)
   o.start(); o.stop(ac.currentTime + 0.12)
 }
 
-function success(ac: AudioContext) {
+function success(ac: AudioContext, dest: AudioNode) {
   const notes = [523, 659, 784, 1047]
   notes.forEach((freq, i) => {
     const o = ac.createOscillator()
@@ -74,12 +86,12 @@ function success(ac: AudioContext) {
     o.frequency.setValueAtTime(freq, t)
     g.gain.setValueAtTime(0.08, t)
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.2)
-    o.connect(g).connect(ac.destination)
+    o.connect(g).connect(dest)
     o.start(t); o.stop(t + 0.2)
   })
 }
 
-function error(ac: AudioContext) {
+function error(ac: AudioContext, dest: AudioNode) {
   const o = ac.createOscillator()
   const g = ac.createGain()
   o.type = 'sawtooth'
@@ -87,11 +99,11 @@ function error(ac: AudioContext) {
   o.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.2)
   g.gain.setValueAtTime(0.06, ac.currentTime)
   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.2)
-  o.connect(g).connect(ac.destination)
+  o.connect(g).connect(dest)
   o.start(); o.stop(ac.currentTime + 0.2)
 }
 
-function toggle(ac: AudioContext, on: unknown) {
+function toggle(ac: AudioContext, dest: AudioNode, on: unknown) {
   const o = ac.createOscillator()
   const g = ac.createGain()
   o.type = 'sine'
@@ -99,11 +111,11 @@ function toggle(ac: AudioContext, on: unknown) {
   o.frequency.exponentialRampToValueAtTime(on ? 700 : 300, ac.currentTime + 0.07)
   g.gain.setValueAtTime(0.06, ac.currentTime)
   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.07)
-  o.connect(g).connect(ac.destination)
+  o.connect(g).connect(dest)
   o.start(); o.stop(ac.currentTime + 0.07)
 }
 
-function navigate(ac: AudioContext) {
+function navigate(ac: AudioContext, dest: AudioNode) {
   const o = ac.createOscillator()
   const g = ac.createGain()
   o.type = 'sine'
@@ -111,11 +123,11 @@ function navigate(ac: AudioContext) {
   o.frequency.exponentialRampToValueAtTime(660, ac.currentTime + 0.05)
   g.gain.setValueAtTime(0.05, ac.currentTime)
   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.05)
-  o.connect(g).connect(ac.destination)
+  o.connect(g).connect(dest)
   o.start(); o.stop(ac.currentTime + 0.05)
 }
 
-function energyUp(ac: AudioContext) {
+function energyUp(ac: AudioContext, dest: AudioNode) {
   const notes = [440, 554, 659]
   notes.forEach((freq, i) => {
     const o = ac.createOscillator()
@@ -125,12 +137,12 @@ function energyUp(ac: AudioContext) {
     o.frequency.setValueAtTime(freq, t)
     g.gain.setValueAtTime(0.08, t)
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.12)
-    o.connect(g).connect(ac.destination)
+    o.connect(g).connect(dest)
     o.start(t); o.stop(t + 0.12)
   })
 }
 
-function energyDown(ac: AudioContext) {
+function energyDown(ac: AudioContext, dest: AudioNode) {
   const o = ac.createOscillator()
   const g = ac.createGain()
   o.type = 'triangle'
@@ -138,11 +150,11 @@ function energyDown(ac: AudioContext) {
   o.frequency.exponentialRampToValueAtTime(200, ac.currentTime + 0.15)
   g.gain.setValueAtTime(0.07, ac.currentTime)
   g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.15)
-  o.connect(g).connect(ac.destination)
+  o.connect(g).connect(dest)
   o.start(); o.stop(ac.currentTime + 0.15)
 }
 
-function gameStart(ac: AudioContext) {
+function gameStart(ac: AudioContext, dest: AudioNode) {
   const notes = [392, 523, 659, 784]
   notes.forEach((freq, i) => {
     const o = ac.createOscillator()
@@ -152,12 +164,12 @@ function gameStart(ac: AudioContext) {
     o.frequency.setValueAtTime(freq, t)
     g.gain.setValueAtTime(0.07, t)
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.18)
-    o.connect(g).connect(ac.destination)
+    o.connect(g).connect(dest)
     o.start(t); o.stop(t + 0.18)
   })
 }
 
-function wakeUp(ac: AudioContext) {
+function wakeUp(ac: AudioContext, dest: AudioNode) {
   const notes = [262, 330, 392, 523, 659, 784]
   notes.forEach((freq, i) => {
     const o = ac.createOscillator()
@@ -167,8 +179,145 @@ function wakeUp(ac: AudioContext) {
     o.frequency.setValueAtTime(freq, t)
     g.gain.setValueAtTime(0.06, t)
     g.gain.exponentialRampToValueAtTime(0.001, t + 0.25)
-    o.connect(g).connect(ac.destination)
+    o.connect(g).connect(dest)
     o.start(t); o.stop(t + 0.25)
+  })
+}
+
+// Rich fanfare — game completion celebration (chord + arpeggio)
+function gameComplete(ac: AudioContext, dest: AudioNode) {
+  // Chord stab
+  const chord = [523, 659, 784]
+  chord.forEach(freq => {
+    const o = ac.createOscillator()
+    const g = ac.createGain()
+    o.type = 'sine'
+    o.frequency.setValueAtTime(freq, ac.currentTime)
+    g.gain.setValueAtTime(0.06, ac.currentTime)
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.35)
+    o.connect(g).connect(dest)
+    o.start(); o.stop(ac.currentTime + 0.35)
+  })
+  // Arpeggio on top
+  const arp = [784, 988, 1175, 1568]
+  arp.forEach((freq, i) => {
+    const o = ac.createOscillator()
+    const g = ac.createGain()
+    o.type = 'sine'
+    const t = ac.currentTime + 0.15 + i * 0.07
+    o.frequency.setValueAtTime(freq, t)
+    g.gain.setValueAtTime(0.05, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2)
+    o.connect(g).connect(dest)
+    o.start(t); o.stop(t + 0.2)
+  })
+}
+
+// Level up — triumphant ascending with shimmer
+function levelUp(ac: AudioContext, dest: AudioNode) {
+  const notes = [392, 494, 588, 784, 988, 1175]
+  notes.forEach((freq, i) => {
+    const o = ac.createOscillator()
+    const g = ac.createGain()
+    o.type = i < 3 ? 'sine' : 'triangle'
+    const t = ac.currentTime + i * 0.09
+    o.frequency.setValueAtTime(freq, t)
+    g.gain.setValueAtTime(0.07, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.3)
+    o.connect(g).connect(dest)
+    o.start(t); o.stop(t + 0.3)
+  })
+}
+
+// Streak — warm ascending duo with harmony
+function streak(ac: AudioContext, dest: AudioNode) {
+  const melody = [440, 554, 659, 880]
+  const harmony = [330, 440, 494, 659]
+  melody.forEach((freq, i) => {
+    const o = ac.createOscillator()
+    const g = ac.createGain()
+    o.type = 'sine'
+    const t = ac.currentTime + i * 0.1
+    o.frequency.setValueAtTime(freq, t)
+    g.gain.setValueAtTime(0.06, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.22)
+    o.connect(g).connect(dest)
+    o.start(t); o.stop(t + 0.22)
+  })
+  harmony.forEach((freq, i) => {
+    const o = ac.createOscillator()
+    const g = ac.createGain()
+    o.type = 'triangle'
+    const t = ac.currentTime + i * 0.1 + 0.02
+    o.frequency.setValueAtTime(freq, t)
+    g.gain.setValueAtTime(0.03, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.18)
+    o.connect(g).connect(dest)
+    o.start(t); o.stop(t + 0.18)
+  })
+}
+
+// Modal open — soft rising whoosh
+function modalOpen(ac: AudioContext, dest: AudioNode) {
+  const o = ac.createOscillator()
+  const g = ac.createGain()
+  o.type = 'sine'
+  o.frequency.setValueAtTime(300, ac.currentTime)
+  o.frequency.exponentialRampToValueAtTime(600, ac.currentTime + 0.1)
+  g.gain.setValueAtTime(0.04, ac.currentTime)
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.1)
+  o.connect(g).connect(dest)
+  o.start(); o.stop(ac.currentTime + 0.1)
+  // Soft chime on top
+  const o2 = ac.createOscillator()
+  const g2 = ac.createGain()
+  o2.type = 'sine'
+  o2.frequency.setValueAtTime(880, ac.currentTime + 0.05)
+  g2.gain.setValueAtTime(0.03, ac.currentTime + 0.05)
+  g2.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.15)
+  o2.connect(g2).connect(dest)
+  o2.start(ac.currentTime + 0.05); o2.stop(ac.currentTime + 0.15)
+}
+
+// Modal close — soft falling
+function modalClose(ac: AudioContext, dest: AudioNode) {
+  const o = ac.createOscillator()
+  const g = ac.createGain()
+  o.type = 'sine'
+  o.frequency.setValueAtTime(500, ac.currentTime)
+  o.frequency.exponentialRampToValueAtTime(280, ac.currentTime + 0.08)
+  g.gain.setValueAtTime(0.04, ac.currentTime)
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.08)
+  o.connect(g).connect(dest)
+  o.start(); o.stop(ac.currentTime + 0.08)
+}
+
+// Filter switch — quick blip
+function filter(ac: AudioContext, dest: AudioNode) {
+  const o = ac.createOscillator()
+  const g = ac.createGain()
+  o.type = 'sine'
+  o.frequency.setValueAtTime(700, ac.currentTime)
+  o.frequency.exponentialRampToValueAtTime(500, ac.currentTime + 0.04)
+  g.gain.setValueAtTime(0.05, ac.currentTime)
+  g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.04)
+  o.connect(g).connect(dest)
+  o.start(); o.stop(ac.currentTime + 0.04)
+}
+
+// Logout — descending three-note goodbye
+function logout(ac: AudioContext, dest: AudioNode) {
+  const notes = [659, 494, 330]
+  notes.forEach((freq, i) => {
+    const o = ac.createOscillator()
+    const g = ac.createGain()
+    o.type = 'triangle'
+    const t = ac.currentTime + i * 0.12
+    o.frequency.setValueAtTime(freq, t)
+    g.gain.setValueAtTime(0.06, t)
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.2)
+    o.connect(g).connect(dest)
+    o.start(t); o.stop(t + 0.2)
   })
 }
 
@@ -177,12 +326,14 @@ function wakeUp(ac: AudioContext) {
 export type SoundName =
   | 'tap' | 'coinEarn' | 'coinSpend' | 'success' | 'error'
   | 'toggle' | 'navigate' | 'energyUp' | 'energyDown'
-  | 'gameStart' | 'wakeUp'
+  | 'gameStart' | 'wakeUp' | 'gameComplete' | 'levelUp'
+  | 'streak' | 'modalOpen' | 'modalClose' | 'filter' | 'logout'
 
-const sounds: Record<SoundName, (ac: AudioContext, ...args: unknown[]) => void> = {
+const sounds: Record<SoundName, (ac: AudioContext, dest: AudioNode, ...args: unknown[]) => void> = {
   tap, coinEarn, coinSpend, success, error,
   toggle, navigate, energyUp, energyDown,
-  gameStart, wakeUp,
+  gameStart, wakeUp, gameComplete, levelUp,
+  streak, modalOpen, modalClose, filter, logout,
 }
 
 const haptics: Partial<Record<SoundName, number | number[]>> = {
@@ -196,10 +347,17 @@ const haptics: Partial<Record<SoundName, number | number[]>> = {
   wakeUp: [10, 20, 10, 20, 10, 20, 10, 20, 30],
   toggle: 8,
   navigate: 5,
+  gameComplete: [10, 30, 10, 30, 10, 60, 20],
+  levelUp: [10, 20, 10, 20, 10, 20, 10, 40],
+  streak: [10, 30, 10, 30, 10, 30, 20],
+  modalOpen: [5, 10],
+  modalClose: 5,
+  filter: 6,
+  logout: [20, 40, 20],
 }
 
 export function useSound() {
-  const [enabled] = useLocalStorage('gamerify-sound', true)
+  const [enabled] = useLocalStorage(STORAGE_KEYS.sound, true)
   const lastPlay = useRef(0)
 
   const playSound = useCallback((name: SoundName, ...args: unknown[]) => {
@@ -209,7 +367,7 @@ export function useSound() {
     lastPlay.current = now
 
     if (enabled) {
-      play((ac) => sounds[name](ac, ...args))
+      play((ac, dest) => sounds[name](ac, dest, ...args))
     }
     // Haptics always fire (independent of sound setting)
     const h = haptics[name]

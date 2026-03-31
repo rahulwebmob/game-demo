@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useSound } from '../hooks/useSound'
 import {
   Trophy, Crown, Medal, Zap,
   Calendar, CalendarDays, Infinity as InfinityIcon, TrendingUp, Clock,
@@ -21,6 +22,7 @@ const row = {
 }
 
 export default function Leaderboard() {
+  const sfx = useSound()
   const [active, setActive] = useState('weekly')
   const [first, second, third, ...rest] = leaderboardData
 
@@ -42,7 +44,7 @@ export default function Leaderboard() {
             <motion.button
               key={f.id}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setActive(f.id)}
+              onClick={() => { sfx('filter'); setActive(f.id) }}
               className={`flex-1 flex items-center justify-center gap-1 py-2.5 md:py-3 rounded-xl text-[12px] md:text-[14px] font-semibold border-none cursor-pointer relative z-10 ${
                 on ? 'text-white' : 'bg-transparent text-ink-muted'
               }`}
