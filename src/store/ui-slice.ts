@@ -4,7 +4,7 @@ import type { Tab } from "../components/nav-bar";
 export interface ToastData {
   id: number;
   message: string;
-  type: "success" | "purchase";
+  type: "success" | "purchase" | "error";
 }
 
 export interface UIState {
@@ -59,7 +59,7 @@ const uiSlice = createSlice({
     },
     addToast(
       state,
-      action: PayloadAction<{ message: string; type?: "success" | "purchase" }>,
+      action: PayloadAction<{ message: string; type?: "success" | "purchase" | "error" }>,
     ) {
       state.toastCounter += 1;
       state.toasts.push({
