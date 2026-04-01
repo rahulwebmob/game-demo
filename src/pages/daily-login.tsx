@@ -118,7 +118,7 @@ export default function DailyLogin() {
               className="text-[32px] md:text-[42px] font-extrabold text-gradient-coral leading-none inline-block"
             />
           </motion.div>
-          <p className="text-[14px] md:text-[16px] font-semibold text-ink-secondary mt-1">
+          <p className="text-[14px] md:text-[16px] font-bold text-ink mt-1">
             Day Streak
           </p>
           <p className="text-[11px] md:text-[13px] text-ink-muted flex items-center justify-center gap-1 mt-2">
@@ -203,7 +203,7 @@ export default function DailyLogin() {
               ) : (
                 <Lock size={20} className="text-ink-muted" />
               )}
-              <span className="text-[10px] md:text-[12px] font-semibold text-ink-secondary">
+              <span className="text-[10px] md:text-[12px] font-bold text-ink">
                 {rw.label}
               </span>
               <span className="text-[14px] md:text-[16px] font-bold text-gold flex items-center gap-0.5 tabular-nums">
