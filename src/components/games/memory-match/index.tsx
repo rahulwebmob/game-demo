@@ -5,10 +5,11 @@ import { useMemoryMatch } from "../../../hooks/use-memory-match";
 
 interface Props {
   onComplete: (score: number) => void;
+  onPlayAgain: () => void;
 }
 
-export default function MemoryMatch({ onComplete }: Props) {
-  const { cards, moves, matches, timer, done, flip, reset, score, stars, fmt, TOTAL_PAIRS, lastResult } =
+export default function MemoryMatch({ onComplete, onPlayAgain }: Props) {
+  const { cards, moves, matches, timer, done, flip, score, stars, fmt, TOTAL_PAIRS, lastResult } =
     useMemoryMatch(onComplete);
 
   if (done) {
@@ -16,10 +17,11 @@ export default function MemoryMatch({ onComplete }: Props) {
       <GameResult
         icon={<Trophy size={36} className="text-gold" />}
         iconBg="bg-gold-light"
-        title="Complete!"
+        title={stars === 3 ? "Perfect Memory!" : stars === 2 ? "Well Done!" : "Keep Practicing"}
         stars={stars}
         score={score}
-        onReset={reset}
+        subtitle="out of 100"
+        onReset={onPlayAgain}
       >
         <div className="flex gap-6 text-center">
           <div>

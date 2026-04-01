@@ -19,6 +19,7 @@ import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import EnergyControl from "../components/energy-control";
 import ErrorBoundary from "../components/error-boundary";
+import GameIntro from "../components/games/game-intro";
 import { games, categories } from "../data/games";
 import type { GameId, GameCategory } from "../data/games";
 import ParallaxHeader from "../components/parallax-header";
@@ -46,7 +47,7 @@ const iconMap: Record<string, React.ReactNode> = {
 
 const gameComponents: Record<
   GameId,
-  React.ComponentType<{ onComplete: (score: number) => void }>
+  React.ComponentType<{ onComplete: (score: number) => void; onPlayAgain: () => void }>
 > = {
   "memory-match": MemoryMatch,
   "color-vision": ColorVision,
@@ -67,8 +68,10 @@ export default function Games() {
   const { coins, energy } = useAppSelector((s) => s.player);
   const noEnergy = energy === 0;
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
+  const [showIntro, setShowIntro] = useState(true);
   const [filter, setFilter] = useState<GameCategory | "all">("all");
   const [showQuit, setShowQuit] = useState(false);
+  const [gameKey, setGameKey] = useState(0);
   const gameCompleted = useRef(false);
 
   const filtered =
@@ -78,13 +81,15 @@ export default function Games() {
   function handleComplete(score: number) {
     if (!activeGameDef || gameCompleted.current) return;
     gameCompleted.current = true;
-    const earned = Math.round((score / 100) * activeGameDef.coinReward);
+    const [threeMin, twoMin] = activeGameDef.rules.starScores;
+    const stars = score >= threeMin ? 3 : score >= twoMin ? 2 : 1;
+    const earned = activeGameDef.starCoins[3 - stars];
     if (earned > 0) {
       dispatch(addCoins(earned));
       sfx("coinEarn");
       dispatch(
         addToast({
-          message: `Earned ${earned} coins from ${activeGameDef.name}!`,
+          message: `Earned ${earned} coins (${stars}★) from ${activeGameDef.name}!`,
           type: "success",
         }),
       );
@@ -93,17 +98,44 @@ export default function Games() {
 
   function exitGame() {
     setActiveGame(null);
+    setShowIntro(true);
     setShowQuit(false);
     gameCompleted.current = false;
   }
 
+  function handleStartGame() {
+    if (energy <= 0) {
+      dispatch(
+        addToast({ message: "Not enough energy to play!", type: "error" }),
+      );
+      exitGame();
+      return;
+    }
+    dispatch(spendEnergy());
+    setShowIntro(false);
+  }
+
   function handleBack() {
     sfx("tap");
-    if (gameCompleted.current) {
+    if (showIntro || gameCompleted.current) {
       exitGame();
     } else {
       setShowQuit(true);
     }
+  }
+
+  function handlePlayAgain() {
+    if (energy <= 0) {
+      dispatch(
+        addToast({ message: "Not enough energy to play again!", type: "error" }),
+      );
+      exitGame();
+      return;
+    }
+    sfx("gameStart");
+    dispatch(spendEnergy());
+    gameCompleted.current = false;
+    setGameKey((k) => k + 1);
   }
 
   // Game play view
@@ -132,43 +164,54 @@ export default function Games() {
           <CoinBadge amount={coins} small />
         </div>
 
-        {/* Reward info */}
-        <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-gold-light/50">
-          <span className="text-[12px] md:text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-            <Coins size={14} className="text-gold" /> Up to{" "}
-            {activeGameDef.coinReward} coins
-          </span>
-          <span className="text-[12px] md:text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-            <Star size={14} className="text-violet" /> {activeGameDef.xpReward}{" "}
-            XP
-          </span>
-          <span className="text-[12px] md:text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-            <Clock size={14} className="text-coral" /> {activeGameDef.time}
-          </span>
-        </div>
+        {/* Intro or game */}
+        {showIntro ? (
+          <GameIntro
+            game={activeGameDef}
+            icon={iconMap[activeGameDef.icon] || <Star size={24} />}
+            onStart={handleStartGame}
+          />
+        ) : (
+          <>
+            {/* Reward info */}
+            <div className="flex items-center gap-4 px-4 py-3 rounded-2xl bg-gold-light/50">
+              <span className="text-[12px] md:text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
+                <Coins size={14} className="text-gold" /> Up to{" "}
+                {activeGameDef.starCoins[0]} coins
+              </span>
+              <span className="text-[12px] md:text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
+                <Star size={14} className="text-violet" /> {activeGameDef.xpReward}{" "}
+                XP
+              </span>
+              <span className="text-[12px] md:text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
+                <Clock size={14} className="text-coral" /> {activeGameDef.time}
+              </span>
+            </div>
 
-        {/* Game component */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeGame}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Suspense
-              fallback={
-                <div className="flex items-center justify-center py-20">
-                  <div className="w-8 h-8 border-3 border-muted border-t-coral rounded-full animate-spin" />
-                </div>
-              }
-            >
-              <ErrorBoundary fallbackTitle="Game crashed — try again">
-                <GameComponent onComplete={handleComplete} />
-              </ErrorBoundary>
-            </Suspense>
-          </motion.div>
-        </AnimatePresence>
+            {/* Game component */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeGame}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center py-20">
+                      <div className="w-8 h-8 border-3 border-muted border-t-coral rounded-full animate-spin" />
+                    </div>
+                  }
+                >
+                  <ErrorBoundary fallbackTitle="Game crashed — try again">
+                    <GameComponent key={gameKey} onComplete={handleComplete} onPlayAgain={handlePlayAgain} />
+                  </ErrorBoundary>
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
+          </>
+        )}
 
         {/* Quit confirmation modal */}
         <AnimatePresence>
@@ -350,8 +393,8 @@ export default function Games() {
             }
             onClick={() => {
               if (noEnergy) return;
-              sfx("gameStart");
-              dispatch(spendEnergy());
+              sfx("tap");
+              setShowIntro(true);
               gameCompleted.current = false;
               setActiveGame(game.id);
             }}
@@ -405,7 +448,7 @@ export default function Games() {
                   <Clock size={11} /> {game.time}
                 </span>
                 <span className="flex items-center gap-1 text-[10px] md:text-[11px] font-bold text-gold">
-                  <Coins size={11} /> {game.coinReward}
+                  <Coins size={11} /> {game.starCoins[0]}
                 </span>
                 <span
                   className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full ${

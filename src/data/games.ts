@@ -8,6 +8,13 @@ export type GameId =
 
 export type GameCategory = "brain" | "eye" | "memory";
 
+export interface GameRules {
+  howToPlay: string;
+  scoring: string;
+  stars: [string, string, string]; // 3-star, 2-star, 1-star descriptions
+  starScores: [number, number]; // [3-star min score, 2-star min score]
+}
+
 export interface GameDef {
   id: GameId;
   name: string;
@@ -18,8 +25,10 @@ export interface GameDef {
   fg: string;
   time: string;
   difficulty: "Easy" | "Medium" | "Hard";
-  coinReward: number;
+  starCoins: [number, number, number]; // coins for 3-star, 2-star, 1-star
   xpReward: number;
+  maxScore: number;
+  rules: GameRules;
 }
 
 export const categories: { id: GameCategory | "all"; label: string }[] = [
@@ -39,10 +48,17 @@ export const games: GameDef[] = [
     icon: "grid",
     bg: "var(--color-coral-light)",
     fg: "var(--color-coral)",
-    time: "3 min",
+    time: "~2 min",
     difficulty: "Easy",
-    coinReward: 30,
+    starCoins: [30, 20, 10],
     xpReward: 50,
+    maxScore: 100,
+    rules: {
+      howToPlay: "Tap cards to flip them and find matching emoji pairs. Match all 8 pairs to complete the game.",
+      scoring: "Score = 100 − (moves × 2) − seconds elapsed. Fewer moves and faster time = higher score.",
+      stars: ["Score 80+ (fast & efficient)", "Score 50–79", "Score below 50"],
+      starScores: [80, 50],
+    },
   },
   {
     id: "color-vision",
@@ -53,10 +69,17 @@ export const games: GameDef[] = [
     icon: "eye",
     bg: "var(--color-violet-light)",
     fg: "var(--color-violet)",
-    time: "2 min",
+    time: "~1 min",
     difficulty: "Medium",
-    coinReward: 25,
+    starCoins: [25, 15, 5],
     xpReward: 40,
+    maxScore: 550,
+    rules: {
+      howToPlay: "A grid of colored squares appears — one square is a slightly different shade. Tap the odd one out! The grid gets larger and colors get closer each round.",
+      scoring: "Each correct answer earns (round × 10) points across 10 rounds. Max score is 550.",
+      stars: ["Score 385+ (70%+)", "Score 220–384 (40%+)", "Score below 220"],
+      starScores: [385, 220],
+    },
   },
   {
     id: "reaction-time",
@@ -67,10 +90,17 @@ export const games: GameDef[] = [
     icon: "zap",
     bg: "var(--color-gold-light)",
     fg: "var(--color-gold)",
-    time: "1 min",
+    time: "~1 min",
     difficulty: "Easy",
-    coinReward: 20,
+    starCoins: [20, 12, 5],
     xpReward: 30,
+    maxScore: 100,
+    rules: {
+      howToPlay: "Wait for the screen to turn green, then tap as fast as you can! You'll do 5 rounds. Tapping too early resets the round.",
+      scoring: "Score = 100 − (average reaction time ÷ 7). Faster average = higher score.",
+      stars: ["Average under 400ms", "Average 400–549ms", "Average 550ms+"],
+      starScores: [43, 22],
+    },
   },
   {
     id: "pattern-recall",
@@ -81,10 +111,17 @@ export const games: GameDef[] = [
     icon: "brain",
     bg: "var(--color-teal-light)",
     fg: "var(--color-teal)",
-    time: "3 min",
+    time: "~2 min",
     difficulty: "Medium",
-    coinReward: 35,
+    starCoins: [35, 20, 10],
     xpReward: 60,
+    maxScore: 540,
+    rules: {
+      howToPlay: "Watch the cells light up in sequence, then repeat the pattern by tapping in the same order. Each level adds more steps. You have 3 lives.",
+      scoring: "Each level cleared earns (level × 15) points across 8 levels. Max score is 540.",
+      stars: ["Score 380+ (70%+)", "Score 215–379 (40%+)", "Score below 215"],
+      starScores: [380, 215],
+    },
   },
   {
     id: "number-sequence",
@@ -95,10 +132,17 @@ export const games: GameDef[] = [
     icon: "hash",
     bg: "var(--color-sky-light)",
     fg: "var(--color-sky)",
-    time: "2 min",
+    time: "~1 min",
     difficulty: "Hard",
-    coinReward: 40,
+    starCoins: [40, 25, 10],
     xpReward: 70,
+    maxScore: 432,
+    rules: {
+      howToPlay: "A number sequence is shown with one number missing. Pick the correct answer from 4 choices. Patterns get harder each round.",
+      scoring: "Each correct answer earns (round × 12) points across 8 rounds. Max score is 432.",
+      stars: ["Score 300+ (70%+)", "Score 170–299 (40%+)", "Score below 170"],
+      starScores: [300, 170],
+    },
   },
   {
     id: "contrast-test",
@@ -109,9 +153,16 @@ export const games: GameDef[] = [
     icon: "scan-eye",
     bg: "var(--color-rose-light)",
     fg: "var(--color-rose)",
-    time: "2 min",
+    time: "~1 min",
     difficulty: "Easy",
-    coinReward: 20,
+    starCoins: [20, 12, 5],
     xpReward: 35,
+    maxScore: 318,
+    rules: {
+      howToPlay: "A grid of gray squares appears — one is slightly lighter or darker. Tap the different one! The contrast difference shrinks each round.",
+      scoring: "Each correct answer earns (10 + round × 3) points across 12 rounds. Max score is 318.",
+      stars: ["Score 220+ (70%+)", "Score 125–219 (40%+)", "Score below 125"],
+      starScores: [220, 125],
+    },
   },
 ];

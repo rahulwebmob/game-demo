@@ -121,7 +121,7 @@ export default function FeaturedGames({ noEnergy, navigate }: Props) {
                   {g.difficulty}
                 </span>
                 <span className="flex items-center gap-0.5 text-[11px] md:text-[12px] font-bold text-gold">
-                  <Coins size={11} /> {g.coinReward}
+                  <Coins size={11} /> {g.starCoins[0]}
                 </span>
               </div>
             </div>

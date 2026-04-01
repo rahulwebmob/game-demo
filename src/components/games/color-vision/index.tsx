@@ -5,42 +5,50 @@ import { useColorVision, ROUNDS } from "../../../hooks/use-color-vision";
 
 interface Props {
   onComplete: (score: number) => void;
+  onPlayAgain: () => void;
 }
 
-export default function ColorVision({ onComplete }: Props) {
-  const { round, score, level, feedback, done, handleTap, reset } =
+export default function ColorVision({ onComplete, onPlayAgain }: Props) {
+  const { round, score, level, feedback, done, handleTap } =
     useColorVision(onComplete);
 
   if (done) {
-    const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1;
+    const stars = score >= 385 ? 3 : score >= 220 ? 2 : 1;
+    const title = stars === 3 ? "Sharp Eyes!" : stars === 2 ? "Good Vision" : "Keep Training";
     return (
       <GameResult
         icon={<Eye size={36} className="text-violet" />}
         iconBg="bg-violet-light"
-        title="Vision Score"
+        title={title}
         stars={stars}
         score={score}
         subtitle={`out of ${ROUNDS * (ROUNDS + 1) * 5}`}
         accentColor="bg-violet"
-        onReset={reset}
+        onReset={onPlayAgain}
       />
     );
   }
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Progress */}
+      {/* Header */}
+      <div className="flex items-center justify-between px-1">
+        <span className="text-[13px] font-semibold text-ink-secondary">
+          {round + 1}/{ROUNDS}
+        </span>
+        <span className="text-[13px] font-bold text-ink tabular-nums">
+          Score: {score}
+        </span>
+      </div>
+
       <div className="flex items-center gap-3">
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
           <motion.div
-            animate={{ width: `${((round + 1) / ROUNDS) * 100}%` }}
+            animate={{ width: `${(round / ROUNDS) * 100}%` }}
             className="h-full bg-violet rounded-full"
             transition={{ duration: 0.3 }}
           />
         </div>
-        <span className="text-[13px] font-semibold text-ink-secondary">
-          {round + 1}/{ROUNDS}
-        </span>
       </div>
 
       <p className="text-center text-[14px] font-medium text-ink-secondary">
@@ -118,11 +126,6 @@ export default function ColorVision({ onComplete }: Props) {
         </div>
       </motion.div>
 
-      <div className="text-center">
-        <span className="text-[13px] font-bold text-ink tabular-nums">
-          Score: {score}
-        </span>
-      </div>
     </div>
   );
 }

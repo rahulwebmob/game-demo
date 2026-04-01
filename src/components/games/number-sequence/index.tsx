@@ -5,23 +5,26 @@ import { useNumberSequence, TOTAL } from "../../../hooks/use-number-sequence";
 
 interface Props {
   onComplete: (score: number) => void;
+  onPlayAgain: () => void;
 }
 
-export default function NumberSequence({ onComplete }: Props) {
-  const { round, score, problem, choices, selected, done, handleChoice, reset } =
+export default function NumberSequence({ onComplete, onPlayAgain }: Props) {
+  const { round, score, problem, choices, selected, done, handleChoice } =
     useNumberSequence(onComplete);
 
   if (done) {
-    const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1;
+    const stars = score >= 300 ? 3 : score >= 170 ? 2 : 1;
+    const title = stars === 3 ? "Math Wizard!" : stars === 2 ? "Good Math!" : "Keep Practicing";
     return (
       <GameResult
         icon={<Hash size={36} className="text-sky" />}
         iconBg="bg-sky-light"
-        title="Math Wizard!"
+        title={title}
         stars={stars}
         score={score}
+        subtitle={`out of ${TOTAL * (TOTAL + 1) * 6}`}
         accentColor="bg-sky"
-        onReset={reset}
+        onReset={onPlayAgain}
       />
     );
   }
@@ -35,6 +38,16 @@ export default function NumberSequence({ onComplete }: Props) {
         <span className="text-[13px] font-bold text-ink tabular-nums">
           Score: {score}
         </span>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
+          <motion.div
+            animate={{ width: `${(round / TOTAL) * 100}%` }}
+            className="h-full bg-sky rounded-full"
+            transition={{ duration: 0.3 }}
+          />
+        </div>
       </div>
 
       {/* Sequence display */}
@@ -55,7 +68,7 @@ export default function NumberSequence({ onComplete }: Props) {
               <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 border-dashed border-coral flex items-center justify-center">
                 {selected !== null ? (
                   <span
-                    className="text-[16px] md:text-[18px] font-bold text-green"
+                    className={`text-[16px] md:text-[18px] font-bold ${selected === problem.answer ? "text-green" : "text-rose"}`}
                   >
                     {problem.answer}
                   </span>

@@ -5,10 +5,11 @@ import { useReactionTime, TOTAL_ROUNDS } from "../../../hooks/use-reaction-time"
 
 interface Props {
   onComplete: (score: number) => void;
+  onPlayAgain: () => void;
 }
 
-export default function ReactionTime({ onComplete }: Props) {
-  const { phase, times, currentTime, tooEarly, avg, stars, rating, handleTap, reset } =
+export default function ReactionTime({ onComplete, onPlayAgain }: Props) {
+  const { phase, times, currentTime, tooEarly, avg, stars, rating, handleTap } =
     useReactionTime(onComplete);
 
   if (phase === "done") {
@@ -21,7 +22,7 @@ export default function ReactionTime({ onComplete }: Props) {
         score={`${avg}ms`}
         subtitle="average reaction time"
         accentColor="bg-gold"
-        onReset={reset}
+        onReset={onPlayAgain}
       >
         <div className="flex gap-2 flex-wrap justify-center">
           {times.map((t, i) => (

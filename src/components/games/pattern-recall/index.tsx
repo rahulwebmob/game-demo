@@ -5,24 +5,26 @@ import { usePatternRecall, GRID, COLS } from "../../../hooks/use-pattern-recall"
 
 interface Props {
   onComplete: (score: number) => void;
+  onPlayAgain: () => void;
 }
 
-export default function PatternRecall({ onComplete }: Props) {
-  const { level, pattern, userPattern, phase, highlighted, score, lives, handleTap, reset } =
+export default function PatternRecall({ onComplete, onPlayAgain }: Props) {
+  const { level, pattern, userPattern, phase, highlighted, score, lives, handleTap } =
     usePatternRecall(onComplete);
 
   if (phase === "done") {
-    const stars = score >= 100 ? 3 : score >= 50 ? 2 : 1;
+    const stars = score >= 380 ? 3 : score >= 215 ? 2 : 1;
+    const title = stars === 3 ? "Pattern Master!" : stars === 2 ? "Good Memory!" : "Keep Practicing";
     return (
       <GameResult
         icon={<Brain size={36} className="text-teal" />}
         iconBg="bg-teal-light"
-        title="Pattern Master"
+        title={title}
         stars={stars}
         score={score}
         subtitle={`Reached level ${level}`}
         accentColor="bg-teal"
-        onReset={reset}
+        onReset={onPlayAgain}
       />
     );
   }
@@ -31,7 +33,7 @@ export default function PatternRecall({ onComplete }: Props) {
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary">
-          Level {level}
+          Level {level}/8
         </span>
         <div className="flex items-center gap-3">
           <span className="text-[13px] font-bold text-ink tabular-nums">
@@ -40,6 +42,16 @@ export default function PatternRecall({ onComplete }: Props) {
           <span className="text-[13px] font-semibold text-coral">
             {"❤️".repeat(lives)}
           </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
+          <motion.div
+            animate={{ width: `${((level - 1) / 8) * 100}%` }}
+            className="h-full bg-teal rounded-full"
+            transition={{ duration: 0.3 }}
+          />
         </div>
       </div>
 
@@ -88,7 +100,7 @@ export default function PatternRecall({ onComplete }: Props) {
                 highlighted === i ? "var(--color-teal)" : "var(--color-muted)",
             }}
             transition={{ duration: 0.15 }}
-            className="aspect-square rounded-2xl border-none cursor-pointer shadow-[var(--shadow-soft)]"
+            className={`aspect-square rounded-2xl border-none shadow-[var(--shadow-soft)] ${phase === "input" ? "cursor-pointer" : "cursor-default"}`}
           />
         ))}
       </div>

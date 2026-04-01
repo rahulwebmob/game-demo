@@ -5,20 +5,21 @@ import { useContrastTest, TOTAL } from "../../../hooks/use-contrast-test";
 
 interface Props {
   onComplete: (score: number) => void;
+  onPlayAgain: () => void;
 }
 
-export default function ContrastTest({ onComplete }: Props) {
+export default function ContrastTest({ onComplete, onPlayAgain }: Props) {
   const {
-    round, score, feedback, done, positions, handleTap, reset,
+    round, score, feedback, done, positions, handleTap,
     currentGrid, currentCols, currentDiff, currentBase,
   } = useContrastTest(onComplete);
 
   if (done) {
-    const stars = score >= 120 ? 3 : score >= 70 ? 2 : 1;
+    const stars = score >= 220 ? 3 : score >= 125 ? 2 : 1;
     const rating =
-      score >= 120
+      score >= 220
         ? "Eagle Eyes!"
-        : score >= 70
+        : score >= 125
           ? "Good Vision"
           : "Keep Training";
     return (
@@ -30,7 +31,7 @@ export default function ContrastTest({ onComplete }: Props) {
         score={score}
         subtitle="Contrast sensitivity score"
         accentColor="bg-rose"
-        onReset={reset}
+        onReset={onPlayAgain}
       />
     );
   }
@@ -46,10 +47,10 @@ export default function ContrastTest({ onComplete }: Props) {
         </span>
       </div>
 
-      <div className="flex items-center gap-3 mb-1">
+      <div className="flex items-center gap-3">
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
           <motion.div
-            animate={{ width: `${((round + 1) / TOTAL) * 100}%` }}
+            animate={{ width: `${(round / TOTAL) * 100}%` }}
             className="h-full bg-rose rounded-full"
             transition={{ duration: 0.3 }}
           />

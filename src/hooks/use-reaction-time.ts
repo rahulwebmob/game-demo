@@ -52,7 +52,7 @@ export function useReactionTime(onComplete: (score: number) => void) {
         const avg = Math.round(
           newTimes.reduce((a, b) => a + b, 0) / newTimes.length,
         );
-        const score = Math.max(100 - Math.floor(avg / 5), 10);
+        const score = Math.max(100 - Math.floor(avg / 7), 0);
         onComplete(score);
       } else {
         setPhase("result");
@@ -77,13 +77,13 @@ export function useReactionTime(onComplete: (score: number) => void) {
       ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
       : 0;
 
-  const stars = avg < 250 ? 3 : avg < 350 ? 2 : 1;
+  const stars = avg < 400 ? 3 : avg < 550 ? 2 : 1;
   const rating =
-    avg < 200
+    avg < 250
       ? "Lightning Fast!"
-      : avg < 300
+      : avg < 350
         ? "Great Reflexes!"
-        : avg < 400
+        : avg < 500
           ? "Good Speed"
           : "Keep Practicing";
 

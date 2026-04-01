@@ -26,7 +26,7 @@ function shuffle(): Card[] {
 }
 
 function calcScore(moves: number, timer: number) {
-  return Math.max(100 - moves * 2 - timer, 10);
+  return Math.max(100 - moves * 2 - timer, 0);
 }
 
 export function useMemoryMatch(onComplete: (score: number) => void) {

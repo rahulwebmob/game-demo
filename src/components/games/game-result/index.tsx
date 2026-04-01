@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { RotateCcw, Star } from "lucide-react";
+import { RotateCcw, Star, Zap } from "lucide-react";
 import { useSound } from "../../../hooks/use-sound";
 
 interface Props {
@@ -68,7 +68,7 @@ export default function GameResult({
         }}
         className={`flex items-center gap-2 px-6 py-3 rounded-2xl ${accentColor} text-white font-semibold text-[14px] border-none cursor-pointer shadow-[var(--shadow-btn)]`}
       >
-        <RotateCcw size={16} /> Play Again
+        <RotateCcw size={16} /> Play Again <Zap size={14} className="opacity-70" />
       </motion.button>
     </motion.div>
   );
