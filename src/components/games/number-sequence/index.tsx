@@ -1,106 +1,15 @@
-import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Hash } from "lucide-react";
 import GameResult from "../game-result";
-import { useSound } from "../../../hooks/use-sound";
-
-const TOTAL = 8;
-
-function genSequence(level: number): {
-  seq: number[];
-  answer: number;
-  missingIdx: number;
-} {
-  const type = Math.floor(Math.random() * 3);
-  const start = Math.floor(Math.random() * 10) + 1;
-  const step = Math.floor(Math.random() * (3 + level)) + 1;
-  const len = 5 + Math.min(level, 3);
-
-  let seq: number[];
-  if (type === 0) {
-    // arithmetic
-    seq = Array.from({ length: len }, (_, i) => start + step * i);
-  } else if (type === 1) {
-    // multiply
-    const mul = 2 + Math.floor(Math.random() * 2);
-    seq = Array.from({ length: len }, (_, i) => start * Math.pow(mul, i));
-  } else {
-    // add increasing
-    seq = [start];
-    for (let i = 1; i < len; i++) seq.push(seq[i - 1] + step * i);
-  }
-
-  const missingIdx = 1 + Math.floor(Math.random() * (len - 2));
-  const answer = seq[missingIdx];
-
-  return { seq, answer, missingIdx };
-}
-
-function genChoices(answer: number): number[] {
-  const set = new Set([answer]);
-  while (set.size < 4) {
-    const offset =
-      (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
-    const v = answer + offset;
-    if (v > 0) set.add(v);
-  }
-  return Array.from(set).sort(() => Math.random() - 0.5);
-}
+import { useNumberSequence, TOTAL } from "../../../hooks/use-number-sequence";
 
 interface Props {
   onComplete: (score: number) => void;
 }
 
 export default function NumberSequence({ onComplete }: Props) {
-  const sfx = useSound();
-  const [round, setRound] = useState(0);
-  const [score, setScore] = useState(0);
-  const [problem, setProblem] = useState(() => genSequence(0));
-  const [choices, setChoices] = useState(() => genChoices(problem.answer));
-  const [selected, setSelected] = useState<number | null>(null);
-  const [done, setDone] = useState(false);
-
-  const nextRound = useCallback(
-    (correct: boolean) => {
-      const pts = correct ? (round + 1) * 12 : 0;
-      const newScore = score + pts;
-      setScore(newScore);
-
-      setTimeout(() => {
-        if (round + 1 >= TOTAL) {
-          setDone(true);
-          onComplete(newScore);
-        } else {
-          const next = genSequence(round + 1);
-          setProblem(next);
-          setChoices(genChoices(next.answer));
-          setSelected(null);
-          setRound((r) => r + 1);
-        }
-      }, 800);
-    },
-    [round, score, onComplete],
-  );
-
-  function handleChoice(val: number) {
-    if (selected !== null) return;
-    sfx("tap");
-    const correct = val === problem.answer;
-    if (correct) sfx("success");
-    else sfx("error");
-    setSelected(val);
-    nextRound(correct);
-  }
-
-  function reset() {
-    const p = genSequence(0);
-    setRound(0);
-    setScore(0);
-    setProblem(p);
-    setChoices(genChoices(p.answer));
-    setSelected(null);
-    setDone(false);
-  }
+  const { round, score, problem, choices, selected, done, handleChoice, reset } =
+    useNumberSequence(onComplete);
 
   if (done) {
     const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1;
@@ -146,7 +55,7 @@ export default function NumberSequence({ onComplete }: Props) {
               <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl border-2 border-dashed border-coral flex items-center justify-center">
                 {selected !== null ? (
                   <span
-                    className={`text-[16px] md:text-[18px] font-bold ${selected === problem.answer ? "text-green" : "text-rose"}`}
+                    className="text-[16px] md:text-[18px] font-bold text-green"
                   >
                     {problem.answer}
                   </span>
@@ -165,9 +74,24 @@ export default function NumberSequence({ onComplete }: Props) {
         ))}
       </div>
 
-      <p className="text-center text-[14px] font-medium text-ink-secondary">
-        What's the missing number?
-      </p>
+      {/* Feedback text */}
+      <div className="h-5 flex items-center justify-center">
+        {selected !== null && (
+          <motion.p
+            key={`fb-${round}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`text-[13px] font-bold text-center ${selected === problem.answer ? "text-green" : "text-rose"}`}
+          >
+            {selected === problem.answer ? "Correct!" : `Wrong — answer was ${problem.answer}`}
+          </motion.p>
+        )}
+        {selected === null && (
+          <p className="text-[14px] font-medium text-ink-secondary">
+            What's the missing number?
+          </p>
+        )}
+      </div>
 
       {/* Choices */}
       <div className="grid grid-cols-2 gap-3 max-w-[280px] mx-auto w-full">

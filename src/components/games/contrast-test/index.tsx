@@ -1,66 +1,17 @@
-
-import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ScanEye } from "lucide-react";
 import GameResult from "../game-result";
-import { useSound } from "../../../hooks/use-sound";
-
-const TOTAL = 12;
+import { useContrastTest, TOTAL } from "../../../hooks/use-contrast-test";
 
 interface Props {
   onComplete: (score: number) => void;
 }
 
-function generatePositions(size: number) {
-  return { oddIdx: Math.floor(Math.random() * size) };
-}
-
 export default function ContrastTest({ onComplete }: Props) {
-  const sfx = useSound();
-  const [round, setRound] = useState(0);
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
-  const [done, setDone] = useState(false);
-
-  const [positions, setPositions] = useState(() => generatePositions(4));
-
-  const nextRound = useCallback(
-    (correct: boolean) => {
-      setFeedback(correct ? "correct" : "wrong");
-      const pts = correct ? Math.round(10 + round * 3) : 0;
-      const newScore = score + pts;
-      setScore(newScore);
-
-      setTimeout(() => {
-        setFeedback(null);
-        if (round + 1 >= TOTAL) {
-          setDone(true);
-          onComplete(newScore);
-        } else {
-          setRound((r) => r + 1);
-          setPositions(generatePositions(round < 3 ? 4 : round < 7 ? 9 : 16));
-        }
-      }, 500);
-    },
-    [round, score, onComplete],
-  );
-
-  function handleTap(idx: number) {
-    if (feedback) return;
-    sfx("tap");
-    const correct = idx === positions.oddIdx;
-    if (correct) sfx("success");
-    else sfx("error");
-    nextRound(correct);
-  }
-
-  function reset() {
-    setRound(0);
-    setScore(0);
-    setFeedback(null);
-    setDone(false);
-    setPositions(generatePositions(4));
-  }
+  const {
+    round, score, feedback, done, positions, handleTap, reset,
+    currentGrid, currentCols, currentDiff, currentBase,
+  } = useContrastTest(onComplete);
 
   if (done) {
     const stars = score >= 120 ? 3 : score >= 70 ? 2 : 1;
@@ -83,11 +34,6 @@ export default function ContrastTest({ onComplete }: Props) {
       />
     );
   }
-
-  const currentGrid = round < 4 ? 4 : round < 8 ? 9 : 16;
-  const currentCols = Math.sqrt(currentGrid);
-  const currentDiff = Math.max(2, 20 - round * 1.5);
-  const currentBase = 45 + ((round * 3) % 30);
 
   return (
     <div className="flex flex-col gap-5">
@@ -114,6 +60,30 @@ export default function ContrastTest({ onComplete }: Props) {
         Tap the square that looks slightly different
       </p>
 
+      {/* Feedback text */}
+      <div className="h-5 flex items-center justify-center">
+        {feedback === "correct" && (
+          <motion.p
+            key={`fb-${round}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[13px] font-bold text-green text-center"
+          >
+            Correct!
+          </motion.p>
+        )}
+        {feedback === "wrong" && (
+          <motion.p
+            key={`fb-${round}-w`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[13px] font-bold text-rose text-center"
+          >
+            Wrong!
+          </motion.p>
+        )}
+      </div>
+
       <motion.div
         animate={feedback === "wrong" ? { x: [-4, 4, -4, 0] } : {}}
         transition={{ duration: 0.3 }}
@@ -131,6 +101,7 @@ export default function ContrastTest({ onComplete }: Props) {
             return (
               <motion.button
                 key={`${round}-${i}`}
+                aria-label={`Square ${i + 1}`}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{

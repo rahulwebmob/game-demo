@@ -1,94 +1,17 @@
-import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Zap } from "lucide-react";
 import GameResult from "../game-result";
-import { useSound } from "../../../hooks/use-sound";
-
-type Phase = "idle" | "waiting" | "ready" | "result" | "done";
-const TOTAL_ROUNDS = 5;
+import { useReactionTime, TOTAL_ROUNDS } from "../../../hooks/use-reaction-time";
 
 interface Props {
   onComplete: (score: number) => void;
 }
 
 export default function ReactionTime({ onComplete }: Props) {
-  const sfx = useSound();
-  const [phase, setPhase] = useState<Phase>("idle");
-  const [times, setTimes] = useState<number[]>([]);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [tooEarly, setTooEarly] = useState(false);
-  const readyAt = useRef(0);
-  const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  const start = useCallback(() => {
-    setTooEarly(false);
-    setPhase("waiting");
-    const delay = 1500 + Math.random() * 3000;
-    timeout.current = setTimeout(() => {
-      readyAt.current = performance.now();
-      setPhase("ready");
-    }, delay);
-  }, []);
-
-  const handleTap = useCallback(() => {
-    if (phase === "idle") {
-      sfx("tap");
-      start();
-      return;
-    }
-    if (phase === "waiting") {
-      clearTimeout(timeout.current);
-      sfx("error");
-      setTooEarly(true);
-      setPhase("idle");
-      return;
-    }
-    if (phase === "ready") {
-      sfx("success");
-      const ms = Math.round(performance.now() - readyAt.current);
-      setCurrentTime(ms);
-      const newTimes = [...times, ms];
-      setTimes(newTimes);
-      if (newTimes.length >= TOTAL_ROUNDS) {
-        setPhase("done");
-        const avg = Math.round(
-          newTimes.reduce((a, b) => a + b, 0) / newTimes.length,
-        );
-        const score = Math.max(100 - Math.floor(avg / 5), 10);
-        onComplete(score);
-      } else {
-        setPhase("result");
-      }
-    }
-    if (phase === "result") {
-      sfx("tap");
-      start();
-    }
-  }, [phase, times, start, onComplete, sfx]);
-
-  function reset() {
-    setPhase("idle");
-    setTimes([]);
-    setCurrentTime(0);
-    setTooEarly(false);
-    clearTimeout(timeout.current);
-  }
-
-  const avg =
-    times.length > 0
-      ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
-      : 0;
+  const { phase, times, currentTime, tooEarly, avg, stars, rating, handleTap, reset } =
+    useReactionTime(onComplete);
 
   if (phase === "done") {
-    const stars = avg < 250 ? 3 : avg < 350 ? 2 : 1;
-    const rating =
-      avg < 200
-        ? "Lightning Fast!"
-        : avg < 300
-          ? "Great Reflexes!"
-          : avg < 400
-            ? "Good Speed"
-            : "Keep Practicing";
     return (
       <GameResult
         icon={<Zap size={36} className="text-gold" />}

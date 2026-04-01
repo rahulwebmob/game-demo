@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useRef } from "react";
 import { useSound } from "../hooks/use-sound";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -68,13 +68,16 @@ export default function Games() {
   const noEnergy = energy === 0;
   const [activeGame, setActiveGame] = useState<GameId | null>(null);
   const [filter, setFilter] = useState<GameCategory | "all">("all");
+  const [showQuit, setShowQuit] = useState(false);
+  const gameCompleted = useRef(false);
 
   const filtered =
     filter === "all" ? games : games.filter((g) => g.category === filter);
   const activeGameDef = games.find((g) => g.id === activeGame);
 
   function handleComplete(score: number) {
-    if (!activeGameDef) return;
+    if (!activeGameDef || gameCompleted.current) return;
+    gameCompleted.current = true;
     const earned = Math.round((score / 100) * activeGameDef.coinReward);
     if (earned > 0) {
       dispatch(addCoins(earned));
@@ -88,6 +91,21 @@ export default function Games() {
     }
   }
 
+  function exitGame() {
+    setActiveGame(null);
+    setShowQuit(false);
+    gameCompleted.current = false;
+  }
+
+  function handleBack() {
+    sfx("tap");
+    if (gameCompleted.current) {
+      exitGame();
+    } else {
+      setShowQuit(true);
+    }
+  }
+
   // Game play view
   if (activeGame && activeGameDef) {
     const GameComponent = gameComponents[activeGame];
@@ -97,10 +115,8 @@ export default function Games() {
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.85 }}
-            onClick={() => {
-              sfx("tap");
-              setActiveGame(null);
-            }}
+            onClick={handleBack}
+            aria-label="Back to games"
             className="w-10 h-10 md:w-11 md:h-11 rounded-[14px] bg-muted flex items-center justify-center border-none cursor-pointer"
           >
             <ArrowLeft size={18} className="text-ink" />
@@ -152,6 +168,71 @@ export default function Games() {
               </ErrorBoundary>
             </Suspense>
           </motion.div>
+        </AnimatePresence>
+
+        {/* Quit confirmation modal */}
+        <AnimatePresence>
+          {showQuit && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[55] flex items-center justify-center px-5"
+              style={{
+                background: "rgba(0,0,0,0.35)",
+                backdropFilter: "blur(4px)",
+              }}
+              onClick={() => {
+                sfx("modalClose");
+                setShowQuit(false);
+              }}
+            >
+              <motion.div
+                role="dialog"
+                aria-modal="true"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                onClick={(e) => e.stopPropagation()}
+                className="glass-card rounded-2xl p-5 md:p-6 w-full max-w-[360px] shadow-[var(--shadow-elevated)] flex flex-col items-center gap-4"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-coral-light flex items-center justify-center">
+                  <Gamepad2 size={24} className="text-coral" />
+                </div>
+                <div className="text-center">
+                  <h4 className="text-[16px] md:text-[18px] font-bold text-ink">
+                    Quit Game?
+                  </h4>
+                  <p className="text-[12px] md:text-[13px] text-ink-muted mt-1">
+                    Your progress will be lost and 1 energy was already spent.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 w-full mt-1">
+                  <motion.button
+                    whileTap={{ scale: 0.93 }}
+                    onClick={() => {
+                      sfx("modalClose");
+                      setShowQuit(false);
+                    }}
+                    className="flex-1 py-2.5 md:py-3 rounded-xl bg-muted text-ink text-[13px] md:text-[14px] font-semibold border-none cursor-pointer"
+                  >
+                    Keep Playing
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.93 }}
+                    onClick={() => {
+                      sfx("navigate");
+                      exitGame();
+                    }}
+                    className="flex-1 py-2.5 md:py-3 rounded-xl bg-coral text-white text-[13px] md:text-[14px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)]"
+                  >
+                    Quit
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
     );
@@ -271,6 +352,7 @@ export default function Games() {
               if (noEnergy) return;
               sfx("gameStart");
               dispatch(spendEnergy());
+              gameCompleted.current = false;
               setActiveGame(game.id);
             }}
             className={`flex items-start gap-4 p-4 md:p-5 rounded-2xl border-none text-left shadow-[var(--shadow-soft)] relative overflow-hidden border border-border/30 ${noEnergy ? "cursor-not-allowed" : "cursor-pointer"}`}

@@ -1,75 +1,15 @@
-import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
 import GameResult from "../game-result";
-import { useSound } from "../../../hooks/use-sound";
-
-const ROUNDS = 10;
-
-function generateRound(level: number) {
-  const hue = Math.floor(Math.random() * 360);
-  const sat = 60 + Math.random() * 30;
-  const light = 45 + Math.random() * 20;
-  // Difference decreases as level increases
-  const diff = Math.max(4, 25 - level * 2.2);
-  const base = `hsl(${hue}, ${sat}%, ${light}%)`;
-  const odd = `hsl(${hue}, ${sat}%, ${light + diff}%)`;
-
-  const gridSize = level < 3 ? 9 : level < 6 ? 16 : 25;
-  const cols = Math.sqrt(gridSize);
-  const oddIndex = Math.floor(Math.random() * gridSize);
-
-  return { base, odd, gridSize, cols, oddIndex };
-}
+import { useColorVision, ROUNDS } from "../../../hooks/use-color-vision";
 
 interface Props {
   onComplete: (score: number) => void;
 }
 
 export default function ColorVision({ onComplete }: Props) {
-  const sfx = useSound();
-  const [round, setRound] = useState(0);
-  const [score, setScore] = useState(0);
-  const [level, setLevel] = useState(generateRound(0));
-  const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
-  const [done, setDone] = useState(false);
-
-  const next = useCallback(
-    (correct: boolean) => {
-      setFeedback(correct ? "correct" : "wrong");
-      const newScore = correct ? score + (round + 1) * 10 : score;
-      setScore(newScore);
-
-      setTimeout(() => {
-        setFeedback(null);
-        if (round + 1 >= ROUNDS) {
-          setDone(true);
-          onComplete(newScore);
-        } else {
-          setRound((r) => r + 1);
-          setLevel(generateRound(round + 1));
-        }
-      }, 500);
-    },
-    [round, score, onComplete],
-  );
-
-  function handleTap(idx: number) {
-    if (feedback) return;
-    sfx("tap");
-    const correct = idx === level.oddIndex;
-    if (correct) sfx("success");
-    else sfx("error");
-    next(correct);
-  }
-
-  function reset() {
-    setRound(0);
-    setScore(0);
-    setLevel(generateRound(0));
-    setFeedback(null);
-    setDone(false);
-  }
+  const { round, score, level, feedback, done, handleTap, reset } =
+    useColorVision(onComplete);
 
   if (done) {
     const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1;
@@ -107,6 +47,30 @@ export default function ColorVision({ onComplete }: Props) {
         Tap the square that's a different shade
       </p>
 
+      {/* Feedback text */}
+      <div className="h-5 flex items-center justify-center">
+        {feedback === "correct" && (
+          <motion.p
+            key={`fb-${round}`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[13px] font-bold text-green text-center"
+          >
+            Correct!
+          </motion.p>
+        )}
+        {feedback === "wrong" && (
+          <motion.p
+            key={`fb-${round}-w`}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-[13px] font-bold text-rose text-center"
+          >
+            Wrong!
+          </motion.p>
+        )}
+      </div>
+
       {/* Feedback flash */}
       <motion.div
         animate={
@@ -136,6 +100,7 @@ export default function ColorVision({ onComplete }: Props) {
                 stiffness: 400,
                 damping: 20,
               }}
+              aria-label={`Square ${i + 1}`}
               whileTap={{ scale: 0.85 }}
               onClick={() => handleTap(i)}
               className="aspect-square rounded-xl md:rounded-2xl border-none cursor-pointer"
