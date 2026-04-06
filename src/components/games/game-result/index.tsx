@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, Star, Zap, ChevronRight, Trophy } from "lucide-react";
+import { RotateCcw, Star, Zap, ChevronRight, Trophy, ArrowLeft } from "lucide-react";
 import { useSound } from "../../../hooks/use-sound";
 import Confetti from "../../confetti";
 
@@ -15,6 +15,7 @@ interface Props {
   children?: React.ReactNode;
   onReset: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
 }
@@ -47,6 +48,7 @@ export default function GameResult({
   children,
   onReset,
   onNextLevel,
+  onBack,
   levelNumber,
   newBest,
 }: Props) {
@@ -164,29 +166,44 @@ export default function GameResult({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1, type: "spring", stiffness: 300, damping: 24 }}
-        className="flex items-center gap-2"
+        className="flex flex-col items-center gap-2"
       >
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            sfx("gameStart");
-            onReset();
-          }}
-          className={`flex items-center gap-2 px-5 py-3 rounded-2xl ${onNextLevel ? "bg-muted text-ink" : `${accentColor} text-white shadow-[var(--shadow-btn)]`} font-semibold text-[14px] border-none cursor-pointer`}
-        >
-          <RotateCcw size={16} /> Retry {!onNextLevel && <Zap size={14} className="opacity-70" />}
-        </motion.button>
-
-        {onNextLevel && (
+        <div className="flex items-center gap-2">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => {
               sfx("gameStart");
-              onNextLevel();
+              onReset();
             }}
-            className={`flex items-center gap-2 px-5 py-3 rounded-2xl ${accentColor} text-white font-bold text-[14px] border-none cursor-pointer shadow-[var(--shadow-btn)]`}
+            className={`flex items-center gap-2 px-5 py-3 rounded-2xl ${onNextLevel ? "bg-muted text-ink" : `${accentColor} text-white shadow-[var(--shadow-btn)]`} font-semibold text-[14px] border-none cursor-pointer`}
           >
-            Next Level <ChevronRight size={16} />
+            <RotateCcw size={16} /> Retry <Zap size={14} className="opacity-70" />
+          </motion.button>
+
+          {onNextLevel && (
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                sfx("gameStart");
+                onNextLevel();
+              }}
+              className={`flex items-center gap-2 px-5 py-3 rounded-2xl ${accentColor} text-white font-bold text-[14px] border-none cursor-pointer shadow-[var(--shadow-btn)]`}
+            >
+              Next Level <ChevronRight size={16} />
+            </motion.button>
+          )}
+        </div>
+
+        {onBack && (
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              sfx("navigate");
+              onBack();
+            }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-ink-muted text-[13px] font-medium border-none cursor-pointer bg-transparent hover:bg-muted transition-colors"
+          >
+            <ArrowLeft size={14} /> {onNextLevel ? "Back to Levels" : "Back to Games"}
           </motion.button>
         )}
       </motion.div>

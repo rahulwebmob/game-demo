@@ -1,20 +1,36 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Eye } from "lucide-react";
 import GameResult from "../game-result";
-import { useColorVision, ROUNDS } from "../../../hooks/use-color-vision";
+import { useColorVision } from "../../../hooks/use-color-vision";
+import type { ColorVisionConfig } from "../../../hooks/use-color-vision";
+import type { ColorVisionLevel, GameLevelConfig } from "../../../data/level-configs";
 
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
-export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
-  const { round, score, level, feedback, done, handleTap } =
-    useColorVision(onComplete);
+export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores, levelConfig }: Props) {
+  const config: ColorVisionConfig | undefined = useMemo(() => {
+    if (!levelConfig) return undefined;
+    const lc = levelConfig as ColorVisionLevel;
+    return {
+      rounds: lc.rounds,
+      startGrid: lc.startGrid,
+      startDiff: lc.startDiff,
+      maxScore: lc.maxScore,
+    };
+  }, [levelConfig]);
+
+  const { round, score, level, feedback, done, handleTap, totalRounds } =
+    useColorVision(onComplete, config);
 
   if (done) {
     const stars = starScores
@@ -28,10 +44,11 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, leve
         title={title}
         stars={stars}
         score={score}
-        subtitle={`out of ${ROUNDS * (ROUNDS + 1) * 5}`}
+        subtitle={`out of ${config?.maxScore ?? totalRounds * (totalRounds + 1) * 5}`}
         accentColor="bg-violet"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}
+        onBack={onBack}
         levelNumber={levelNumber}
         newBest={newBest}
       />
@@ -43,7 +60,7 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, leve
       {/* Header */}
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary">
-          {round + 1}/{ROUNDS}
+          {round + 1}/{totalRounds}
         </span>
         <span className="text-[13px] font-bold text-ink tabular-nums">
           Score: {score}
@@ -53,7 +70,7 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, leve
       <div className="flex items-center gap-3">
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
           <motion.div
-            animate={{ width: `${(round / ROUNDS) * 100}%` }}
+            animate={{ width: `${(round / totalRounds) * 100}%` }}
             className="h-full bg-violet rounded-full"
             transition={{ duration: 0.3 }}
           />
@@ -129,7 +146,7 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, leve
                   feedback === "correct" && i === level.oddIndex
                     ? "0 0 0 3px var(--color-green)"
                     : feedback === "wrong" && i === level.oddIndex
-                      ? "0 0 0 3px var(--color-coral)"
+                      ? "0 0 0 3px var(--color-green)"
                       : "none",
               }}
             />

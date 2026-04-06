@@ -1,9 +1,11 @@
 import { useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock, FlaskConical, GripVertical } from "lucide-react";
+import { Trophy, Clock, GripVertical } from "lucide-react";
 import GameResult from "../game-result";
 import { useBallSort } from "../../../hooks/use-ball-sort";
-import type { Tube } from "../../../hooks/use-ball-sort";
+import type { Tube, BallSortConfig } from "../../../hooks/use-ball-sort";
+import type { BallSortLevel } from "../../../data/level-configs";
+import type { GameLevelConfig } from "../../../data/level-configs";
 
 /* ─── Props ─────────────────────────────────────────── */
 
@@ -11,9 +13,11 @@ interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
 /* ─── Sizing ────────────────────────────────────────── */
@@ -30,7 +34,6 @@ const TUBE_H = 4 * BALL + 3 * GAP + PAD * 2 + 10;
 
 /* ─── Color helpers ─────────────────────────────────── */
 
-
 function bStyle(color: string): React.CSSProperties {
   return {
     width: BALL, height: BALL, borderRadius: "50%", flexShrink: 0,
@@ -41,14 +44,27 @@ function bStyle(color: string): React.CSSProperties {
 
 /* ─── Main ──────────────────────────────────────────── */
 
-export default function BallSort({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
+export default function BallSort({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores, levelConfig }: Props) {
+  // Build config from external level config if available
+  const config: BallSortConfig | undefined = useMemo(() => {
+    if (!levelConfig) return undefined;
+    const lc = levelConfig as BallSortLevel;
+    return {
+      numColors: lc.numColors,
+      numTubes: lc.numTubes,
+      ballsPerTube: lc.ballsPerTube,
+      timeLimitSec: lc.timeLimitSec,
+      maxScore: lc.maxScore,
+    };
+  }, [levelConfig]);
+
   const {
-    level, tubes, selectedTube, draggingFrom, moves, totalMoves,
+    tubes, selectedTube, draggingFrom, moves,
     score, timer, phase, stars: hookStars, ballsPerTube, lastMoveResult,
     handleTubeTap, handleDragStart, handleDragEnd, handleDragCancel,
     getValidDropTargets, getSelectedDropTargets,
-    fmt, totalLevels, totalTime,
-  } = useBallSort(onComplete);
+    fmt, hasTimeLimit, totalTime,
+  } = useBallSort(onComplete, config);
 
   const tubeRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   const ghostRef = useRef<HTMLDivElement | null>(null);
@@ -123,26 +139,26 @@ export default function BallSort({ onComplete, onPlayAgain, onNextLevel, levelNu
         icon={<Trophy size={36} className="text-teal" />} iconBg="bg-teal-light"
         title={stars === 3 ? "Sorting Master!" : stars === 2 ? "Well Sorted!" : "Keep Sorting"}
         stars={stars} score={score}
-        subtitle={`Level ${level}/${totalLevels} reached`}
+        subtitle={`Solved in ${moves} moves`}
         accentColor="bg-teal" onReset={onPlayAgain}
-        onNextLevel={onNextLevel} levelNumber={levelNumber} newBest={newBest}
+        onNextLevel={onNextLevel} onBack={onBack} levelNumber={levelNumber} newBest={newBest}
       >
-        <div className="flex gap-6 text-center">
-          <div>
-            <p className="text-[20px] font-bold text-ink">{totalMoves}</p>
-            <p className="text-[11px] text-ink-muted font-medium">Total Moves</p>
+        {hasTimeLimit && (
+          <div className="flex gap-6 text-center">
+            <div>
+              <p className="text-[20px] font-bold text-ink">{moves}</p>
+              <p className="text-[11px] text-ink-muted font-medium">Moves</p>
+            </div>
+            <div>
+              <p className="text-[20px] font-bold text-ink">{fmt(timer)}</p>
+              <p className="text-[11px] text-ink-muted font-medium">Time Left</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[20px] font-bold text-ink">{fmt(timer)}</p>
-            <p className="text-[11px] text-ink-muted font-medium">Time Left</p>
-          </div>
-        </div>
+        )}
       </GameResult>
     );
   }
 
-  const pct = (timer / totalTime) * 100;
-  const tClr = pct > 50 ? "bg-green" : pct > 25 ? "bg-gold" : "bg-rose";
   const isDrag = draggingFrom !== null;
   const gCol = isDrag && tubes[draggingFrom]
     ? tubes[draggingFrom].balls[tubes[draggingFrom].balls.length - 1] : null;
@@ -153,27 +169,16 @@ export default function BallSort({ onComplete, onPlayAgain, onNextLevel, levelNu
       style={{ touchAction: "none" }}>
 
       <div className="flex items-center justify-between px-1">
-        <span className="text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-          <FlaskConical size={14} className="text-teal" /> Level {level}/{totalLevels}
-        </span>
         <span className="text-[13px] font-semibold text-ink-secondary">{moves} moves</span>
-        <span className="text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-          <Clock size={14} className="text-coral" /> {fmt(timer)}
-        </span>
-      </div>
-
-      <div className="text-center">
-        <span className="text-[15px] font-bold text-ink">Score: {score}</span>
+        {hasTimeLimit && (
+          <span className="text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
+            <Clock size={14} className="text-coral" /> {fmt(timer)}
+          </span>
+        )}
       </div>
 
       <div className="h-6 flex items-center justify-center">
         <AnimatePresence mode="wait">
-          {phase === "level-complete" && (
-            <motion.p key="lc" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }} className="text-[15px] font-bold text-green text-center">
-              Level {level} Complete! +{level * 25} pts
-            </motion.p>
-          )}
           {lastMoveResult === "error" && phase === "playing" && (
             <motion.p key="err" initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0 }} className="text-[12px] font-semibold text-rose text-center">
@@ -201,11 +206,15 @@ export default function BallSort({ onComplete, onPlayAgain, onNextLevel, levelNu
             left: -100, top: -100 }} />
       )}
 
-      <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden shadow-inner">
-        <motion.div className={`h-full rounded-full ${tClr}`}
-          initial={false} animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.8, ease: "linear" }} />
-      </div>
+      {hasTimeLimit && (
+        <div className="w-full h-2.5 rounded-full bg-muted overflow-hidden shadow-inner">
+          <motion.div className={`h-full rounded-full ${
+            (timer / totalTime) * 100 > 50 ? "bg-green" : (timer / totalTime) * 100 > 25 ? "bg-gold" : "bg-rose"
+          }`}
+            initial={false} animate={{ width: `${(timer / totalTime) * 100}%` }}
+            transition={{ duration: 0.8, ease: "linear" }} />
+        </div>
+      )}
 
       <p className="text-[11px] text-ink-muted text-center flex items-center justify-center gap-1">
         <GripVertical size={12} /> Drag a ball or tap to select &amp; place

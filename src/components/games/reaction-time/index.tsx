@@ -7,12 +7,13 @@ interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
 }
 
-export default function ReactionTime({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
+export default function ReactionTime({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores }: Props) {
   const { phase, times, currentTime, tooEarly, avg, stars: hookStars, rating, handleTap, score } =
     useReactionTime(onComplete);
 
@@ -31,6 +32,7 @@ export default function ReactionTime({ onComplete, onPlayAgain, onNextLevel, lev
         accentColor="bg-gold"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}
+        onBack={onBack}
         levelNumber={levelNumber}
         newBest={newBest}
       >
@@ -69,6 +71,15 @@ export default function ReactionTime({ onComplete, onPlayAgain, onNextLevel, lev
             Avg: {avg}ms
           </span>
         )}
+      </div>
+
+      {/* Progress bar */}
+      <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
+        <motion.div
+          animate={{ width: `${(times.length / TOTAL_ROUNDS) * 100}%` }}
+          className="h-full bg-gold rounded-full"
+          transition={{ duration: 0.3 }}
+        />
       </div>
 
       {/* Main tap area */}

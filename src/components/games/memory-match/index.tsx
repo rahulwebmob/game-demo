@@ -1,20 +1,38 @@
+import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Clock } from "lucide-react";
 import GameResult from "../game-result";
 import { useMemoryMatch } from "../../../hooks/use-memory-match";
+import type { MemoryMatchConfig } from "../../../hooks/use-memory-match";
+import type { MemoryMatchLevel, GameLevelConfig } from "../../../data/level-configs";
 
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
-export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
-  const { cards, moves, matches, timer, done, flip, score, stars: hookStars, fmt, TOTAL_PAIRS, lastResult } =
-    useMemoryMatch(onComplete);
+export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores, levelConfig }: Props) {
+  const config: MemoryMatchConfig | undefined = useMemo(() => {
+    if (!levelConfig) return undefined;
+    const lc = levelConfig as MemoryMatchLevel;
+    return {
+      pairCount: lc.pairCount,
+      cols: lc.cols,
+      timeLimitSec: lc.timeLimitSec,
+      maxScore: lc.maxScore,
+    };
+  }, [levelConfig]);
+
+  const {
+    cards, moves, matches, timer, done, flip, score, stars: hookStars, fmt,
+    TOTAL_PAIRS, lastResult, cols, timeLeft, hasTimeLimit,
+  } = useMemoryMatch(onComplete, config);
 
   if (done) {
     const stars = starScores
@@ -27,9 +45,9 @@ export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, leve
         title={stars === 3 ? "Perfect Memory!" : stars === 2 ? "Well Done!" : "Keep Practicing"}
         stars={stars}
         score={score}
-        subtitle="out of 100"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}
+        onBack={onBack}
         levelNumber={levelNumber}
         newBest={newBest}
       >
@@ -51,12 +69,27 @@ export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, leve
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-          <Clock size={14} className="text-coral" /> {fmt(timer)}
+          <Clock size={14} className="text-coral" />
+          {hasTimeLimit ? fmt(timeLeft ?? 0) : fmt(timer)}
         </span>
         <span className="text-[13px] font-semibold text-ink-secondary">
           {matches}/{TOTAL_PAIRS} pairs · {moves} moves
         </span>
       </div>
+
+      {/* Time limit bar */}
+      {hasTimeLimit && timeLeft !== null && (
+        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${
+              timeLeft > 30 ? "bg-green" : timeLeft > 10 ? "bg-gold" : "bg-rose"
+            }`}
+            initial={false}
+            animate={{ width: `${(timeLeft / ((levelConfig as MemoryMatchLevel)?.timeLimitSec ?? 1)) * 100}%` }}
+            transition={{ duration: 0.8, ease: "linear" }}
+          />
+        </div>
+      )}
 
       {/* Match/miss feedback */}
       <div className="h-5 flex items-center justify-center">
@@ -83,10 +116,24 @@ export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, leve
               Not a match
             </motion.p>
           )}
+          {lastResult === "timeUp" && (
+            <motion.p
+              key="timeup"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: [0.8, 1.1, 1] }}
+              exit={{ opacity: 0 }}
+              className="text-[14px] font-bold text-coral text-center"
+            >
+              Time's up!
+            </motion.p>
+          )}
         </AnimatePresence>
       </div>
 
-      <div className="grid grid-cols-4 gap-2.5 md:gap-3">
+      <div
+        className="grid gap-2.5 md:gap-3"
+        style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+      >
         {cards.map((card) => (
           <motion.button
             key={card.id}

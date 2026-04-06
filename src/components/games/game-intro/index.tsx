@@ -8,12 +8,19 @@ interface Props {
   icon: React.ReactNode;
   onStart: () => void;
   coinRewards?: [number, number, number]; // level-specific [3-star, 2-star, 1-star]
+  starScores?: [number, number]; // level-specific [3-star min, 2-star min]
+  levelNumber?: number; // which level (for level-based games)
+  isEndless?: boolean;
 }
 
-export default function GameIntro({ game, icon, onStart, coinRewards }: Props) {
+export default function GameIntro({ game, icon, onStart, coinRewards, starScores, levelNumber, isEndless }: Props) {
   const sfx = useSound();
   const { rules } = game;
   const coins = coinRewards ?? game.starCoins;
+  const [threeMin, twoMin] = starScores ?? rules.starScores;
+  const starDescs: [string, string, string] = starScores
+    ? [`Score ${threeMin}+`, `Score ${twoMin}–${threeMin - 1}`, `Score below ${twoMin}`]
+    : rules.stars;
 
   return (
     <motion.div
@@ -42,6 +49,15 @@ export default function GameIntro({ game, icon, onStart, coinRewards }: Props) {
         <div className="text-center">
           <h2 className="text-[20px] font-bold text-ink">{game.name}</h2>
           <p className="text-[12px] text-ink-muted mt-0.5">{game.description}</p>
+          {levelNumber ? (
+            <span className="inline-block mt-2 px-3 py-1 rounded-full bg-violet-light text-violet text-[11px] font-bold">
+              {isEndless ? "Endless Mode" : `Level ${levelNumber}`}
+            </span>
+          ) : !game.hasLevels ? (
+            <span className="inline-block mt-2 px-3 py-1 rounded-full bg-teal-light text-teal text-[11px] font-bold">
+              Quick Test
+            </span>
+          ) : null}
         </div>
       </motion.div>
 
@@ -83,7 +99,7 @@ export default function GameIntro({ game, icon, onStart, coinRewards }: Props) {
           <span className="text-[13px] font-bold text-ink">Star Ratings</span>
         </div>
         <div className="flex flex-col gap-2">
-          {rules.stars.map((desc, i) => (
+          {starDescs.map((desc, i) => (
             <div key={i} className="flex items-center gap-2.5">
               <div className="flex gap-0.5 w-[52px] flex-shrink-0">
                 {[0, 1, 2].map((s) => (
@@ -132,7 +148,14 @@ export default function GameIntro({ game, icon, onStart, coinRewards }: Props) {
         className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-white font-bold text-[15px] border-none cursor-pointer shadow-[var(--shadow-btn)]"
         style={{ background: game.fg }}
       >
-        <Play size={18} fill="white" /> Start Game
+        <Play size={18} fill="white" />{" "}
+            {isEndless
+              ? "Start Endless"
+              : levelNumber
+                ? `Start Level ${levelNumber}`
+                : game.hasLevels
+                  ? "Start Game"
+                  : "Start Test"}
       </motion.button>
     </motion.div>
   );

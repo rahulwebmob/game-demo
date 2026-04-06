@@ -122,8 +122,8 @@ function memoryMatch(level: number): MemoryMatchLevel {
   else if (totalCards > 16) cols = 6;
   else if (totalCards > 12) cols = 5;
   const rows = Math.ceil(totalCards / cols);
-  // Time limit: none for first 5, then shrinks from 120s → 40s
-  const timeLimitSec = level <= 5 ? null : Math.max(40, lerp(120, 40, (level - 5) / 45));
+  // Time limit: none for first 5, then shrinks from 120s → 55s
+  const timeLimitSec = level <= 5 ? null : Math.max(55, lerp(120, 55, (level - 5) / 45));
   const maxScore = 100 + (level - 1) * 4; // scales with difficulty
 
   return { ...base(level, maxScore), rows, cols, pairCount, timeLimitSec };
@@ -161,7 +161,7 @@ function patternRecall(level: number): PatternRecallLevel {
   const gridSize = gridCols * gridCols;
   const startLength = clamp(lerp(2, 5, t), 2, 7);
   const maxRounds = clamp(lerp(5, 10, t), 5, 12);
-  const lives = clamp(lerp(3, 1, t), 1, 3);
+  const lives = clamp(lerp(3, 2, t), 2, 3);
   const showMs = clamp(lerp(650, 280, t), 200, 650);
   const gapMs = clamp(lerp(350, 150, t), 120, 350);
   const maxScore = maxRounds * (maxRounds + 1) / 2 * 15;
@@ -185,7 +185,7 @@ function numberSequence(level: number): NumberSequenceLevel {
   if (level >= 30) allowedTypes.push("quadratic");
   if (level >= 40) allowedTypes.push("fibonacci");
 
-  const timeLimitSec = level <= 8 ? null : Math.max(12, lerp(45, 12, (level - 8) / 42));
+  const timeLimitSec = level <= 8 ? null : Math.max(20, lerp(45, 20, (level - 8) / 42));
   const maxScore = rounds * (rounds + 1) / 2 * 12;
 
   return { ...base(level, maxScore), rounds, seqLength, allowedTypes, timeLimitSec };
@@ -216,7 +216,7 @@ function ballSort(level: number): BallSortLevel {
 
   return {
     ...base(level, maxScore),
-    numColors, numTubes: Math.max(numTubes, numColors + 1), ballsPerTube, timeLimitSec,
+    numColors, numTubes: Math.max(numTubes, numColors + 2), ballsPerTube, timeLimitSec,
   };
 }
 

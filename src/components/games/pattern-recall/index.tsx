@@ -1,25 +1,47 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Brain } from "lucide-react";
 import GameResult from "../game-result";
-import { usePatternRecall, GRID, COLS } from "../../../hooks/use-pattern-recall";
+import { usePatternRecall } from "../../../hooks/use-pattern-recall";
+import type { PatternRecallConfig } from "../../../hooks/use-pattern-recall";
+import type { PatternRecallLevel, GameLevelConfig } from "../../../data/level-configs";
 
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
-export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
-  const { level, pattern, userPattern, phase, highlighted, score, lives, handleTap } =
-    usePatternRecall(onComplete);
+export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores, levelConfig }: Props) {
+  const config: PatternRecallConfig | undefined = useMemo(() => {
+    if (!levelConfig) return undefined;
+    const lc = levelConfig as PatternRecallLevel;
+    return {
+      gridCols: lc.gridCols,
+      gridSize: lc.gridSize,
+      startLength: lc.startLength,
+      maxRounds: lc.maxRounds,
+      lives: lc.lives,
+      showMs: lc.showMs,
+      gapMs: lc.gapMs,
+      maxScore: lc.maxScore,
+    };
+  }, [levelConfig]);
+
+  const {
+    level, pattern, userPattern, phase, highlighted, score, lives, handleTap,
+    gridSize, gridCols, maxRounds, pointsPerRound, maxScore,
+  } = usePatternRecall(onComplete, config);
 
   if (phase === "done") {
     const stars = starScores
       ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
-      : (score >= 380 ? 3 : score >= 215 ? 2 : 1);
+      : (score >= Math.round(maxScore * 0.7) ? 3 : score >= Math.round(maxScore * 0.4) ? 2 : 1);
     const title = stars === 3 ? "Pattern Master!" : stars === 2 ? "Good Memory!" : "Keep Practicing";
     return (
       <GameResult
@@ -28,21 +50,24 @@ export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, le
         title={title}
         stars={stars}
         score={score}
-        subtitle={`Reached level ${level}`}
+        subtitle={`Reached round ${level} of ${maxRounds}`}
         accentColor="bg-teal"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}
+        onBack={onBack}
         levelNumber={levelNumber}
         newBest={newBest}
       />
     );
   }
 
+  const maxWidth = gridCols <= 3 ? 280 : gridCols <= 4 ? 340 : 400;
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary">
-          Level {level}/8
+          Round {level}/{maxRounds}
         </span>
         <div className="flex items-center gap-3">
           <span className="text-[13px] font-bold text-ink tabular-nums">
@@ -57,7 +82,7 @@ export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, le
       <div className="flex items-center gap-3">
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
           <motion.div
-            animate={{ width: `${((level - 1) / 8) * 100}%` }}
+            animate={{ width: `${((level - 1) / maxRounds) * 100}%` }}
             className="h-full bg-teal rounded-full"
             transition={{ duration: 0.3 }}
           />
@@ -81,7 +106,7 @@ export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, le
           transition={{ duration: 0.4 }}
           className="text-center text-[14px] font-bold text-green"
         >
-          Correct! +{level * 15} pts
+          Correct! +{level * pointsPerRound} pts
         </motion.p>
       )}
       {phase === "wrong" && (
@@ -97,9 +122,9 @@ export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, le
 
       <div
         className="grid gap-3 md:gap-4 mx-auto w-full"
-        style={{ gridTemplateColumns: `repeat(${COLS}, 1fr)`, maxWidth: 280 }}
+        style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)`, maxWidth }}
       >
-        {Array.from({ length: GRID }).map((_, i) => (
+        {Array.from({ length: gridSize }).map((_, i) => (
           <motion.button
             key={i}
             aria-label={`Cell ${i + 1}${highlighted === i ? " (highlighted)" : ""}`}

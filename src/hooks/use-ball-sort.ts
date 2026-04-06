@@ -8,20 +8,21 @@ export interface Tube {
   balls: BallColor[]; // bottom to top
 }
 
-interface LevelConfig {
+export interface BallSortConfig {
   numColors: number;
   numTubes: number;
   ballsPerTube: number;
+  timeLimitSec: number | null;
+  maxScore: number;
 }
 
-const LEVELS: LevelConfig[] = [
-  { numColors: 2, numTubes: 3, ballsPerTube: 4 },
-  { numColors: 3, numTubes: 4, ballsPerTube: 4 },
-  { numColors: 3, numTubes: 5, ballsPerTube: 4 },
-  { numColors: 4, numTubes: 5, ballsPerTube: 4 },
-  { numColors: 4, numTubes: 6, ballsPerTube: 4 },
-  { numColors: 5, numTubes: 6, ballsPerTube: 4 },
-];
+const DEFAULT_CONFIG: BallSortConfig = {
+  numColors: 3,
+  numTubes: 5,
+  ballsPerTube: 4,
+  timeLimitSec: 150,
+  maxScore: 100,
+};
 
 export const BALL_COLORS = [
   "#22c55e", // green
@@ -32,10 +33,11 @@ export const BALL_COLORS = [
   "#a855f7", // purple
   "#06b6d4", // cyan
   "#ec4899", // pink
+  "#14b8a6", // teal
+  "#f43f5e", // rose
+  "#84cc16", // lime
+  "#6366f1", // indigo
 ];
-
-const POINTS_PER_LEVEL = 25;
-const TOTAL_TIME = 150;
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -46,15 +48,31 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function isSolvedFlat(balls: BallColor[], numTubes: number, perTube: number): boolean {
-  for (let t = 0; t < numTubes; t++) {
+function isSolvedFlat(balls: BallColor[], numColors: number, perTube: number): boolean {
+  for (let t = 0; t < numColors; t++) {
     const seg = balls.slice(t * perTube, (t + 1) * perTube);
     if (!seg.every((b) => b === seg[0])) return false;
   }
   return true;
 }
 
-function generateLevel(config: LevelConfig): Tube[] {
+/** Check that the puzzle is not trivially stuck (has valid moves and mixed tubes) */
+function isViable(tubes: Tube[], ballsPerTube: number): boolean {
+  let mixedTubes = 0;
+  for (const tube of tubes) {
+    if (tube.balls.length > 0 && !tube.balls.every((b) => b === tube.balls[0])) {
+      mixedTubes++;
+    }
+  }
+  // At least 2 mixed tubes to make it an actual puzzle
+  if (mixedTubes < 2) return false;
+  // Must have at least one valid move
+  const hasEmpty = tubes.some((t) => t.balls.length === 0);
+  const hasNonFull = tubes.some((t) => t.balls.length > 0 && t.balls.length < ballsPerTube);
+  return hasEmpty || hasNonFull;
+}
+
+function generatePuzzle(config: BallSortConfig): Tube[] {
   const { numColors, numTubes, ballsPerTube } = config;
   const colors = BALL_COLORS.slice(0, numColors);
 
@@ -63,23 +81,27 @@ function generateLevel(config: LevelConfig): Tube[] {
     for (let i = 0; i < ballsPerTube; i++) allBalls.push(color);
   }
 
+  let tubes: Tube[] = [];
   let attempts = 0;
   do {
     allBalls = shuffle(allBalls);
     attempts++;
-  } while (attempts < 100 && isSolvedFlat(allBalls, numColors, ballsPerTube));
+    tubes = [];
+    for (let t = 0; t < numColors; t++) {
+      tubes.push({ id: t, balls: allBalls.slice(t * ballsPerTube, (t + 1) * ballsPerTube) });
+    }
+    for (let t = numColors; t < numTubes; t++) {
+      tubes.push({ id: t, balls: [] });
+    }
+  } while (
+    attempts < 200 &&
+    (isSolvedFlat(allBalls, numColors, ballsPerTube) || !isViable(tubes, ballsPerTube))
+  );
 
-  const tubes: Tube[] = [];
-  for (let t = 0; t < numColors; t++) {
-    tubes.push({ id: t, balls: allBalls.slice(t * ballsPerTube, (t + 1) * ballsPerTube) });
-  }
-  for (let t = numColors; t < numTubes; t++) {
-    tubes.push({ id: t, balls: [] });
-  }
   return tubes;
 }
 
-function checkLevelComplete(tubes: Tube[], ballsPerTube: number): boolean {
+function checkComplete(tubes: Tube[], ballsPerTube: number): boolean {
   return tubes.every(
     (t) =>
       t.balls.length === 0 ||
@@ -87,47 +109,35 @@ function checkLevelComplete(tubes: Tube[], ballsPerTube: number): boolean {
   );
 }
 
-/**
- * Can this ball be placed on top of targetTube?
- * Only rule: tube must have space. Color matching is only
- * checked for the final win condition, not during play.
- */
 function canDrop(_ball: BallColor, target: Tube, ballsPerTube: number): boolean {
   return target.balls.length < ballsPerTube;
 }
 
-export function useBallSort(onComplete: (score: number) => void) {
+export function useBallSort(onComplete: (score: number) => void, config?: BallSortConfig) {
   const sfx = useSound();
+  const cfg = config ?? DEFAULT_CONFIG;
 
   /* ── State ── */
-  const [level, setLevel] = useState(1);
-  const [tubes, setTubes] = useState<Tube[]>(() => generateLevel(LEVELS[0]));
+  const [tubes, setTubes] = useState<Tube[]>(() => generatePuzzle(cfg));
   const [selectedTube, setSelectedTube] = useState<number | null>(null);
   const [draggingFrom, setDraggingFrom] = useState<number | null>(null);
   const [moves, setMoves] = useState(0);
-  const [totalMoves, setTotalMoves] = useState(0);
-  const [score, setScore] = useState(0);
-  const [timer, setTimer] = useState(TOTAL_TIME);
-  const [phase, setPhase] = useState<"playing" | "level-complete" | "done">("playing");
+  const [timer, setTimer] = useState(cfg.timeLimitSec ?? 0);
+  const [phase, setPhase] = useState<"playing" | "done">("playing");
   const [lastMoveResult, setLastMoveResult] = useState<"success" | "error" | null>(null);
 
-  /* ── Refs (always hold the latest values — immune to stale closures) ── */
+  /* ── Refs ── */
   const tubesRef = useRef(tubes);
-  const levelRef = useRef(level);
-  const scoreRef = useRef(0);
-  const timerRef = useRef(TOTAL_TIME);
-  const phaseRef = useRef<"playing" | "level-complete" | "done">("playing");
+  const timerRef = useRef(cfg.timeLimitSec ?? 0);
+  const phaseRef = useRef<"playing" | "done">("playing");
   const selectedRef = useRef<number | null>(null);
   const draggingRef = useRef<number | null>(null);
+  const movesRef = useRef(0);
   const unmounted = useRef(false);
 
-  // Keep refs in sync with state
   tubesRef.current = tubes;
-  levelRef.current = level;
   selectedRef.current = selectedTube;
   draggingRef.current = draggingFrom;
-
-  const getBallsPerTube = () => LEVELS[Math.min(levelRef.current - 1, LEVELS.length - 1)].ballsPerTube;
 
   useEffect(() => {
     unmounted.current = false;
@@ -143,8 +153,9 @@ export function useBallSort(onComplete: (score: number) => void) {
     return () => clearTimeout(t);
   }, [lastMoveResult]);
 
-  // Timer
+  // Timer (only if there's a time limit)
   useEffect(() => {
+    if (cfg.timeLimitSec === null) return;
     if (phaseRef.current === "done") return;
     const id = setInterval(() => {
       if (phaseRef.current !== "playing") return;
@@ -153,88 +164,65 @@ export function useBallSort(onComplete: (score: number) => void) {
       if (timerRef.current <= 0) {
         phaseRef.current = "done";
         if (!unmounted.current) setPhase("done");
-        onComplete(scoreRef.current);
+        // Score based on moves made — partial credit
+        const score = computeScore(movesRef.current, cfg);
+        onComplete(score);
       }
     }, 1000);
     return () => clearInterval(id);
-  }, [onComplete]);
+  }, [onComplete, cfg]);
 
-  /**
-   * Core move function. Reads LATEST state from refs.
-   * Returns true if the move was valid and executed, false otherwise.
-   */
+  function computeScore(moveCount: number, c: BallSortConfig): number {
+    // Optimal ≈ (numColors - 1) * ballsPerTube (realistic good play)
+    const optimal = Math.max(1, (c.numColors - 1) * c.ballsPerTube);
+    // Score degrades as moves increase beyond optimal, hitting 0 at 3× optimal
+    const ratio = Math.max(0, 1 - Math.max(0, moveCount - optimal) / (optimal * 2));
+    return Math.round(c.maxScore * ratio);
+  }
+
   const executeMove = useCallback(
     (fromIdx: number, toIdx: number): boolean => {
       if (fromIdx === toIdx) return false;
       if (phaseRef.current !== "playing") return false;
 
-      // Read latest tubes from ref
       const currentTubes = tubesRef.current;
-      const bpt = getBallsPerTube();
+      const bpt = cfg.ballsPerTube;
 
       const from = currentTubes[fromIdx];
       if (!from || from.balls.length === 0) return false;
 
       const ball = from.balls[from.balls.length - 1];
-
       const to = currentTubes[toIdx];
       if (!to) return false;
 
-      // ── VALIDATE ──
       if (!canDrop(ball, to, bpt)) return false;
 
-      // ── EXECUTE ──
       const newTubes = currentTubes.map((t) => ({ ...t, balls: [...t.balls] }));
       newTubes[fromIdx].balls.pop();
       newTubes[toIdx].balls.push(ball);
 
-      // Commit state
-      tubesRef.current = newTubes; // update ref immediately so next call sees it
+      tubesRef.current = newTubes;
+      movesRef.current += 1;
       setTubes(newTubes);
-      setMoves((m) => m + 1);
-      setTotalMoves((m) => m + 1);
+      setMoves(movesRef.current);
       setSelectedTube(null);
       selectedRef.current = null;
       setLastMoveResult("success");
       sfx("success");
 
-      // Check level completion
-      if (checkLevelComplete(newTubes, bpt)) {
-        const lvl = levelRef.current;
-        const pts = lvl * POINTS_PER_LEVEL;
-        scoreRef.current += pts;
-        setScore(scoreRef.current);
-
-        if (lvl >= LEVELS.length) {
-          phaseRef.current = "done";
-          setPhase("done");
-          onComplete(scoreRef.current);
-        } else {
-          phaseRef.current = "level-complete";
-          setPhase("level-complete");
-          setTimeout(() => {
-            if (unmounted.current) return;
-            const next = lvl + 1;
-            const nextTubes = generateLevel(LEVELS[next - 1]);
-            levelRef.current = next;
-            tubesRef.current = nextTubes;
-            setLevel(next);
-            setTubes(nextTubes);
-            setSelectedTube(null);
-            selectedRef.current = null;
-            setMoves(0);
-            phaseRef.current = "playing";
-            setPhase("playing");
-          }, 1400);
-        }
+      // Check puzzle completion
+      if (checkComplete(newTubes, bpt)) {
+        phaseRef.current = "done";
+        setPhase("done");
+        const score = computeScore(movesRef.current, cfg);
+        onComplete(score);
       }
 
       return true;
     },
-    [sfx, onComplete],
+    [sfx, onComplete, cfg],
   );
 
-  /* ── Tap-to-move ── */
   const handleTubeTap = useCallback(
     (tubeIdx: number) => {
       if (phaseRef.current !== "playing") return;
@@ -243,7 +231,6 @@ export function useBallSort(onComplete: (score: number) => void) {
       const currentTubes = tubesRef.current;
       const sel = selectedRef.current;
 
-      // Nothing selected → select this tube if it has balls
       if (sel === null) {
         if (currentTubes[tubeIdx] && currentTubes[tubeIdx].balls.length > 0) {
           sfx("tap");
@@ -253,7 +240,6 @@ export function useBallSort(onComplete: (score: number) => void) {
         return;
       }
 
-      // Tap same tube → deselect
       if (sel === tubeIdx) {
         sfx("tap");
         selectedRef.current = null;
@@ -261,7 +247,6 @@ export function useBallSort(onComplete: (score: number) => void) {
         return;
       }
 
-      // Tap different tube → try to move
       if (!executeMove(sel, tubeIdx)) {
         sfx("error");
         setLastMoveResult("error");
@@ -272,7 +257,6 @@ export function useBallSort(onComplete: (score: number) => void) {
     [sfx, executeMove],
   );
 
-  /* ── Drag ── */
   const handleDragStart = useCallback(
     (tubeIdx: number) => {
       if (phaseRef.current !== "playing") return;
@@ -291,10 +275,7 @@ export function useBallSort(onComplete: (score: number) => void) {
     (fromIdx: number, dropTargetIdx: number | null) => {
       draggingRef.current = null;
       setDraggingFrom(null);
-
-      // Dropped outside any tube, or on same tube → snap back
       if (dropTargetIdx === null || dropTargetIdx === fromIdx) return;
-
       if (!executeMove(fromIdx, dropTargetIdx)) {
         sfx("error");
         setLastMoveResult("error");
@@ -308,7 +289,6 @@ export function useBallSort(onComplete: (score: number) => void) {
     setDraggingFrom(null);
   }, []);
 
-  /** Valid drop targets for the currently dragged ball */
   const getValidDropTargets = useCallback((): Set<number> => {
     const dIdx = draggingRef.current;
     if (dIdx === null) return new Set();
@@ -316,15 +296,14 @@ export function useBallSort(onComplete: (score: number) => void) {
     const from = currentTubes[dIdx];
     if (!from || from.balls.length === 0) return new Set();
     const ball = from.balls[from.balls.length - 1];
-    const bpt = getBallsPerTube();
+    const bpt = cfg.ballsPerTube;
     const valid = new Set<number>();
     currentTubes.forEach((tube, idx) => {
       if (idx !== dIdx && canDrop(ball, tube, bpt)) valid.add(idx);
     });
     return valid;
-  }, [draggingFrom, tubes]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [draggingFrom, tubes, cfg.ballsPerTube]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  /** Valid drop targets for the tap-selected ball */
   const getSelectedDropTargets = useCallback((): Set<number> => {
     const sIdx = selectedRef.current;
     if (sIdx === null) return new Set();
@@ -332,36 +311,13 @@ export function useBallSort(onComplete: (score: number) => void) {
     const from = currentTubes[sIdx];
     if (!from || from.balls.length === 0) return new Set();
     const ball = from.balls[from.balls.length - 1];
-    const bpt = getBallsPerTube();
+    const bpt = cfg.ballsPerTube;
     const valid = new Set<number>();
     currentTubes.forEach((tube, idx) => {
       if (idx !== sIdx && canDrop(ball, tube, bpt)) valid.add(idx);
     });
     return valid;
-  }, [selectedTube, tubes]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const reset = useCallback(() => {
-    const fresh = generateLevel(LEVELS[0]);
-    scoreRef.current = 0;
-    timerRef.current = TOTAL_TIME;
-    phaseRef.current = "playing";
-    levelRef.current = 1;
-    tubesRef.current = fresh;
-    selectedRef.current = null;
-    draggingRef.current = null;
-    setScore(0);
-    setTimer(TOTAL_TIME);
-    setPhase("playing");
-    setLevel(1);
-    setTubes(fresh);
-    setSelectedTube(null);
-    setDraggingFrom(null);
-    setMoves(0);
-    setTotalMoves(0);
-    setLastMoveResult(null);
-  }, []);
-
-  const stars = scoreRef.current >= 370 ? 3 : scoreRef.current >= 210 ? 2 : 1;
+  }, [selectedTube, tubes, cfg.ballsPerTube]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fmt = (s: number) => {
     const m = Math.floor(s / 60);
@@ -370,17 +326,15 @@ export function useBallSort(onComplete: (score: number) => void) {
   };
 
   return {
-    level,
     tubes,
     selectedTube,
     draggingFrom,
     moves,
-    totalMoves,
-    score,
+    score: phase === "done" ? computeScore(movesRef.current, cfg) : 0,
     timer,
     phase,
-    stars,
-    ballsPerTube: getBallsPerTube(),
+    stars: 0, // calculated externally via starScores
+    ballsPerTube: cfg.ballsPerTube,
     lastMoveResult,
     handleTubeTap,
     handleDragStart,
@@ -388,9 +342,8 @@ export function useBallSort(onComplete: (score: number) => void) {
     handleDragCancel,
     getValidDropTargets,
     getSelectedDropTargets,
-    reset,
     fmt,
-    totalLevels: LEVELS.length,
-    totalTime: TOTAL_TIME,
+    hasTimeLimit: cfg.timeLimitSec !== null,
+    totalTime: cfg.timeLimitSec ?? 0,
   };
 }

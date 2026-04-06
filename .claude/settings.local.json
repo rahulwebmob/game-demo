@@ -33,7 +33,9 @@
       "Bash(cd /d/gamerify/public/avatars && mkdir -p owl dog cat cat2 penguin && mv owl.png owl/default.png && mv owl-sleep.png owl/sleep.png && mv owl-glasses.png owl/glasses.png && mv dog.png dog/default.png && mv dog-sleep.png dog/sleep.png && mv dog-glasses.png dog/glasses.png && mv cat.png cat/default.png && mv cat-sleep.png cat/sleep.png && mv cat-glasses.png cat/glasses.png && mv cat2.png cat2/default.png && mv cat2-sleep.png cat2/sleep.png && mv cat2-glasses.png cat2/glasses.png && mv penguin.png penguin/default.png && mv penguin-sleep.png penguin/sleep.png && mv penguin-glasses.png penguin/glasses.png && echo \"Done\" && ls -R)",
       "Bash(wc -l C:/Users/luv/AppData/Local/Temp/claude/D--gamerify/b3b87b18-9110-4405-8d56-cda412d9e5ea/tasks/*.output 2>/dev/null)",
       "Bash(git -C /d/gamerify diff src/pages/daily-login.tsx)",
-      "Bash(head -50 /d/gamerify/src/store/*.ts)"
+      "Bash(head -50 /d/gamerify/src/store/*.ts)",
+      "Bash(git -C /d/gamerify log --oneline -20)",
+      "Bash(git -C /d/gamerify diff --stat HEAD~5..HEAD 2>/dev/null)"
     ]
   }
 }

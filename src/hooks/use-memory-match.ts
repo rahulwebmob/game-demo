@@ -1,8 +1,25 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSound } from "./use-sound";
 
-const EMOJIS = ["🧠", "👁️", "❤️", "⚡", "🎯", "🌟", "🔬", "💊"];
-const TOTAL_PAIRS = EMOJIS.length;
+const ALL_EMOJIS = [
+  "🧠", "👁️", "❤️", "⚡", "🎯", "🌟", "🔬", "💊",
+  "🎮", "🔥", "💎", "🌈", "🍀", "🎵", "🐱", "🐶",
+  "🦊", "🐸", "🌺", "🍎", "🚀", "⭐", "🌙", "🎲",
+];
+
+export interface MemoryMatchConfig {
+  pairCount: number;
+  cols: number;
+  timeLimitSec: number | null;
+  maxScore: number;
+}
+
+const DEFAULT_CONFIG: MemoryMatchConfig = {
+  pairCount: 8,
+  cols: 4,
+  timeLimitSec: null,
+  maxScore: 100,
+};
 
 export interface Card {
   id: number;
@@ -11,8 +28,9 @@ export interface Card {
   matched: boolean;
 }
 
-function shuffle(): Card[] {
-  const cards = [...EMOJIS, ...EMOJIS].map((emoji, i) => ({
+function buildCards(pairCount: number): Card[] {
+  const emojis = ALL_EMOJIS.slice(0, pairCount);
+  const cards = [...emojis, ...emojis].map((emoji, i) => ({
     id: i,
     emoji,
     flipped: false,
@@ -25,27 +43,22 @@ function shuffle(): Card[] {
   return cards;
 }
 
-function calcScore(moves: number, timer: number) {
-  return Math.max(100 - moves * 2 - timer, 0);
-}
-
-export function useMemoryMatch(onComplete: (score: number) => void) {
+export function useMemoryMatch(onComplete: (score: number) => void, config?: MemoryMatchConfig) {
   const sfx = useSound();
-  const [cards, setCards] = useState<Card[]>(shuffle);
+  const cfg = config ?? DEFAULT_CONFIG;
+
+  const [cards, setCards] = useState<Card[]>(() => buildCards(cfg.pairCount));
   const [moves, setMoves] = useState(0);
   const [matches, setMatches] = useState(0);
   const [timer, setTimer] = useState(0);
   const [done, setDone] = useState(false);
   const [started, setStarted] = useState(false);
   const [finalScore, setFinalScore] = useState<number | null>(null);
-  const [lastResult, setLastResult] = useState<"match" | "miss" | null>(null);
+  const [lastResult, setLastResult] = useState<"match" | "miss" | "timeUp" | null>(null);
   const interval = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
   const locked = useRef(false);
   const unmounted = useRef(false);
 
-  // Refs to avoid stale closures in flip callback —
-  // these are updated synchronously so rapid clicks always
-  // see the latest values even before React re-renders.
   const selectedRef = useRef<number[]>([]);
   const cardsRef = useRef<Card[]>(cards);
   const movesRef = useRef(0);
@@ -53,60 +66,63 @@ export function useMemoryMatch(onComplete: (score: number) => void) {
   const timerRef = useRef(0);
   const startedRef = useRef(false);
 
+  const totalPairs = cfg.pairCount;
+
+  function calcScore(moveCount: number, elapsed: number) {
+    // Only penalize moves beyond the minimum (pairCount = perfect memory)
+    const minMoves = totalPairs;
+    const excessMoves = Math.max(0, moveCount - minMoves);
+    const moveScore = Math.max(0, 1 - excessMoves / (minMoves * 2));
+    // Time component: spread over available time (or 120s for untimed)
+    const totalTime = cfg.timeLimitSec ?? 120;
+    const timeScore = Math.max(0, 1 - elapsed / totalTime);
+    // 70% moves, 30% time
+    return Math.round(cfg.maxScore * (moveScore * 0.7 + timeScore * 0.3));
+  }
+
   useEffect(() => {
     unmounted.current = false;
     return () => { unmounted.current = true; };
   }, []);
 
-  // Clean up interval on unmount
   useEffect(() => {
     return () => clearInterval(interval.current);
   }, []);
 
-  // Timer: pause when tab is hidden
+  // Timer
   useEffect(() => {
     if (started && !done) {
       interval.current = setInterval(() => {
         if (!document.hidden) {
-          setTimer((t) => {
-            timerRef.current = t + 1;
-            return t + 1;
-          });
+          timerRef.current += 1;
+          if (!unmounted.current) setTimer(timerRef.current);
+
+          // Time limit: auto-end when expired
+          if (cfg.timeLimitSec !== null && timerRef.current >= cfg.timeLimitSec) {
+            clearInterval(interval.current);
+            if (!unmounted.current) {
+              setLastResult("timeUp");
+              setDone(true);
+              const computed = calcScore(movesRef.current, timerRef.current);
+              setFinalScore(computed);
+              setTimeout(() => {
+                if (!unmounted.current) onComplete(computed);
+              }, 800);
+            }
+          }
         }
       }, 1000);
       return () => clearInterval(interval.current);
     }
-  }, [started, done]);
-
-  const reset = useCallback(() => {
-    const newCards = shuffle();
-    cardsRef.current = newCards;
-    setCards(newCards);
-    selectedRef.current = [];
-    movesRef.current = 0;
-    setMoves(0);
-    matchesRef.current = 0;
-    setMatches(0);
-    timerRef.current = 0;
-    setTimer(0);
-    setDone(false);
-    startedRef.current = false;
-    setStarted(false);
-    setFinalScore(null);
-    setLastResult(null);
-    locked.current = false;
-  }, []);
+  }, [started, done]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const flip = useCallback(
     (id: number) => {
-      // Block taps while a pair is being evaluated
       if (locked.current) return;
       if (selectedRef.current.length >= 2) return;
 
       const card = cardsRef.current.find((c) => c.id === id);
       if (!card || card.flipped || card.matched) return;
-
-      // Prevent double-click on same card
       if (selectedRef.current.includes(id)) return;
 
       sfx("tap");
@@ -115,7 +131,6 @@ export function useMemoryMatch(onComplete: (score: number) => void) {
         setStarted(true);
       }
 
-      // Flip card — update ref synchronously so next click sees it
       const next = cardsRef.current.map((c) =>
         c.id === id ? { ...c, flipped: true } : c,
       );
@@ -149,7 +164,7 @@ export function useMemoryMatch(onComplete: (score: number) => void) {
             selectedRef.current = [];
             locked.current = false;
 
-            if (newMatches === TOTAL_PAIRS) {
+            if (newMatches === totalPairs) {
               setDone(true);
               clearInterval(interval.current);
               const computed = calcScore(movesRef.current, timerRef.current);
@@ -158,7 +173,6 @@ export function useMemoryMatch(onComplete: (score: number) => void) {
                 if (!unmounted.current) onComplete(computed);
               }, 600);
             } else {
-              // Auto-clear "Match!" feedback after a short delay
               setTimeout(() => {
                 if (!unmounted.current) setLastResult(null);
               }, 800);
@@ -181,14 +195,19 @@ export function useMemoryMatch(onComplete: (score: number) => void) {
         }
       }
     },
-    [sfx, onComplete],
+    [sfx, onComplete, totalPairs], // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  // Use frozen final score when done to avoid timer drift
   const score = finalScore ?? calcScore(moves, timer);
-  const stars = score >= 80 ? 3 : score >= 50 ? 2 : 1;
+  const stars = score >= cfg.maxScore * 0.8 ? 3 : score >= cfg.maxScore * 0.5 ? 2 : 1;
   const fmt = (s: number) =>
     `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-  return { cards, moves, matches, timer, done, started, flip, reset, score, stars, fmt, TOTAL_PAIRS, lastResult };
+  const timeLeft = cfg.timeLimitSec !== null ? Math.max(0, cfg.timeLimitSec - timer) : null;
+
+  return {
+    cards, moves, matches, timer, done, started, flip, score, stars, fmt,
+    TOTAL_PAIRS: totalPairs, lastResult, cols: cfg.cols, timeLeft,
+    hasTimeLimit: cfg.timeLimitSec !== null,
+  };
 }

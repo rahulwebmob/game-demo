@@ -1,27 +1,43 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { ScanEye } from "lucide-react";
 import GameResult from "../game-result";
-import { useContrastTest, TOTAL } from "../../../hooks/use-contrast-test";
+import { useContrastTest } from "../../../hooks/use-contrast-test";
+import type { ContrastTestConfig } from "../../../hooks/use-contrast-test";
+import type { ContrastTestLevel, GameLevelConfig } from "../../../data/level-configs";
 
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
-export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
+export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores, levelConfig }: Props) {
+  const config: ContrastTestConfig | undefined = useMemo(() => {
+    if (!levelConfig) return undefined;
+    const lc = levelConfig as ContrastTestLevel;
+    return {
+      rounds: lc.rounds,
+      startGrid: lc.startGrid,
+      startDiff: lc.startDiff,
+      maxScore: lc.maxScore,
+    };
+  }, [levelConfig]);
+
   const {
     round, score, feedback, done, positions, handleTap,
-    currentGrid, currentCols, currentDiff, currentBase,
-  } = useContrastTest(onComplete);
+    currentGrid, currentCols, currentDiff, currentBase, totalRounds,
+  } = useContrastTest(onComplete, config);
 
   if (done) {
     const stars = starScores
       ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
-      : (score >= 220 ? 3 : score >= 125 ? 2 : 1);
+      : (score >= 223 ? 3 : score >= 127 ? 2 : 1);
     const rating =
       stars === 3
         ? "Eagle Eyes!"
@@ -39,6 +55,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, lev
         accentColor="bg-rose"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}
+        onBack={onBack}
         levelNumber={levelNumber}
         newBest={newBest}
       />
@@ -49,7 +66,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, lev
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary">
-          Round {round + 1}/{TOTAL}
+          Round {round + 1}/{totalRounds}
         </span>
         <span className="text-[13px] font-bold text-ink tabular-nums">
           Score: {score}
@@ -59,7 +76,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, lev
       <div className="flex items-center gap-3">
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
           <motion.div
-            animate={{ width: `${(round / TOTAL) * 100}%` }}
+            animate={{ width: `${(round / totalRounds) * 100}%` }}
             className="h-full bg-rose rounded-full"
             transition={{ duration: 0.3 }}
           />
@@ -131,7 +148,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, lev
                     feedback === "correct" && isOdd
                       ? "0 0 0 3px var(--color-green)"
                       : feedback === "wrong" && isOdd
-                        ? "0 0 0 3px var(--color-coral)"
+                        ? "0 0 0 3px var(--color-green)"
                         : "var(--shadow-soft)",
                 }}
               />

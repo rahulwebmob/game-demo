@@ -1,25 +1,44 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Hash } from "lucide-react";
+import { Hash, Clock } from "lucide-react";
 import GameResult from "../game-result";
-import { useNumberSequence, TOTAL } from "../../../hooks/use-number-sequence";
+import { useNumberSequence } from "../../../hooks/use-number-sequence";
+import type { NumberSequenceConfig } from "../../../hooks/use-number-sequence";
+import type { NumberSequenceLevel, GameLevelConfig } from "../../../data/level-configs";
 
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
-export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
-  const { round, score, problem, choices, selected, done, handleChoice } =
-    useNumberSequence(onComplete);
+export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, onBack, levelNumber, newBest, starScores, levelConfig }: Props) {
+  const config: NumberSequenceConfig | undefined = useMemo(() => {
+    if (!levelConfig) return undefined;
+    const lc = levelConfig as NumberSequenceLevel;
+    return {
+      rounds: lc.rounds,
+      seqLength: lc.seqLength,
+      allowedTypes: lc.allowedTypes,
+      timeLimitSec: lc.timeLimitSec,
+      maxScore: lc.maxScore,
+    };
+  }, [levelConfig]);
+
+  const {
+    round, score, problem, choices, selected, done, handleChoice,
+    totalRounds, maxScore, timeLeft, hasTimeLimit, fmt,
+  } = useNumberSequence(onComplete, config);
 
   if (done) {
     const stars = starScores
       ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
-      : (score >= 300 ? 3 : score >= 170 ? 2 : 1);
+      : (score >= Math.round(maxScore * 0.7) ? 3 : score >= Math.round(maxScore * 0.4) ? 2 : 1);
     const title = stars === 3 ? "Math Wizard!" : stars === 2 ? "Good Math!" : "Keep Practicing";
     return (
       <GameResult
@@ -28,10 +47,11 @@ export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, l
         title={title}
         stars={stars}
         score={score}
-        subtitle={`out of ${TOTAL * (TOTAL + 1) * 6}`}
+        subtitle={`out of ${maxScore}`}
         accentColor="bg-sky"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}
+        onBack={onBack}
         levelNumber={levelNumber}
         newBest={newBest}
       />
@@ -42,17 +62,24 @@ export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, l
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary">
-          Round {round + 1}/{TOTAL}
+          Round {round + 1}/{totalRounds}
         </span>
-        <span className="text-[13px] font-bold text-ink tabular-nums">
-          Score: {score}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-[13px] font-bold text-ink tabular-nums">
+            Score: {score}
+          </span>
+          {hasTimeLimit && timeLeft !== null && (
+            <span className="text-[13px] font-semibold text-ink-secondary flex items-center gap-1">
+              <Clock size={13} className="text-coral" /> {fmt(timeLeft)}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
         <div className="flex-1 h-[6px] bg-muted rounded-full overflow-hidden">
           <motion.div
-            animate={{ width: `${(round / TOTAL) * 100}%` }}
+            animate={{ width: `${(round / totalRounds) * 100}%` }}
             className="h-full bg-sky rounded-full"
             transition={{ duration: 0.3 }}
           />

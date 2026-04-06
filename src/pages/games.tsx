@@ -25,7 +25,7 @@ import LevelSelect from "../components/games/level-select";
 import { games, categories } from "../data/games";
 import type { GameId, GameCategory } from "../data/games";
 import { getLevelConfig, TOTAL_LEVELS } from "../data/level-configs";
-import type { BaseLevelConfig } from "../data/level-configs";
+import type { BaseLevelConfig, GameLevelConfig } from "../data/level-configs";
 import ParallaxHeader from "../components/parallax-header";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { addCoins, spendEnergy, addEnergy, resetEnergy } from "../store/player-slice";
@@ -56,9 +56,11 @@ export interface GameComponentProps {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
   onNextLevel?: () => void;
+  onBack?: () => void;
   levelNumber?: number;
   newBest?: boolean;
   starScores?: [number, number];
+  levelConfig?: GameLevelConfig;
 }
 
 const gameComponents: Record<GameId, React.ComponentType<GameComponentProps>> = {
@@ -107,12 +109,13 @@ export default function Games() {
       ? getLevelConfig(activeGame, isEndless ? TOTAL_LEVELS + 1 : selectedLevel)
       : null;
 
-  // Star thresholds — use static GameDef thresholds for ALL games until
-  // hooks are refactored to accept levelConfig (levelConfig.starScores are
-  // based on scaled maxScore that hooks can't yet produce)
-  const starScores: [number, number] | undefined = activeGameDef
-    ? activeGameDef.rules.starScores
-    : undefined;
+  // Use per-level star thresholds for level-based games (scaled to level's maxScore),
+  // fall back to static GameDef thresholds for benchmark games
+  const starScores: [number, number] | undefined = levelConfig
+    ? (levelConfig as BaseLevelConfig).starScores
+    : activeGameDef
+      ? activeGameDef.rules.starScores
+      : undefined;
 
   function handleComplete(score: number) {
     if (!activeGameDef || !activeGame || gameCompleted.current) return;
@@ -130,8 +133,8 @@ export default function Games() {
       setNewBest(!existing || score > existing.bestScore);
     }
 
-    // Stars: always use static GameDef thresholds until hooks accept levelConfig
-    const [three, two] = activeGameDef.rules.starScores;
+    // Stars: use per-level thresholds for level-based games, static for benchmarks
+    const [three, two] = starScores ?? activeGameDef.rules.starScores;
     stars = score >= three ? 3 : score >= two ? 2 : 1;
 
     if (activeGameDef.hasLevels && levelConfig) {
@@ -140,9 +143,7 @@ export default function Games() {
       coinReward = config.coinReward[3 - stars];
 
       if (isEndless) {
-        // Note: levelReached=0 because actual level is tracked inside hooks,
-        // not exposed via onComplete. Will be fixed when hooks accept levelConfig.
-        dispatch(completeEndless({ gameId: activeGame, score, levelReached: 0 }));
+        dispatch(completeEndless({ gameId: activeGame, score, levelReached: selectedLevel }));
       } else {
         dispatch(completeLevel({ gameId: activeGame, level: selectedLevel, score, stars }));
       }
@@ -300,6 +301,13 @@ export default function Games() {
                 ? (levelConfig as BaseLevelConfig).coinReward
                 : undefined
             }
+            starScores={
+              levelConfig
+                ? (levelConfig as BaseLevelConfig).starScores
+                : undefined
+            }
+            levelNumber={activeGameDef.hasLevels && !isEndless ? selectedLevel : undefined}
+            isEndless={isEndless}
           />
         )}
 
@@ -352,11 +360,16 @@ export default function Games() {
                           ? handleNextLevel
                           : undefined
                       }
+                      onBack={() => {
+                        sfx("navigate");
+                        activeGameDef.hasLevels ? goToLevels() : exitGame();
+                      }}
                       levelNumber={
                         activeGameDef.hasLevels && !isEndless ? selectedLevel : undefined
                       }
                       newBest={newBest}
                       starScores={starScores}
+                      levelConfig={levelConfig ?? undefined}
                     />
                   </ErrorBoundary>
                 </Suspense>
@@ -600,7 +613,16 @@ export default function Games() {
                 <p className="text-[11px] md:text-[12px] text-ink-secondary mt-0.5 line-clamp-2">
                   {game.description}
                 </p>
-                <div className="flex items-center gap-3 mt-2.5">
+                <div className="flex items-center gap-2 mt-2.5 flex-wrap">
+                  <span
+                    className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      game.hasLevels
+                        ? "bg-violet-light text-violet"
+                        : "bg-teal-light text-teal"
+                    }`}
+                  >
+                    {game.hasLevels ? `${TOTAL_LEVELS} Levels` : "Quick Test"}
+                  </span>
                   <span className="flex items-center gap-1 text-[10px] md:text-[11px] font-semibold text-ink-muted">
                     <Clock size={11} /> {game.time}
                   </span>
