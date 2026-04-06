@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { Eye } from "lucide-react";
-import { useAppDispatch } from "../../store/hooks";
-import { setShowPupilTest } from "../../store/ui-slice";
+import { Eye } from "@/components/animate-ui/icons/index.ts";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 import type { SoundName } from "../../hooks/use-sound";
 
 const fade = {
@@ -12,10 +11,11 @@ const fade = {
 interface Props {
   noEnergy: boolean;
   sfx: (name: SoundName, ...args: unknown[]) => void;
-  dispatch: ReturnType<typeof useAppDispatch>;
 }
 
-export default function EyeCheckCta({ noEnergy, sfx, dispatch }: Props) {
+export default function EyeCheckCta({ noEnergy, sfx }: Props) {
+  const navigate = useAppNavigate();
+
   return (
     <motion.div variants={fade}>
       <motion.button
@@ -23,7 +23,7 @@ export default function EyeCheckCta({ noEnergy, sfx, dispatch }: Props) {
         whileHover={{ y: -2 }}
         onClick={() => {
           sfx("tap");
-          dispatch(setShowPupilTest(true));
+          navigate("eye-check");
         }}
         className="w-full border-none rounded-2xl p-5 md:p-6 flex items-center gap-4 cursor-pointer shadow-[var(--shadow-elevated)] relative overflow-hidden text-left"
         style={{

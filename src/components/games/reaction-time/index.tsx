@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap } from "lucide-react";
+import { Zap } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { useReactionTime, TOTAL_ROUNDS } from "../../../hooks/use-reaction-time";
 
@@ -27,8 +27,8 @@ export default function ReactionTime({ onComplete, onPlayAgain, onNextLevel, onB
         iconBg="bg-gold-light"
         title={rating}
         stars={stars}
-        score={`${avg}ms`}
-        subtitle="average reaction time"
+        score={score}
+        subtitle={`${avg}ms average reaction time`}
         accentColor="bg-gold"
         onReset={onPlayAgain}
         onNextLevel={onNextLevel}

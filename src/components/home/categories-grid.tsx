@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Brain, Eye, Heart, Activity } from "lucide-react";
-import type { Tab } from "../nav-bar";
+import { Brain, Eye, Heart, Activity } from "@/components/animate-ui/icons/index.ts";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 
 const fade = {
   initial: { y: 18, opacity: 0 },
@@ -34,16 +34,13 @@ const cats = [
   },
 ];
 
-interface Props {
-  navigate: (t: Tab) => void;
-}
-
 const item = {
   hidden: { opacity: 0, y: 16, scale: 0.85 },
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
-export default function CategoriesGrid({ navigate }: Props) {
+export default function CategoriesGrid() {
+  const navigate = useAppNavigate();
   return (
     <motion.div
       variants={fade}

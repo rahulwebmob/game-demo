@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Medal, Gift, Paintbrush } from "lucide-react";
-import type { Tab } from "../nav-bar";
+import { Gamepad2, Medal, Gift, Paintbrush } from "@/components/animate-ui/icons/index.ts";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 
 const fade = {
   initial: { y: 18, opacity: 0 },
@@ -39,11 +39,9 @@ function QBtn({
   );
 }
 
-interface Props {
-  navigate: (t: Tab) => void;
-}
+export default function QuickActions() {
+  const navigate = useAppNavigate();
 
-export default function QuickActions({ navigate }: Props) {
   return (
     <motion.div variants={fade} className="grid grid-cols-4 gap-2 md:gap-3">
       <QBtn

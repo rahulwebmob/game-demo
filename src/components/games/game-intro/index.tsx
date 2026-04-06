@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Play, Star, Coins, Zap, Clock, Target, TrendingUp, Info } from "lucide-react";
+import { Play, Star, Coins, Zap, Clock, Target, TrendingUp, Info } from "@/components/animate-ui/icons/index.ts";
 import type { GameDef } from "../../../data/games";
 import { useSound } from "../../../hooks/use-sound";
 

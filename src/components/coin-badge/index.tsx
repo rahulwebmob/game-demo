@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Coins } from "lucide-react";
+import { Coins } from "@/components/animate-ui/icons/index.ts";
 import { useEffect, useRef, useState } from "react";
 import AnimatedNumber from "../animated-number";
 

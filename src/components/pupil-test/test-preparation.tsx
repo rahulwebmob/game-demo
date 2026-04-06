@@ -1,4 +1,5 @@
-import { Moon, Lightbulb, Smartphone, Maximize } from "lucide-react";
+import { motion } from "framer-motion";
+import { Moon, Lightbulb, Smartphone, Maximize } from "@/components/animate-ui/icons/index.ts";
 
 const colors = [
   { bg: "var(--color-coral-light)", fg: "var(--color-coral)" },
@@ -23,16 +24,38 @@ const steps = [
   },
 ];
 
+const item = {
+  hidden: { opacity: 0, x: -12 },
+  visible: { opacity: 1, x: 0 },
+};
+
 export default function TestPreparation() {
   return (
-    <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 shadow-[var(--shadow-card)]">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 shadow-[var(--shadow-card)]"
+    >
       <h3 className="text-[16px] md:text-[20px] font-bold text-ink mb-4 md:mb-5">
         Step 1: Test Preparation Guidelines
       </h3>
-      <ul className="flex flex-col gap-3 md:gap-4 list-none p-0 m-0">
+      <motion.ul
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: 0.08 }}
+        className="flex flex-col gap-3 md:gap-4 list-none p-0 m-0"
+      >
         {steps.map((s, i) => (
-          <li key={i} className="flex items-start gap-3 md:gap-4">
-            <div
+          <motion.li
+            key={i}
+            variants={item}
+            transition={{ type: "spring", stiffness: 300, damping: 24 }}
+            className="flex items-start gap-3 md:gap-4"
+          >
+            <motion.div
+              animate={{ rotate: [0, -4, 4, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
               className="w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-[14px] flex items-center justify-center flex-shrink-0 mt-0.5"
               style={{ background: colors[i % colors.length].bg }}
             >
@@ -41,13 +64,13 @@ export default function TestPreparation() {
                 className="md:!w-[18px] md:!h-[18px]"
                 style={{ color: colors[i % colors.length].fg }}
               />
-            </div>
+            </motion.div>
             <span className="text-[13px] md:text-[15px] text-ink-secondary leading-relaxed">
               {s.text}
             </span>
-          </li>
+          </motion.li>
         ))}
-      </ul>
-    </div>
+      </motion.ul>
+    </motion.div>
   );
 }

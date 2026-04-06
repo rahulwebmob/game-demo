@@ -1,14 +1,9 @@
 import { motion } from "framer-motion";
-import { Home, User, Trophy, Gift, Gamepad2 } from "lucide-react";
-import { useSound } from "../../hooks/use-sound";
+import { Home, User, Trophy, Gift, Gamepad2 } from "@/components/animate-ui/icons/index.ts";
+import { useAppNavigate, useActiveTab } from "../../hooks/use-app-navigate";
+import type { AppRoute } from "../../hooks/use-app-navigate";
 
-export type Tab =
-  | "home"
-  | "games"
-  | "customize"
-  | "leaderboard"
-  | "daily"
-  | "profile";
+export type Tab = AppRoute;
 
 const tabs: { id: Tab; icon: typeof Home; label: string }[] = [
   { id: "home", icon: Home, label: "Home" },
@@ -19,13 +14,13 @@ const tabs: { id: Tab; icon: typeof Home; label: string }[] = [
 ];
 
 interface Props {
-  active: Tab;
-  onChange: (t: Tab) => void;
   dot?: boolean;
 }
 
-export default function NavBar({ active, onChange, dot }: Props) {
-  const sfx = useSound();
+export default function NavBar({ dot }: Props) {
+  const navigate = useAppNavigate();
+  const active = useActiveTab();
+
   return (
     <nav
       role="navigation"
@@ -43,10 +38,7 @@ export default function NavBar({ active, onChange, dot }: Props) {
               aria-label={t.label}
               whileTap={{ scale: 0.85, y: 1 }}
               whileHover={{ y: -1 }}
-              onClick={() => {
-                sfx("navigate");
-                onChange(t.id);
-              }}
+              onClick={() => navigate(t.id)}
               className="flex flex-col items-center gap-[3px] md:gap-1 bg-transparent border-none cursor-pointer relative px-2 md:px-4"
             >
               {on ? (

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Eye, Battery, X } from "lucide-react";
+import { Eye, Battery, X } from "@/components/animate-ui/icons/index.ts";
 import { avatarSrc, avatarSleepSrc } from "../../data/avatars";
 import type { AvatarId } from "../../data/avatars";
 import { useSound } from "../../hooks/use-sound";

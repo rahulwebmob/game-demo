@@ -8,20 +8,16 @@ import {
   ArrowLeft,
   Glasses,
   Ban,
-} from "lucide-react";
+} from "@/components/animate-ui/icons/index.ts";
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
 import { avatars, accessories } from "../data/avatars";
-import type { Tab } from "../components/nav-bar";
+import { useAppNavigate } from "../hooks/use-app-navigate";
 import { useSound } from "../hooks/use-sound";
 import ParallaxHeader from "../components/parallax-header";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setAvatar, setAccessory, buyAvatar, buyAccessory } from "../store/player-slice";
 import { addToast } from "../store/ui-slice";
-
-interface Props {
-  navigate: (t: Tab) => void;
-}
 
 const accIcons: Record<string, React.ReactNode> = {
   glasses: <Glasses size={24} />,
@@ -32,7 +28,8 @@ const gridItem = {
   visible: { opacity: 1, scale: 1, y: 0 },
 };
 
-export default function Customize({ navigate }: Props) {
+export default function Customize() {
+  const navigate = useAppNavigate();
   const sfx = useSound();
   const dispatch = useAppDispatch();
   const { coins, avatar, accessory, ownedAvatars, ownedAccessories } =

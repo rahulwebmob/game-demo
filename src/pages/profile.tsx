@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { Info, Calendar } from "lucide-react";
+import { Info, Calendar } from "@/components/animate-ui/icons/index.ts";
 import CoinBadge from "../components/coin-badge";
-import type { Tab } from "../components/nav-bar";
+import { useAppNavigate } from "../hooks/use-app-navigate";
 import ParallaxHeader from "../components/parallax-header";
 import { useAppSelector } from "../store/hooks";
 import { useTheme } from "../hooks/use-theme";
@@ -15,11 +15,8 @@ import AccountSection from "../components/profile/account-section";
 import SettingsSection from "../components/profile/settings-section";
 import LogoutSection from "../components/profile/logout-section";
 
-interface Props {
-  navigate: (t: Tab) => void;
-}
-
-export default function Profile({ navigate }: Props) {
+export default function Profile() {
+  const navigate = useAppNavigate();
   const sfx = useSound();
   const {
     coins,
@@ -66,7 +63,6 @@ export default function Profile({ navigate }: Props) {
         accessory={accessory}
         score={score}
         streak={streak}
-        navigate={navigate}
         sfx={sfx}
       />
 
@@ -86,7 +82,6 @@ export default function Profile({ navigate }: Props) {
         notificationsEnabled={notificationsEnabled}
         theme={theme}
         sfx={sfx}
-        navigate={navigate}
       />
 
       {/* About */}

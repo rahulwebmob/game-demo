@@ -128,10 +128,12 @@ export function useNumberSequence(onComplete: (score: number) => void, config?: 
   const [selected, setSelected] = useState<number | null>(null);
   const [done, setDone] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [started, setStarted] = useState(false);
   const unmounted = useRef(false);
   const processing = useRef(false);
   const scoreRef = useRef(0);
   const timerRef = useRef(0);
+  const startedRef = useRef(false);
 
   useEffect(() => {
     unmounted.current = false;
@@ -140,7 +142,7 @@ export function useNumberSequence(onComplete: (score: number) => void, config?: 
 
   // Timer (for time-limited levels)
   useEffect(() => {
-    if (cfg.timeLimitSec === null || done) return;
+    if (cfg.timeLimitSec === null || done || !started) return;
     const id = setInterval(() => {
       if (document.hidden) return;
       timerRef.current += 1;
@@ -154,7 +156,7 @@ export function useNumberSequence(onComplete: (score: number) => void, config?: 
       }
     }, 1000);
     return () => clearInterval(id);
-  }, [done, cfg.timeLimitSec, onComplete]);
+  }, [done, started, cfg.timeLimitSec, onComplete]);
 
   const nextRound = useCallback(
     (correct: boolean) => {
@@ -184,6 +186,7 @@ export function useNumberSequence(onComplete: (score: number) => void, config?: 
   function handleChoice(val: number) {
     if (processing.current || selected !== null || done) return;
     processing.current = true;
+    if (!startedRef.current) { startedRef.current = true; setStarted(true); }
     sfx("tap");
     const correct = val === problem.answer;
     if (correct) sfx("success");
@@ -200,6 +203,6 @@ export function useNumberSequence(onComplete: (score: number) => void, config?: 
   return {
     round, score, problem, choices, selected, done, handleChoice,
     totalRounds: cfg.rounds, pointsPerRound, timeLeft, hasTimeLimit: cfg.timeLimitSec !== null, fmt,
-    maxScore: cfg.maxScore,
+    maxScore: cfg.maxScore, totalTime: cfg.timeLimitSec ?? 0,
   };
 }

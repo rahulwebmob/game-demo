@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Camera, User, Eye, MonitorSmartphone } from "lucide-react";
+import { Camera, User, Eye, MonitorSmartphone } from "@/components/animate-ui/icons/index.ts";
 import { useSound } from "../../hooks/use-sound";
 
 const checks = [
@@ -30,20 +30,42 @@ const colors = [
   { bg: "var(--color-sky-light)", fg: "var(--color-sky)" },
 ];
 
+const item = {
+  hidden: { opacity: 0, x: -12 },
+  visible: { opacity: 1, x: 0 },
+};
+
 export default function CameraSetup({
   shouldStartTest,
   setShouldStartTest,
 }: Props) {
   const sfx = useSound();
   return (
-    <div className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 shadow-[var(--shadow-card)]">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="glass-card rounded-2xl p-5 md:p-6 lg:p-8 shadow-[var(--shadow-card)]"
+    >
       <h3 className="text-[16px] md:text-[20px] font-bold text-ink mb-4 md:mb-5">
         Step 2: Camera Setup
       </h3>
-      <ul className="flex flex-col gap-3 md:gap-4 list-none p-0 m-0 mb-5 md:mb-6">
+      <motion.ul
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: 0.08 }}
+        className="flex flex-col gap-3 md:gap-4 list-none p-0 m-0 mb-5 md:mb-6"
+      >
         {checks.map((c, i) => (
-          <li key={i} className="flex items-start gap-3 md:gap-4">
-            <div
+          <motion.li
+            key={i}
+            variants={item}
+            transition={{ type: "spring", stiffness: 300, damping: 24 }}
+            className="flex items-start gap-3 md:gap-4"
+          >
+            <motion.div
+              animate={{ rotate: [0, -4, 4, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
               className="w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-[14px] flex items-center justify-center flex-shrink-0 mt-0.5"
               style={{ background: colors[i % colors.length].bg }}
             >
@@ -52,15 +74,20 @@ export default function CameraSetup({
                 className="md:!w-[18px] md:!h-[18px]"
                 style={{ color: colors[i % colors.length].fg }}
               />
-            </div>
+            </motion.div>
             <span className="text-[13px] md:text-[15px] text-ink-secondary leading-relaxed">
               {c.text}
             </span>
-          </li>
+          </motion.li>
         ))}
-      </ul>
+      </motion.ul>
       {!shouldStartTest && (
-        <div className="text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="text-center"
+        >
           <motion.button
             whileTap={{ scale: 0.93 }}
             whileHover={{ scale: 1.04 }}
@@ -68,13 +95,20 @@ export default function CameraSetup({
               sfx("tap");
               setShouldStartTest(true);
             }}
-            className="px-6 md:px-8 py-3 md:py-3.5 rounded-xl bg-coral text-white text-[14px] md:text-[15px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)]"
+            className="px-6 md:px-8 py-3 md:py-3.5 rounded-xl bg-coral text-white text-[14px] md:text-[15px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] relative overflow-hidden"
           >
-            <Camera size={16} className="inline -mt-0.5 mr-1.5" />
-            Enable Camera
+            {/* Subtle shimmer */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)" }}
+              animate={{ x: ["-100%", "200%"] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+            />
+            <Camera size={16} className="inline -mt-0.5 mr-1.5 relative z-10" />
+            <span className="relative z-10">Enable Camera</span>
           </motion.button>
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }

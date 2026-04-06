@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Palette, ChevronDown, Check } from "lucide-react";
+import { Palette, ChevronDown, Check } from "@/components/animate-ui/icons/index.ts";
 import { themeMeta } from "../../hooks/use-theme";
 import type { ThemeId } from "../../hooks/use-theme";
 import { useSound } from "../../hooks/use-sound";

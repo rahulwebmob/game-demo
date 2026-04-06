@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
-import { Search, Sun, Moon, Brain } from "lucide-react";
+import { Search, Sun, Moon, Brain } from "@/components/animate-ui/icons/index.ts";
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import EnergyControl from "../components/energy-control";
 import { playerStats } from "../data/avatars";
-import type { Tab } from "../components/nav-bar";
+import { useAppNavigate } from "../hooks/use-app-navigate";
 import { useTheme } from "../hooks/use-theme";
 import { useSound } from "../hooks/use-sound";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -24,16 +24,13 @@ import StatsStrip from "../components/home/stats-strip";
 import DailyQuests from "../components/home/daily-quests";
 import QuickActions from "../components/home/quick-actions";
 
-interface Props {
-  navigate: (t: Tab) => void;
-}
-
 const fade = {
   initial: { y: 18, opacity: 0 },
   animate: { y: 0, opacity: 1 },
 };
 
-export default function Home({ navigate }: Props) {
+export default function Home() {
+  const navigate = useAppNavigate();
   const sfx = useSound();
   const theme = useTheme();
   const dispatch = useAppDispatch();
@@ -186,12 +183,12 @@ export default function Home({ navigate }: Props) {
         />
       </motion.div>
 
-      <CategoriesGrid navigate={navigate} />
-      <EyeCheckCta noEnergy={noEnergy} sfx={sfx} dispatch={dispatch} />
-      <FeaturedGames noEnergy={noEnergy} navigate={navigate} />
+      <CategoriesGrid />
+      <EyeCheckCta noEnergy={noEnergy} sfx={sfx} />
+      <FeaturedGames noEnergy={noEnergy} />
       <StatsStrip score={score} streak={streak} />
-      <DailyQuests navigate={navigate} />
-      <QuickActions navigate={navigate} />
+      <DailyQuests />
+      <QuickActions />
 
       {/* ── Health tip banner ── */}
       <motion.div

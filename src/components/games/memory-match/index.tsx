@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock } from "lucide-react";
+import { Trophy, Clock } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { useMemoryMatch } from "../../../hooks/use-memory-match";
 import type { MemoryMatchConfig } from "../../../hooks/use-memory-match";
@@ -72,6 +72,9 @@ export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, onBa
           <Clock size={14} className="text-coral" />
           {hasTimeLimit ? fmt(timeLeft ?? 0) : fmt(timer)}
         </span>
+        <span className="text-[13px] font-bold text-ink tabular-nums">
+          Score: {score}
+        </span>
         <span className="text-[13px] font-semibold text-ink-secondary">
           {matches}/{TOTAL_PAIRS} pairs · {moves} moves
         </span>
@@ -132,7 +135,7 @@ export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, onBa
 
       <div
         className="grid gap-2.5 md:gap-3"
-        style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(44px, 1fr))`, maxWidth: cols > 6 ? cols * 56 : undefined }}
       >
         {cards.map((card) => (
           <motion.button

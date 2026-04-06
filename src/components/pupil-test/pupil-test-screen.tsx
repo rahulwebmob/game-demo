@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle } from "@/components/animate-ui/icons/index.ts";
 import { useSound } from "../../hooks/use-sound";
 
 interface Props {

@@ -6,11 +6,11 @@ import {
   BellOff,
   Award,
   ChevronRight,
-} from "lucide-react";
+} from "@/components/animate-ui/icons/index.ts";
 import Toggle from "./toggle";
 import ThemePicker from "../theme-picker";
 import { fade } from "./fade";
-import type { Tab } from "../nav-bar";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 import { useAppDispatch } from "../../store/hooks";
 import { toggleSound, toggleNotifications } from "../../store/player-slice";
 import type { SoundName } from "../../hooks/use-sound";
@@ -21,7 +21,6 @@ interface Props {
   notificationsEnabled: boolean;
   theme: { themeId: ThemeId; setThemeId: (v: ThemeId | ((prev: ThemeId) => ThemeId)) => void };
   sfx: (name: SoundName, ...args: unknown[]) => void;
-  navigate: (t: Tab) => void;
 }
 
 export default function SettingsSection({
@@ -29,8 +28,8 @@ export default function SettingsSection({
   notificationsEnabled,
   theme,
   sfx,
-  navigate,
 }: Props) {
+  const navigate = useAppNavigate();
   const dispatch = useAppDispatch();
 
   return (

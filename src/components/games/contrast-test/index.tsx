@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { ScanEye } from "lucide-react";
+import { ScanEye } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { useContrastTest } from "../../../hooks/use-contrast-test";
 import type { ContrastTestConfig } from "../../../hooks/use-contrast-test";
@@ -97,7 +97,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, onB
             transition={{ duration: 0.35 }}
             className="text-[13px] font-bold text-green text-center"
           >
-            Correct!
+            Correct! +{Math.round(10 + round * 3)} pts
           </motion.p>
         )}
         {feedback === "wrong" && (
@@ -120,7 +120,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, onB
         <div
           className="grid gap-2.5 md:gap-3 mx-auto"
           style={{
-            gridTemplateColumns: `repeat(${currentCols}, 1fr)`,
+            gridTemplateColumns: `repeat(${currentCols}, minmax(44px, 1fr))`,
             maxWidth: currentCols <= 2 ? 200 : currentCols <= 3 ? 260 : 300,
           }}
         >
@@ -148,7 +148,7 @@ export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, onB
                     feedback === "correct" && isOdd
                       ? "0 0 0 3px var(--color-green)"
                       : feedback === "wrong" && isOdd
-                        ? "0 0 0 3px var(--color-green)"
+                        ? "0 0 0 3px var(--color-rose)"
                         : "var(--shadow-soft)",
                 }}
               />

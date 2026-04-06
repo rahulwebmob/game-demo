@@ -15,12 +15,13 @@ import {
   ScanEye,
   FlaskConical,
   Lock,
-} from "lucide-react";
+} from "@/components/animate-ui/icons/index.ts";
 import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import EnergyControl from "../components/energy-control";
 import ErrorBoundary from "../components/error-boundary";
 import GameIntro from "../components/games/game-intro";
+import GameCountdown from "../components/games/game-countdown";
 import LevelSelect from "../components/games/level-select";
 import { games, categories } from "../data/games";
 import type { GameId, GameCategory } from "../data/games";
@@ -78,7 +79,7 @@ const gridItem = {
   visible: { opacity: 1, y: 0, scale: 1 },
 };
 
-type GamePhase = "list" | "levels" | "intro" | "playing";
+type GamePhase = "list" | "levels" | "intro" | "countdown" | "playing";
 
 export default function Games() {
   const sfx = useSound();
@@ -202,14 +203,18 @@ export default function Games() {
       return;
     }
     dispatch(spendEnergy());
-    setPhase("playing");
+    if (activeGame === "reaction-time") {
+      setPhase("playing");
+    } else {
+      setPhase("countdown");
+    }
   }
 
   function handleBack() {
     sfx("tap");
     if (phase === "levels") {
       exitGame();
-    } else if (phase === "intro") {
+    } else if (phase === "intro" || phase === "countdown") {
       activeGameDef?.hasLevels ? setPhase("levels") : exitGame();
     } else if (gameCompleted.current) {
       activeGameDef?.hasLevels ? goToLevels() : exitGame();
@@ -309,6 +314,11 @@ export default function Games() {
             levelNumber={activeGameDef.hasLevels && !isEndless ? selectedLevel : undefined}
             isEndless={isEndless}
           />
+        )}
+
+        {/* Countdown */}
+        {phase === "countdown" && (
+          <GameCountdown onDone={() => setPhase("playing")} />
         )}
 
         {/* Playing */}

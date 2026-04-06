@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSound } from "../hooks/use-sound";
+import { useAppNavigate } from "../hooks/use-app-navigate";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { claimDaily } from "../store/player-slice";
-import { addToast, setShowPupilTest } from "../store/ui-slice";
+import { addToast } from "../store/ui-slice";
 import { MAX_ENERGY } from "../constants";
 import {
   Gift,
@@ -18,7 +19,7 @@ import {
   CalendarHeart,
   Check,
   Eye,
-} from "lucide-react";
+} from "@/components/animate-ui/icons/index.ts";
 import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import AnimatedNumber from "../components/animated-number";
@@ -28,6 +29,7 @@ import ParallaxHeader from "../components/parallax-header";
 
 export default function DailyLogin() {
   const sfx = useSound();
+  const appNavigate = useAppNavigate();
   const dispatch = useAppDispatch();
   const { coins, streak, claimedToday, energy } = useAppSelector(
     (s) => s.player,
@@ -92,7 +94,7 @@ export default function DailyLogin() {
             whileTap={{ scale: 0.93 }}
             onClick={() => {
               sfx("tap");
-              dispatch(setShowPupilTest(true));
+              appNavigate("eye-check");
             }}
             className="px-3 py-1.5 rounded-xl bg-coral text-white text-[12px] font-bold border-none cursor-pointer shadow-[var(--shadow-btn)] flex-shrink-0"
           >

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Eye, Brain, Coins, Flame, Trophy } from "lucide-react";
+import { Gamepad2, Eye, Brain, Coins, Flame, Trophy } from "@/components/animate-ui/icons/index.ts";
 import { fade } from "./fade";
 
 const achievements = [

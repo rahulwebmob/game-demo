@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Star, Lock, Infinity, Trophy, ChevronRight } from "lucide-react";
+import { Star, Lock, Infinity, Trophy, ChevronRight } from "@/components/animate-ui/icons/index.ts";
 import type { GameDef } from "../../../data/games";
 import type { GameProgress } from "../../../store/progress-slice";
 import { TOTAL_LEVELS } from "../../../data/level-configs";

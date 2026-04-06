@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Eye } from "lucide-react";
+import { Eye } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { useColorVision } from "../../../hooks/use-color-vision";
 import type { ColorVisionConfig } from "../../../hooks/use-color-vision";
@@ -91,7 +91,7 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, onBa
             transition={{ duration: 0.35 }}
             className="text-[13px] font-bold text-green text-center"
           >
-            Correct!
+            Correct! +{(round + 1) * 10} pts
           </motion.p>
         )}
         {feedback === "wrong" && (
@@ -121,7 +121,7 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, onBa
         <div
           className="grid gap-2 md:gap-2.5 mx-auto"
           style={{
-            gridTemplateColumns: `repeat(${level.cols}, 1fr)`,
+            gridTemplateColumns: `repeat(${level.cols}, minmax(44px, 1fr))`,
             maxWidth: level.cols <= 3 ? 240 : level.cols <= 4 ? 300 : 340,
           }}
         >
@@ -146,7 +146,7 @@ export default function ColorVision({ onComplete, onPlayAgain, onNextLevel, onBa
                   feedback === "correct" && i === level.oddIndex
                     ? "0 0 0 3px var(--color-green)"
                     : feedback === "wrong" && i === level.oddIndex
-                      ? "0 0 0 3px var(--color-green)"
+                      ? "0 0 0 3px var(--color-rose)"
                       : "none",
               }}
             />

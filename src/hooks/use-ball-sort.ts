@@ -72,6 +72,34 @@ function isViable(tubes: Tube[], ballsPerTube: number): boolean {
   return hasEmpty || hasNonFull;
 }
 
+/** BFS solvability check (50k step limit) */
+function isSolvable(tubes: Tube[], ballsPerTube: number): boolean {
+  const encode = (ts: Tube[]) => ts.map((t) => t.balls.join(",")).join("|");
+  const visited = new Set<string>();
+  const queue = [tubes.map((t) => ({ ...t, balls: [...t.balls] }))];
+  visited.add(encode(tubes));
+  let steps = 0;
+  while (queue.length > 0 && steps < 50000) {
+    steps++;
+    const cur = queue.shift()!;
+    if (checkComplete(cur, ballsPerTube)) return true;
+    for (let f = 0; f < cur.length; f++) {
+      if (cur[f].balls.length === 0) continue;
+      const ball = cur[f].balls[cur[f].balls.length - 1];
+      for (let t = 0; t < cur.length; t++) {
+        if (t === f) continue;
+        if (cur[t].balls.length >= ballsPerTube) continue;
+        const next = cur.map((tb) => ({ ...tb, balls: [...tb.balls] }));
+        next[f].balls.pop();
+        next[t].balls.push(ball);
+        const key = encode(next);
+        if (!visited.has(key)) { visited.add(key); queue.push(next); }
+      }
+    }
+  }
+  return false;
+}
+
 function generatePuzzle(config: BallSortConfig): Tube[] {
   const { numColors, numTubes, ballsPerTube } = config;
   const colors = BALL_COLORS.slice(0, numColors);
@@ -95,7 +123,7 @@ function generatePuzzle(config: BallSortConfig): Tube[] {
     }
   } while (
     attempts < 200 &&
-    (isSolvedFlat(allBalls, numColors, ballsPerTube) || !isViable(tubes, ballsPerTube))
+    (isSolvedFlat(allBalls, numColors, ballsPerTube) || !isViable(tubes, ballsPerTube) || !isSolvable(tubes, ballsPerTube))
   );
 
   return tubes;
@@ -125,6 +153,7 @@ export function useBallSort(onComplete: (score: number) => void, config?: BallSo
   const [timer, setTimer] = useState(cfg.timeLimitSec ?? 0);
   const [phase, setPhase] = useState<"playing" | "done">("playing");
   const [lastMoveResult, setLastMoveResult] = useState<"success" | "error" | null>(null);
+  const [started, setStarted] = useState(false);
 
   /* ── Refs ── */
   const tubesRef = useRef(tubes);
@@ -133,6 +162,7 @@ export function useBallSort(onComplete: (score: number) => void, config?: BallSo
   const selectedRef = useRef<number | null>(null);
   const draggingRef = useRef<number | null>(null);
   const movesRef = useRef(0);
+  const startedRef = useRef(false);
   const unmounted = useRef(false);
 
   tubesRef.current = tubes;
@@ -158,7 +188,7 @@ export function useBallSort(onComplete: (score: number) => void, config?: BallSo
     if (cfg.timeLimitSec === null) return;
     if (phaseRef.current === "done") return;
     const id = setInterval(() => {
-      if (phaseRef.current !== "playing") return;
+      if (phaseRef.current !== "playing" || !startedRef.current) return;
       timerRef.current -= 1;
       if (!unmounted.current) setTimer(timerRef.current);
       if (timerRef.current <= 0) {
@@ -203,6 +233,7 @@ export function useBallSort(onComplete: (score: number) => void, config?: BallSo
 
       tubesRef.current = newTubes;
       movesRef.current += 1;
+      if (!startedRef.current) { startedRef.current = true; setStarted(true); }
       setTubes(newTubes);
       setMoves(movesRef.current);
       setSelectedTube(null);
@@ -330,7 +361,8 @@ export function useBallSort(onComplete: (score: number) => void, config?: BallSo
     selectedTube,
     draggingFrom,
     moves,
-    score: phase === "done" ? computeScore(movesRef.current, cfg) : 0,
+    score: computeScore(movesRef.current, cfg),
+    started,
     timer,
     phase,
     stars: 0, // calculated externally via starScores

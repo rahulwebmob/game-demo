@@ -13,6 +13,10 @@ export function useReactionTime(onComplete: (score: number) => void) {
   const readyAt = useRef(0);
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const tapped = useRef(false);
+  const timesRef = useRef<number[]>([]);
+  const onCompleteRef = useRef(onComplete);
+  timesRef.current = times;
+  onCompleteRef.current = onComplete;
 
   // Clean up timeout on unmount
   useEffect(() => {
@@ -27,6 +31,22 @@ export function useReactionTime(onComplete: (score: number) => void) {
     timeout.current = setTimeout(() => {
       readyAt.current = performance.now();
       setPhase("ready");
+      // 5-second auto-timeout to prevent game hanging
+      timeout.current = setTimeout(() => {
+        if (tapped.current) return;
+        tapped.current = true;
+        const ms = 5000;
+        const newTimes = [...timesRef.current, ms];
+        setCurrentTime(ms);
+        setTimes(newTimes);
+        if (newTimes.length >= TOTAL_ROUNDS) {
+          setPhase("done");
+          const avg = Math.round(newTimes.reduce((a, b) => a + b, 0) / newTimes.length);
+          onCompleteRef.current(Math.max(100 - Math.floor(avg / 7), 0));
+        } else {
+          setPhase("result");
+        }
+      }, 5000);
     }, delay);
   }, []);
 

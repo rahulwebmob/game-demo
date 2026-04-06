@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LogOut } from "lucide-react";
+import { LogOut } from "@/components/animate-ui/icons/index.ts";
 import { fade } from "./fade";
 import type { SoundName } from "../../hooks/use-sound";
 

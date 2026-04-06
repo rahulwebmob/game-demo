@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { Zap, Flame, Trophy } from "lucide-react";
+import { Zap, Flame, Trophy } from "@/components/animate-ui/icons/index.ts";
 import AvatarImg from "../avatar-img";
 import { avatars, playerStats } from "../../data/avatars";
 import type { AvatarId } from "../../data/avatars";
-import type { Tab } from "../nav-bar";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 import { fade } from "./fade";
 import type { SoundName } from "../../hooks/use-sound";
 
@@ -14,7 +14,6 @@ interface Props {
   accessory: string | null;
   score: number;
   streak: number;
-  navigate: (t: Tab) => void;
   sfx: (name: SoundName, ...args: unknown[]) => void;
 }
 
@@ -25,9 +24,9 @@ export default function ProfileCard({
   accessory,
   score,
   streak,
-  navigate,
   sfx,
 }: Props) {
+  const navigate = useAppNavigate();
   const avatarDef = avatars.find((a) => a.id === avatar);
 
   return (

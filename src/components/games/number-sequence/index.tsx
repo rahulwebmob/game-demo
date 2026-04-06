@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Hash, Clock } from "lucide-react";
+import { Hash, Clock } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { useNumberSequence } from "../../../hooks/use-number-sequence";
 import type { NumberSequenceConfig } from "../../../hooks/use-number-sequence";
@@ -32,7 +32,7 @@ export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, o
 
   const {
     round, score, problem, choices, selected, done, handleChoice,
-    totalRounds, maxScore, timeLeft, hasTimeLimit, fmt,
+    totalRounds, pointsPerRound, maxScore, timeLeft, hasTimeLimit, fmt, totalTime,
   } = useNumberSequence(onComplete, config);
 
   if (done) {
@@ -85,6 +85,20 @@ export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, o
           />
         </div>
       </div>
+
+      {/* Timer progress bar */}
+      {hasTimeLimit && timeLeft !== null && totalTime > 0 && (
+        <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
+          <motion.div
+            className={`h-full rounded-full ${
+              (timeLeft / totalTime) > 0.5 ? "bg-green" : (timeLeft / totalTime) > 0.25 ? "bg-gold" : "bg-rose"
+            }`}
+            initial={false}
+            animate={{ width: `${(timeLeft / totalTime) * 100}%` }}
+            transition={{ duration: 0.8, ease: "linear" }}
+          />
+        </div>
+      )}
 
       {/* Sequence display */}
       <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 py-4">
@@ -141,7 +155,7 @@ export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, o
             transition={{ duration: selected === problem.answer ? 0.35 : 0.4 }}
             className={`text-[13px] font-bold text-center ${selected === problem.answer ? "text-green" : "text-rose"}`}
           >
-            {selected === problem.answer ? "Correct!" : `Wrong — answer was ${problem.answer}`}
+            {selected === problem.answer ? `Correct! +${(round + 1) * pointsPerRound} pts` : `Wrong — answer was ${problem.answer}`}
           </motion.p>
         )}
         {selected === null && (

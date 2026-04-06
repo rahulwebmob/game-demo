@@ -7,9 +7,9 @@ import {
   Clock,
   Coins,
   Lock,
-} from "lucide-react";
+} from "@/components/animate-ui/icons/index.ts";
 import { games } from "../../data/games";
-import type { Tab } from "../nav-bar";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 
 const fade = {
   initial: { y: 18, opacity: 0 },
@@ -20,10 +20,10 @@ const featuredGames = games.slice(0, 3);
 
 interface Props {
   noEnergy: boolean;
-  navigate: (t: Tab) => void;
 }
 
-export default function FeaturedGames({ noEnergy, navigate }: Props) {
+export default function FeaturedGames({ noEnergy }: Props) {
+  const navigate = useAppNavigate();
   return (
     <motion.div variants={fade}>
       <div className="flex items-center justify-between mb-3 md:mb-4">

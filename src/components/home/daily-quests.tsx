@@ -1,18 +1,15 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Trophy, BarChart3, Coins } from "lucide-react";
+import { Gamepad2, Trophy, BarChart3, Coins } from "@/components/animate-ui/icons/index.ts";
 import { dailyQuests } from "../../data/avatars";
-import type { Tab } from "../nav-bar";
+import { useAppNavigate } from "../../hooks/use-app-navigate";
 
 const fade = {
   initial: { y: 18, opacity: 0 },
   animate: { y: 0, opacity: 1 },
 };
 
-interface Props {
-  navigate: (t: Tab) => void;
-}
-
-export default function DailyQuests({ navigate }: Props) {
+export default function DailyQuests() {
+  const navigate = useAppNavigate();
   return (
     <motion.div variants={fade}>
       <div className="flex items-center justify-between mb-3 md:mb-4">

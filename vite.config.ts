@@ -21,4 +21,9 @@ function swVersionPlugin(): Plugin {
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), swVersionPlugin()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
 })

@@ -1,6 +1,6 @@
 import { Component } from "react";
 import type { ReactNode, ErrorInfo } from "react";
-import { RotateCcw, AlertTriangle } from "lucide-react";
+import { RotateCcw, AlertTriangle } from "@/components/animate-ui/icons/index.ts";
 
 interface Props {
   children: ReactNode;

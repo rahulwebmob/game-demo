@@ -1,6 +1,6 @@
 import { useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock, GripVertical } from "lucide-react";
+import { Trophy, Clock, GripVertical } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { useBallSort } from "../../../hooks/use-ball-sort";
 import type { Tube, BallSortConfig } from "../../../hooks/use-ball-sort";
@@ -63,7 +63,7 @@ export default function BallSort({ onComplete, onPlayAgain, onNextLevel, onBack,
     score, timer, phase, stars: hookStars, ballsPerTube, lastMoveResult,
     handleTubeTap, handleDragStart, handleDragEnd, handleDragCancel,
     getValidDropTargets, getSelectedDropTargets,
-    fmt, hasTimeLimit, totalTime,
+    fmt, hasTimeLimit, totalTime, started,
   } = useBallSort(onComplete, config);
 
   const tubeRefs = useRef<Map<number, HTMLDivElement>>(new Map());
@@ -170,9 +170,14 @@ export default function BallSort({ onComplete, onPlayAgain, onNextLevel, onBack,
 
       <div className="flex items-center justify-between px-1">
         <span className="text-[13px] font-semibold text-ink-secondary">{moves} moves</span>
+        {moves > 0 && (
+          <span className="text-[13px] font-bold text-ink tabular-nums">
+            Score: {score}
+          </span>
+        )}
         {hasTimeLimit && (
           <span className="text-[13px] font-semibold text-ink-secondary flex items-center gap-1.5">
-            <Clock size={14} className="text-coral" /> {fmt(timer)}
+            <Clock size={14} className="text-coral" /> {started ? fmt(timer) : fmt(totalTime)}
           </span>
         )}
       </div>

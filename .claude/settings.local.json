@@ -35,7 +35,13 @@
       "Bash(git -C /d/gamerify diff src/pages/daily-login.tsx)",
       "Bash(head -50 /d/gamerify/src/store/*.ts)",
       "Bash(git -C /d/gamerify log --oneline -20)",
-      "Bash(git -C /d/gamerify diff --stat HEAD~5..HEAD 2>/dev/null)"
+      "Bash(git -C /d/gamerify diff --stat HEAD~5..HEAD 2>/dev/null)",
+      "WebFetch(domain:animate-ui.com)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(cd D:/gamerify && grep -roh 'from \"lucide-react\"' src/ | wc -l && grep -roh \"import {[^}]*} from \\\\\"lucide-react\\\\\"\" src/ | sed 's/import {//;s/} from \"lucide-react\"//' | tr ',' '\\\\n' | sed 's/^ *//;s/ *$//' | sort -u)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(cd D:/gamerify && npx tsc -b --noEmit 2>&1 | head -40)"
     ]
   }
 }

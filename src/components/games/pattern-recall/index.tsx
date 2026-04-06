@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Brain } from "lucide-react";
+import { Brain } from "@/components/animate-ui/icons/index.ts";
 import GameResult from "../game-result";
 import { usePatternRecall } from "../../../hooks/use-pattern-recall";
 import type { PatternRecallConfig } from "../../../hooks/use-pattern-recall";
@@ -122,7 +122,7 @@ export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, on
 
       <div
         className="grid gap-3 md:gap-4 mx-auto w-full"
-        style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)`, maxWidth }}
+        style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(44px, 1fr))`, maxWidth }}
       >
         {Array.from({ length: gridSize }).map((_, i) => (
           <motion.button

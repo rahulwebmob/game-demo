@@ -1,4 +1,5 @@
-import { useEffect, useCallback, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import NavBar from "./components/nav-bar";
 import SleepOverlay from "./components/sleep-overlay";
@@ -9,8 +10,6 @@ import { useTheme, isDarkTheme } from "./hooks/use-theme";
 import { useSound } from "./hooks/use-sound";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import {
-  navigate as navAction,
-  finishLoading,
   setShowPupilTest,
   setShowSleepOverlay,
   addToast,
@@ -25,14 +24,16 @@ const Customize = lazy(() => import("./pages/customize"));
 const Leaderboard = lazy(() => import("./pages/leaderboard"));
 const DailyLogin = lazy(() => import("./pages/daily-login"));
 const Profile = lazy(() => import("./pages/profile"));
+const EyeCheck = lazy(() => import("./pages/eye-check"));
 const PupilTest = lazy(() => import("./components/pupil-test"));
 
 export default function App() {
   const dispatch = useAppDispatch();
   const theme = useTheme();
   const sfx = useSound();
+  const location = useLocation();
 
-  const { tab, direction, loading, showPupilTest, showSleepOverlay, toasts } =
+  const { showPupilTest, showSleepOverlay, toasts } =
     useAppSelector((s) => s.ui);
   const { avatar, energy, claimedToday } = useAppSelector((s) => s.player);
 
@@ -41,6 +42,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "instant" });
     localStorage.removeItem("gamerify-password");
   }, []);
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [location.pathname]);
 
   // SW update + offline/online listeners
   useEffect(() => {
@@ -62,28 +68,6 @@ export default function App() {
       window.removeEventListener("app-online", onOnline);
     };
   }, [dispatch]);
-
-  // Navigate with direction + skeleton
-  const navigate = useCallback(
-    (to: typeof tab) => {
-      sfx("navigate");
-      dispatch(navAction(to));
-      window.scrollTo({ top: 0, behavior: "instant" });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-      setTimeout(() => {
-        dispatch(finishLoading());
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }, 180);
-    },
-    [sfx, dispatch],
-  );
-
-  const pageVariants = {
-    enter: (d: number) => ({ opacity: 0, x: d * 60, scale: 0.98 }),
-    center: { opacity: 1, x: 0, scale: 1 },
-    exit: (d: number) => ({ opacity: 0, x: d * -40, scale: 0.98 }),
-  };
 
   return (
     <div className="min-h-dvh bg-bg max-w-[430px] md:max-w-[768px] lg:max-w-[960px] mx-auto relative overflow-hidden">
@@ -169,37 +153,31 @@ export default function App() {
       )}
 
       <div className="relative z-10 pb-24 md:pb-28 min-h-dvh">
-        <AnimatePresence mode="wait" custom={direction}>
-          {loading ? (
-            <Skeleton
-              key="skeleton"
-              variant={tab as "home" | "games" | "customize" | "leaderboard" | "daily" | "profile"}
-            />
-          ) : (
-            <motion.div
-              key={tab}
-              custom={direction}
-              variants={pageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
-            >
-              <Suspense fallback={<Skeleton variant="home" />}>
-                <ErrorBoundary fallbackTitle="Page failed to load">
-                  {tab === "home" && <Home navigate={navigate} />}
-                  {tab === "games" && <Games />}
-                  {tab === "customize" && <Customize navigate={navigate} />}
-                  {tab === "leaderboard" && <Leaderboard />}
-                  {tab === "daily" && <DailyLogin />}
-                  {tab === "profile" && <Profile navigate={navigate} />}
-                </ErrorBoundary>
-              </Suspense>
-            </motion.div>
-          )}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <Suspense fallback={<Skeleton variant="home" />}>
+              <ErrorBoundary fallbackTitle="Page failed to load">
+                <Routes location={location}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/games" element={<Games />} />
+                  <Route path="/customize" element={<Customize />} />
+                  <Route path="/leaderboard" element={<Leaderboard />} />
+                  <Route path="/daily" element={<DailyLogin />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/eye-check" element={<EyeCheck />} />
+                </Routes>
+              </ErrorBoundary>
+            </Suspense>
+          </motion.div>
         </AnimatePresence>
       </div>
-      <NavBar active={tab} onChange={navigate} dot={!claimedToday} />
+      <NavBar dot={!claimedToday} />
     </div>
   );
 }
