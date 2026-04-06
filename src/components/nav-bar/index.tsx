@@ -66,7 +66,12 @@ export default function NavBar({ active, onChange, dot }: Props) {
                     strokeWidth={1.7}
                   />
                   {showDot && (
-                    <span className="absolute top-1 right-1 w-[8px] h-[8px] bg-coral rounded-full border-[2px] border-card" />
+                    <motion.span
+                      initial={{ scale: 0 }}
+                      animate={{ scale: [0, 1.3, 1] }}
+                      transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                      className="absolute top-1 right-1 w-[8px] h-[8px] bg-coral rounded-full border-[2px] border-card"
+                    />
                   )}
                 </div>
               )}

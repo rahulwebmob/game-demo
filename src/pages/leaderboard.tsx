@@ -89,7 +89,10 @@ export default function Leaderboard() {
 
       {/* Your rank */}
       <motion.div
-        whileHover={{ y: -1 }}
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 24 }}
+        whileHover={{ y: -2, scale: 1.01 }}
         className="bg-coral-light rounded-2xl px-4 md:px-6 py-3.5 md:py-4 flex items-center gap-3 border-2 border-coral/15 shadow-[var(--shadow-soft)]"
       >
         <div className="w-9 h-9 md:w-11 md:h-11 rounded-xl bg-coral/10 flex items-center justify-center">
@@ -120,7 +123,8 @@ export default function Leaderboard() {
           <motion.div
             key={p.rank}
             variants={row}
-            whileHover={{ y: -1, boxShadow: "var(--shadow-card)" }}
+            whileHover={{ y: -2, boxShadow: "var(--shadow-card)", scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             className="glass-card rounded-2xl px-4 md:px-5 py-3 md:py-3.5 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)] cursor-pointer"
           >
             <span className="text-[13px] md:text-[15px] font-bold text-ink-muted w-5 md:w-6 text-center tabular-nums">

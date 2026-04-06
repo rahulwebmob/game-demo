@@ -6,13 +6,20 @@ import { useMemoryMatch } from "../../../hooks/use-memory-match";
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
+  onNextLevel?: () => void;
+  levelNumber?: number;
+  newBest?: boolean;
+  starScores?: [number, number];
 }
 
-export default function MemoryMatch({ onComplete, onPlayAgain }: Props) {
-  const { cards, moves, matches, timer, done, flip, score, stars, fmt, TOTAL_PAIRS, lastResult } =
+export default function MemoryMatch({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
+  const { cards, moves, matches, timer, done, flip, score, stars: hookStars, fmt, TOTAL_PAIRS, lastResult } =
     useMemoryMatch(onComplete);
 
   if (done) {
+    const stars = starScores
+      ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
+      : hookStars;
     return (
       <GameResult
         icon={<Trophy size={36} className="text-gold" />}
@@ -22,6 +29,9 @@ export default function MemoryMatch({ onComplete, onPlayAgain }: Props) {
         score={score}
         subtitle="out of 100"
         onReset={onPlayAgain}
+        onNextLevel={onNextLevel}
+        levelNumber={levelNumber}
+        newBest={newBest}
       >
         <div className="flex gap-6 text-center">
           <div>
@@ -86,6 +96,11 @@ export default function MemoryMatch({ onComplete, onPlayAgain }: Props) {
             whileTap={
               !card.flipped && !card.matched ? { scale: 0.9 } : undefined
             }
+            animate={
+              card.matched
+                ? { scale: [1, 1.1, 0.95, 1], transition: { duration: 0.4 } }
+                : {}
+            }
             onClick={() => flip(card.id)}
             className="aspect-square rounded-2xl border-none cursor-pointer relative"
             style={{ perspective: 600 }}
@@ -101,7 +116,7 @@ export default function MemoryMatch({ onComplete, onPlayAgain }: Props) {
               </div>
               {/* Front of card */}
               <div
-                className={`absolute inset-0 rounded-2xl flex items-center justify-center shadow-[var(--shadow-soft)] card-face ${card.matched ? "bg-green-light" : "bg-card"}`}
+                className={`absolute inset-0 rounded-2xl flex items-center justify-center card-face transition-shadow duration-300 ${card.matched ? "bg-green-light shadow-[0_0_16px_color-mix(in_srgb,var(--color-green)_30%,transparent)]" : "bg-card shadow-[var(--shadow-soft)]"}`}
                 style={{ transform: "rotateY(180deg)" }}
               >
                 <span className="text-[28px] md:text-[32px]">{card.emoji}</span>

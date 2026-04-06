@@ -103,9 +103,18 @@ export default function DailyLogin() {
 
       {/* Streak hero */}
       <div className="glass-card rounded-3xl p-6 md:p-8 flex flex-col items-center gap-4 md:gap-5 shadow-[var(--shadow-elevated)]">
-        <div className="w-[68px] h-[68px] md:w-[84px] md:h-[84px] rounded-[22px] bg-coral-light flex items-center justify-center">
-          <Flame size={34} className="text-coral" />
-        </div>
+        <motion.div
+          animate={{ scale: [1, 1.08, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-[68px] h-[68px] md:w-[84px] md:h-[84px] rounded-[22px] bg-coral-light flex items-center justify-center relative"
+        >
+          <motion.div
+            className="absolute inset-0 rounded-[22px] bg-coral/10"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <Flame size={34} className="text-coral relative z-10" />
+        </motion.div>
         <div className="text-center">
           <motion.div
             key={streak}
@@ -216,8 +225,11 @@ export default function DailyLogin() {
 
       {/* Day 7 jackpot */}
       <motion.div
-        whileHover={{ y: -1 }}
-        className={`flex items-center gap-4 p-4 md:p-5 rounded-2xl shadow-[var(--shadow-soft)] ${todayIdx >= 6 ? "" : "opacity-35"}`}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: todayIdx >= 6 ? 1 : 0.35, y: 0 }}
+        transition={{ delay: 0.4, type: "spring", stiffness: 300, damping: 24 }}
+        whileHover={todayIdx >= 6 ? { y: -2, scale: 1.01 } : undefined}
+        className={`flex items-center gap-4 p-4 md:p-5 rounded-2xl shadow-[var(--shadow-soft)]`}
         style={{
           background: "var(--color-gold-light)",
           border:

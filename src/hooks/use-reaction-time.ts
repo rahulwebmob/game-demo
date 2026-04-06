@@ -77,6 +77,7 @@ export function useReactionTime(onComplete: (score: number) => void) {
       ? Math.round(times.reduce((a, b) => a + b, 0) / times.length)
       : 0;
 
+  const score = Math.max(100 - Math.floor(avg / 7), 0);
   const stars = avg < 400 ? 3 : avg < 550 ? 2 : 1;
   const rating =
     avg < 250
@@ -87,5 +88,5 @@ export function useReactionTime(onComplete: (score: number) => void) {
           ? "Good Speed"
           : "Keep Practicing";
 
-  return { phase, times, currentTime, tooEarly, avg, stars, rating, handleTap, reset };
+  return { phase, times, currentTime, tooEarly, avg, score, stars, rating, handleTap, reset };
 }

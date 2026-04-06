@@ -47,7 +47,10 @@ export default function GameStats() {
         {gameStats.map((s, i) => (
           <motion.div
             key={s.label}
-            whileHover={{ y: -2 }}
+            initial={{ opacity: 0, y: 14, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.06 + i * 0.07, type: "spring", stiffness: 350, damping: 22 }}
+            whileHover={{ y: -3, scale: 1.03 }}
             className="glass-card rounded-2xl p-3.5 md:p-4 flex flex-col items-center gap-2 shadow-[var(--shadow-soft)]"
           >
             <div

@@ -281,3 +281,43 @@ body {
   transform-style: preserve-3d;
   -webkit-transform-style: preserve-3d;
 }
+
+/* ── Glow pulse (matched cards, sorted tubes) ── */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--glow-color, var(--color-green)) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--glow-color, var(--color-green)) 45%, transparent);
+  }
+}
+.glow-pulse {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Wiggle (attention grab) ── */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+.wiggle {
+  animation: wiggle 0.4s ease-in-out;
+}
+
+/* ── Scale pop (celebrations) ── */
+@keyframes scale-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ── Shimmer sweep for buttons ── */
+@keyframes btn-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.btn-shimmer {
+  background-size: 200% auto;
+  animation: btn-shimmer 3s linear infinite;
+}

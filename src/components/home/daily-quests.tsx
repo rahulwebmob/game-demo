@@ -40,7 +40,10 @@ export default function DailyQuests({ navigate }: Props) {
           return (
             <motion.div
               key={q.id}
-              whileHover={{ y: -1 }}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 + qi * 0.08, type: "spring", stiffness: 300, damping: 24 }}
+              whileHover={{ y: -2, boxShadow: "var(--shadow-card)" }}
               className="glass-card rounded-2xl px-4 md:px-5 py-3.5 md:py-4 flex items-center gap-3 md:gap-4 shadow-[var(--shadow-soft)]"
             >
               <div

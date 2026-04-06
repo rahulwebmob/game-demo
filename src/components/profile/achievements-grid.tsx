@@ -66,10 +66,13 @@ export default function AchievementsGrid() {
         </span>
       </div>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2.5 md:gap-3">
-        {achievements.map((a) => (
+        {achievements.map((a, i) => (
           <motion.div
             key={a.id}
-            whileHover={a.unlocked ? { y: -2, scale: 1.04 } : undefined}
+            initial={{ opacity: 0, scale: 0.7, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ delay: 0.05 + i * 0.06, type: "spring", stiffness: 350, damping: 20 }}
+            whileHover={a.unlocked ? { y: -3, scale: 1.06 } : undefined}
             className={`flex flex-col items-center gap-1.5 py-3 md:py-4 rounded-2xl shadow-[var(--shadow-soft)] relative ${
               a.unlocked ? "glass-card" : "bg-muted/50"
             }`}
@@ -88,7 +91,12 @@ export default function AchievementsGrid() {
               {a.label}
             </span>
             {a.unlocked && (
-              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green flex items-center justify-center">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2 + i * 0.06, type: "spring", stiffness: 500, damping: 15 }}
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-green flex items-center justify-center"
+              >
                 <svg
                   width="8"
                   height="8"
@@ -101,7 +109,7 @@ export default function AchievementsGrid() {
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-              </div>
+              </motion.div>
             )}
           </motion.div>
         ))}

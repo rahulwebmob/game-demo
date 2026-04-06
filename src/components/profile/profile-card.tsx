@@ -38,6 +38,9 @@ export default function ProfileCard({
       <div className="flex items-center gap-4 md:gap-5">
         <motion.div
           whileTap={{ scale: 0.93 }}
+          whileHover={{ scale: 1.06 }}
+          animate={{ scale: [1, 1.02, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           onClick={() => {
             sfx("tap");
             navigate("customize");

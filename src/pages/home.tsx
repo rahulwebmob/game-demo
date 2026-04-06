@@ -104,7 +104,14 @@ export default function Home({ navigate }: Props) {
       <motion.div variants={fade}>
         <h2 className="text-[20px] md:text-[26px] font-bold text-ink leading-snug tracking-tight">
           Train Your Brain Stay{" "}
-          <span className="text-gradient-coral">Sharp!</span>
+          <motion.span
+            className="text-gradient-coral inline-block"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 300, damping: 15 }}
+          >
+            Sharp!
+          </motion.span>
         </h2>
         <p className="text-[12px] md:text-[14px] text-ink-muted mt-1.5">
           Medical games for cognitive health & eye care
@@ -191,9 +198,13 @@ export default function Home({ navigate }: Props) {
         variants={fade}
         className="glass-card rounded-2xl p-4 md:p-5 flex items-start gap-3.5 shadow-[var(--shadow-soft)]"
       >
-        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-teal-light flex items-center justify-center flex-shrink-0">
+        <motion.div
+          animate={{ rotate: [0, -5, 5, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-teal-light flex items-center justify-center flex-shrink-0"
+        >
           <Brain size={20} className="text-teal" />
-        </div>
+        </motion.div>
         <div className="flex-1 min-w-0">
           <p className="text-[13px] md:text-[15px] font-bold text-ink">
             Did You Know?

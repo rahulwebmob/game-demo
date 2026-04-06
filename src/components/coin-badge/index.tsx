@@ -28,7 +28,13 @@ export default function CoinBadge({
         small ? "px-3 py-[5px] text-[12px]" : "px-4 py-[6px] text-[13px]"
       }`}
     >
-      <Coins size={small ? 14 : 16} className="text-gold" strokeWidth={2.2} />
+      <motion.div
+        key={amount}
+        animate={{ rotate: [0, -15, 15, -10, 10, 0] }}
+        transition={{ duration: 0.4 }}
+      >
+        <Coins size={small ? 14 : 16} className="text-gold" strokeWidth={2.2} />
+      </motion.div>
       <AnimatedNumber value={amount} duration={500} />
       <AnimatePresence>
         {diff !== null && diff > 0 && (

@@ -6,14 +6,20 @@ import { usePatternRecall, GRID, COLS } from "../../../hooks/use-pattern-recall"
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
+  onNextLevel?: () => void;
+  levelNumber?: number;
+  newBest?: boolean;
+  starScores?: [number, number];
 }
 
-export default function PatternRecall({ onComplete, onPlayAgain }: Props) {
+export default function PatternRecall({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
   const { level, pattern, userPattern, phase, highlighted, score, lives, handleTap } =
     usePatternRecall(onComplete);
 
   if (phase === "done") {
-    const stars = score >= 380 ? 3 : score >= 215 ? 2 : 1;
+    const stars = starScores
+      ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
+      : (score >= 380 ? 3 : score >= 215 ? 2 : 1);
     const title = stars === 3 ? "Pattern Master!" : stars === 2 ? "Good Memory!" : "Keep Practicing";
     return (
       <GameResult
@@ -25,6 +31,9 @@ export default function PatternRecall({ onComplete, onPlayAgain }: Props) {
         subtitle={`Reached level ${level}`}
         accentColor="bg-teal"
         onReset={onPlayAgain}
+        onNextLevel={onNextLevel}
+        levelNumber={levelNumber}
+        newBest={newBest}
       />
     );
   }
@@ -67,8 +76,9 @@ export default function PatternRecall({ onComplete, onPlayAgain }: Props) {
       )}
       {phase === "correct" && (
         <motion.p
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: [0.5, 1.15, 1], opacity: 1 }}
+          transition={{ duration: 0.4 }}
           className="text-center text-[14px] font-bold text-green"
         >
           Correct! +{level * 15} pts
@@ -76,8 +86,9 @@ export default function PatternRecall({ onComplete, onPlayAgain }: Props) {
       )}
       {phase === "wrong" && (
         <motion.p
-          initial={{ x: -8 }}
-          animate={{ x: [8, -8, 0] }}
+          initial={{ x: 0, opacity: 0 }}
+          animate={{ x: [0, -8, 8, -6, 6, 0], opacity: 1 }}
+          transition={{ duration: 0.4 }}
           className="text-center text-[14px] font-bold text-rose"
         >
           Wrong! Try again...
@@ -98,9 +109,13 @@ export default function PatternRecall({ onComplete, onPlayAgain }: Props) {
               scale: highlighted === i ? 1.08 : 1,
               backgroundColor:
                 highlighted === i ? "var(--color-teal)" : "var(--color-muted)",
+              boxShadow:
+                highlighted === i
+                  ? "0 0 20px color-mix(in srgb, var(--color-teal) 40%, transparent)"
+                  : "var(--shadow-soft)",
             }}
             transition={{ duration: 0.15 }}
-            className={`aspect-square rounded-2xl border-none shadow-[var(--shadow-soft)] ${phase === "input" ? "cursor-pointer" : "cursor-default"}`}
+            className={`aspect-square rounded-2xl border-none ${phase === "input" ? "cursor-pointer" : "cursor-default"}`}
           />
         ))}
       </div>

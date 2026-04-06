@@ -6,20 +6,26 @@ import { useContrastTest, TOTAL } from "../../../hooks/use-contrast-test";
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
+  onNextLevel?: () => void;
+  levelNumber?: number;
+  newBest?: boolean;
+  starScores?: [number, number];
 }
 
-export default function ContrastTest({ onComplete, onPlayAgain }: Props) {
+export default function ContrastTest({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
   const {
     round, score, feedback, done, positions, handleTap,
     currentGrid, currentCols, currentDiff, currentBase,
   } = useContrastTest(onComplete);
 
   if (done) {
-    const stars = score >= 220 ? 3 : score >= 125 ? 2 : 1;
+    const stars = starScores
+      ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
+      : (score >= 220 ? 3 : score >= 125 ? 2 : 1);
     const rating =
-      score >= 220
+      stars === 3
         ? "Eagle Eyes!"
-        : score >= 125
+        : stars === 2
           ? "Good Vision"
           : "Keep Training";
     return (
@@ -32,6 +38,9 @@ export default function ContrastTest({ onComplete, onPlayAgain }: Props) {
         subtitle="Contrast sensitivity score"
         accentColor="bg-rose"
         onReset={onPlayAgain}
+        onNextLevel={onNextLevel}
+        levelNumber={levelNumber}
+        newBest={newBest}
       />
     );
   }
@@ -66,8 +75,9 @@ export default function ContrastTest({ onComplete, onPlayAgain }: Props) {
         {feedback === "correct" && (
           <motion.p
             key={`fb-${round}`}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: [0.5, 1.15, 1] }}
+            transition={{ duration: 0.35 }}
             className="text-[13px] font-bold text-green text-center"
           >
             Correct!
@@ -76,8 +86,9 @@ export default function ContrastTest({ onComplete, onPlayAgain }: Props) {
         {feedback === "wrong" && (
           <motion.p
             key={`fb-${round}-w`}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 0 }}
+            animate={{ opacity: 1, x: [0, -6, 6, -4, 4, 0] }}
+            transition={{ duration: 0.4 }}
             className="text-[13px] font-bold text-rose text-center"
           >
             Wrong!

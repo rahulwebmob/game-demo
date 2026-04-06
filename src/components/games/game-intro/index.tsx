@@ -7,22 +7,30 @@ interface Props {
   game: GameDef;
   icon: React.ReactNode;
   onStart: () => void;
+  coinRewards?: [number, number, number]; // level-specific [3-star, 2-star, 1-star]
 }
 
-export default function GameIntro({ game, icon, onStart }: Props) {
+export default function GameIntro({ game, icon, onStart, coinRewards }: Props) {
   const sfx = useSound();
   const { rules } = game;
+  const coins = coinRewards ?? game.starCoins;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      initial="hidden"
+      animate="visible"
+      variants={{ visible: { transition: { staggerChildren: 0.07 } } }}
       className="flex flex-col gap-4"
     >
       {/* Game icon + name */}
-      <div className="flex flex-col items-center gap-3 pt-2 pb-1">
-        <div
+      <motion.div
+        variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+        className="flex flex-col items-center gap-3 pt-2 pb-1"
+      >
+        <motion.div
+          initial={{ scale: 0, rotate: -15 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 16, delay: 0.1 }}
           className="w-16 h-16 rounded-2xl flex items-center justify-center"
           style={{
             background: `color-mix(in srgb, ${game.bg} 80%, var(--color-card))`,
@@ -30,15 +38,18 @@ export default function GameIntro({ game, icon, onStart }: Props) {
           }}
         >
           {icon}
-        </div>
+        </motion.div>
         <div className="text-center">
           <h2 className="text-[20px] font-bold text-ink">{game.name}</h2>
           <p className="text-[12px] text-ink-muted mt-0.5">{game.description}</p>
         </div>
-      </div>
+      </motion.div>
 
       {/* How to play */}
-      <div className="glass-card rounded-2xl p-4 flex flex-col gap-2 shadow-[var(--shadow-soft)]">
+      <motion.div
+        variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
+        className="glass-card rounded-2xl p-4 flex flex-col gap-2 shadow-[var(--shadow-soft)]"
+      >
         <div className="flex items-center gap-2">
           <Info size={14} style={{ color: game.fg }} />
           <span className="text-[13px] font-bold text-ink">How to Play</span>
@@ -46,10 +57,13 @@ export default function GameIntro({ game, icon, onStart }: Props) {
         <p className="text-[12px] text-ink-secondary leading-relaxed">
           {rules.howToPlay}
         </p>
-      </div>
+      </motion.div>
 
       {/* Scoring */}
-      <div className="glass-card rounded-2xl p-4 flex flex-col gap-2 shadow-[var(--shadow-soft)]">
+      <motion.div
+        variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
+        className="glass-card rounded-2xl p-4 flex flex-col gap-2 shadow-[var(--shadow-soft)]"
+      >
         <div className="flex items-center gap-2">
           <Target size={14} style={{ color: game.fg }} />
           <span className="text-[13px] font-bold text-ink">Scoring</span>
@@ -57,10 +71,13 @@ export default function GameIntro({ game, icon, onStart }: Props) {
         <p className="text-[12px] text-ink-secondary leading-relaxed">
           {rules.scoring}
         </p>
-      </div>
+      </motion.div>
 
       {/* Star ratings */}
-      <div className="glass-card rounded-2xl p-4 flex flex-col gap-2.5 shadow-[var(--shadow-soft)]">
+      <motion.div
+        variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
+        className="glass-card rounded-2xl p-4 flex flex-col gap-2.5 shadow-[var(--shadow-soft)]"
+      >
         <div className="flex items-center gap-2">
           <TrendingUp size={14} style={{ color: game.fg }} />
           <span className="text-[13px] font-bold text-ink">Star Ratings</span>
@@ -80,17 +97,20 @@ export default function GameIntro({ game, icon, onStart }: Props) {
               </div>
               <span className="text-[11px] text-ink-secondary flex-1">{desc}</span>
               <span className="text-[11px] font-bold text-gold flex items-center gap-1 flex-shrink-0">
-                <Coins size={11} /> {game.starCoins[i]}
+                <Coins size={11} /> {coins[i]}
               </span>
             </div>
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Rewards summary */}
-      <div className="flex items-center justify-center gap-5 py-1">
+      <motion.div
+        variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }}
+        className="flex items-center justify-center gap-5 py-1"
+      >
         <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-secondary">
-          <Coins size={14} className="text-gold" /> Up to {game.starCoins[0]} coins
+          <Coins size={14} className="text-gold" /> Up to {coins[0]} coins
         </span>
         <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-secondary">
           <Clock size={14} className="text-ink-muted" /> {game.time}
@@ -98,11 +118,13 @@ export default function GameIntro({ game, icon, onStart }: Props) {
         <span className="flex items-center gap-1.5 text-[12px] font-semibold text-ink-secondary">
           <Zap size={14} className="text-coral" /> 1 energy
         </span>
-      </div>
+      </motion.div>
 
       {/* Start button */}
       <motion.button
+        variants={{ hidden: { opacity: 0, y: 20, scale: 0.9 }, visible: { opacity: 1, y: 0, scale: 1 } }}
         whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.02, boxShadow: "0 6px 24px color-mix(in srgb, var(--color-coral) 30%, transparent)" }}
         onClick={() => {
           sfx("gameStart");
           onStart();

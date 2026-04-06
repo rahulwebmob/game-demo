@@ -46,7 +46,7 @@ export default function SkillBreakdown() {
                   delay: 0.2 + i * 0.1,
                   ease: [0.34, 1.56, 0.64, 1],
                 }}
-                className="h-full rounded-full"
+                className="h-full rounded-full progress-bar"
                 style={{ background: s.fg }}
               />
             </div>

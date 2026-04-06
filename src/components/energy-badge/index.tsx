@@ -33,11 +33,17 @@ export default function EnergyBadge({ energy, maxEnergy, onClick }: Props) {
           : "bg-teal-light"
       } ${onClick ? "cursor-pointer" : ""}`}
     >
-      <Battery
-        size={14}
-        className={empty ? "text-rose" : "text-teal"}
-        strokeWidth={2.2}
-      />
+      <motion.div
+        key={energy}
+        animate={{ scale: [1, 1.2, 1] }}
+        transition={{ duration: 0.3 }}
+      >
+        <Battery
+          size={14}
+          className={empty ? "text-rose" : "text-teal"}
+          strokeWidth={2.2}
+        />
+      </motion.div>
       <AnimatedNumber value={energy} duration={500} />
       <span className="text-ink-muted">/</span>
       <span>{maxEnergy}</span>

@@ -4,7 +4,8 @@ export type GameId =
   | "reaction-time"
   | "pattern-recall"
   | "number-sequence"
-  | "contrast-test";
+  | "contrast-test"
+  | "ball-sort";
 
 export type GameCategory = "brain" | "eye" | "memory";
 
@@ -25,6 +26,7 @@ export interface GameDef {
   fg: string;
   time: string;
   difficulty: "Easy" | "Medium" | "Hard";
+  hasLevels: boolean; // true = 50-level progression, false = single-session benchmark
   starCoins: [number, number, number]; // coins for 3-star, 2-star, 1-star
   xpReward: number;
   maxScore: number;
@@ -50,6 +52,7 @@ export const games: GameDef[] = [
     fg: "var(--color-coral)",
     time: "~2 min",
     difficulty: "Easy",
+    hasLevels: true,
     starCoins: [30, 20, 10],
     xpReward: 50,
     maxScore: 100,
@@ -71,6 +74,7 @@ export const games: GameDef[] = [
     fg: "var(--color-violet)",
     time: "~1 min",
     difficulty: "Medium",
+    hasLevels: false,
     starCoins: [25, 15, 5],
     xpReward: 40,
     maxScore: 550,
@@ -92,6 +96,7 @@ export const games: GameDef[] = [
     fg: "var(--color-gold)",
     time: "~1 min",
     difficulty: "Easy",
+    hasLevels: false,
     starCoins: [20, 12, 5],
     xpReward: 30,
     maxScore: 100,
@@ -113,6 +118,7 @@ export const games: GameDef[] = [
     fg: "var(--color-teal)",
     time: "~2 min",
     difficulty: "Medium",
+    hasLevels: true,
     starCoins: [35, 20, 10],
     xpReward: 60,
     maxScore: 540,
@@ -134,6 +140,7 @@ export const games: GameDef[] = [
     fg: "var(--color-sky)",
     time: "~1 min",
     difficulty: "Hard",
+    hasLevels: true,
     starCoins: [40, 25, 10],
     xpReward: 70,
     maxScore: 432,
@@ -155,6 +162,7 @@ export const games: GameDef[] = [
     fg: "var(--color-rose)",
     time: "~1 min",
     difficulty: "Easy",
+    hasLevels: false,
     starCoins: [20, 12, 5],
     xpReward: 35,
     maxScore: 318,
@@ -163,6 +171,28 @@ export const games: GameDef[] = [
       scoring: "Each correct answer earns (10 + round × 3) points across 12 rounds. Max score is 318.",
       stars: ["Score 220+ (70%+)", "Score 125–219 (40%+)", "Score below 125"],
       starScores: [220, 125],
+    },
+  },
+  {
+    id: "ball-sort",
+    name: "Ball Sort",
+    description:
+      "Sort colored balls into tubes so each tube holds only one color. A fun logic puzzle!",
+    category: "brain",
+    icon: "flask-conical",
+    bg: "var(--color-teal-light)",
+    fg: "var(--color-teal)",
+    time: "~2 min",
+    difficulty: "Medium",
+    hasLevels: true,
+    starCoins: [35, 20, 10],
+    xpReward: 55,
+    maxScore: 525,
+    rules: {
+      howToPlay: "Tap a tube to select the top ball, then tap another tube to move it there. A ball can only be placed on a matching color or in an empty tube. Sort all balls so each tube holds a single color!",
+      scoring: "Complete 6 levels of increasing difficulty. Each level earns (level × 25) points. Max score is 525.",
+      stars: ["Score 370+ (70%+)", "Score 210–369 (40%+)", "Score below 210"],
+      starScores: [370, 210],
     },
   },
 ];

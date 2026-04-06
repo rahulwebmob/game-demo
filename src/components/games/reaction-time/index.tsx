@@ -6,13 +6,20 @@ import { useReactionTime, TOTAL_ROUNDS } from "../../../hooks/use-reaction-time"
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
+  onNextLevel?: () => void;
+  levelNumber?: number;
+  newBest?: boolean;
+  starScores?: [number, number];
 }
 
-export default function ReactionTime({ onComplete, onPlayAgain }: Props) {
-  const { phase, times, currentTime, tooEarly, avg, stars, rating, handleTap } =
+export default function ReactionTime({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
+  const { phase, times, currentTime, tooEarly, avg, stars: hookStars, rating, handleTap, score } =
     useReactionTime(onComplete);
 
   if (phase === "done") {
+    const stars = starScores
+      ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
+      : hookStars;
     return (
       <GameResult
         icon={<Zap size={36} className="text-gold" />}
@@ -23,6 +30,9 @@ export default function ReactionTime({ onComplete, onPlayAgain }: Props) {
         subtitle="average reaction time"
         accentColor="bg-gold"
         onReset={onPlayAgain}
+        onNextLevel={onNextLevel}
+        levelNumber={levelNumber}
+        newBest={newBest}
       >
         <div className="flex gap-2 flex-wrap justify-center">
           {times.map((t, i) => (
@@ -96,20 +106,44 @@ export default function ReactionTime({ onComplete, onPlayAgain }: Props) {
             initial={{ scale: 0.5 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 20 }}
-            className="flex flex-col items-center gap-2"
+            className="flex flex-col items-center gap-2 relative"
           >
-            <p className="text-[28px] font-extrabold">TAP NOW!</p>
+            {/* Pulse rings */}
+            <motion.div
+              className="absolute w-32 h-32 rounded-full border-2 border-white/40"
+              animate={{ scale: [1, 2.2], opacity: [0.6, 0] }}
+              transition={{ duration: 1, repeat: Infinity, ease: "easeOut" }}
+            />
+            <motion.div
+              className="absolute w-32 h-32 rounded-full border-2 border-white/30"
+              animate={{ scale: [1, 2.2], opacity: [0.4, 0] }}
+              transition={{ duration: 1, repeat: Infinity, ease: "easeOut", delay: 0.35 }}
+            />
+            <p className="text-[28px] font-extrabold relative z-10">TAP NOW!</p>
           </motion.div>
         )}
         {phase === "result" && (
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="flex flex-col items-center gap-2"
+            className="flex flex-col items-center gap-2 relative"
           >
-            <p className="text-[36px] font-extrabold text-gradient-coral">
+            {/* Success ring burst */}
+            <motion.div
+              className="absolute w-24 h-24 rounded-full"
+              style={{ border: "3px solid var(--color-coral)" }}
+              initial={{ scale: 0.5, opacity: 0.8 }}
+              animate={{ scale: 2.5, opacity: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            />
+            <motion.p
+              initial={{ scale: 0.5 }}
+              animate={{ scale: [0.5, 1.1, 1] }}
+              transition={{ duration: 0.4 }}
+              className="text-[36px] font-extrabold text-gradient-coral relative z-10"
+            >
               {currentTime}ms
-            </p>
+            </motion.p>
             <p className="text-[14px] font-medium text-ink-secondary">
               Tap to continue
             </p>

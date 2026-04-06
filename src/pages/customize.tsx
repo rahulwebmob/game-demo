@@ -28,8 +28,8 @@ const accIcons: Record<string, React.ReactNode> = {
 };
 
 const gridItem = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: { opacity: 1, scale: 1 },
+  hidden: { opacity: 0, scale: 0.7, y: 8 },
+  visible: { opacity: 1, scale: 1, y: 0 },
 };
 
 export default function Customize({ navigate }: Props) {

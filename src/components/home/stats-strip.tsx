@@ -50,7 +50,10 @@ export default function StatsStrip({ score, streak }: Props) {
       ].map((s, i) => (
         <motion.div
           key={s.label}
-          whileHover={{ y: -2 }}
+          initial={{ opacity: 0, y: 14, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ delay: 0.05 + i * 0.06, type: "spring", stiffness: 350, damping: 22 }}
+          whileHover={{ y: -3, scale: 1.04 }}
           className="glass-card rounded-2xl py-3 md:py-5 flex flex-col items-center gap-1.5 md:gap-2 shadow-[var(--shadow-soft)]"
         >
           <div

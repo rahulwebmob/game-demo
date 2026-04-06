@@ -39,14 +39,17 @@ export default function FeaturedGames({ noEnergy, navigate }: Props) {
         </motion.span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-        {featuredGames.map((g) => (
+        {featuredGames.map((g, gi) => (
           <motion.div
             key={g.id}
-            whileTap={noEnergy ? undefined : { scale: 0.97, y: 1 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.08 + gi * 0.08, type: "spring", stiffness: 300, damping: 22 }}
+            whileTap={noEnergy ? undefined : { scale: 0.96, y: 2 }}
             whileHover={
               noEnergy
                 ? undefined
-                : { y: -3, boxShadow: "var(--shadow-elevated)" }
+                : { y: -4, boxShadow: "var(--shadow-elevated)", scale: 1.01 }
             }
             onClick={() => !noEnergy && navigate("games")}
             className={`rounded-3xl p-4 md:p-5 flex md:flex-col gap-3 relative overflow-hidden shadow-[var(--shadow-soft)] border border-border/30 ${noEnergy ? "cursor-not-allowed" : "cursor-pointer"}`}

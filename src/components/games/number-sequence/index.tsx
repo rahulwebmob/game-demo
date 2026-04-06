@@ -6,14 +6,20 @@ import { useNumberSequence, TOTAL } from "../../../hooks/use-number-sequence";
 interface Props {
   onComplete: (score: number) => void;
   onPlayAgain: () => void;
+  onNextLevel?: () => void;
+  levelNumber?: number;
+  newBest?: boolean;
+  starScores?: [number, number];
 }
 
-export default function NumberSequence({ onComplete, onPlayAgain }: Props) {
+export default function NumberSequence({ onComplete, onPlayAgain, onNextLevel, levelNumber, newBest, starScores }: Props) {
   const { round, score, problem, choices, selected, done, handleChoice } =
     useNumberSequence(onComplete);
 
   if (done) {
-    const stars = score >= 300 ? 3 : score >= 170 ? 2 : 1;
+    const stars = starScores
+      ? (score >= starScores[0] ? 3 : score >= starScores[1] ? 2 : 1)
+      : (score >= 300 ? 3 : score >= 170 ? 2 : 1);
     const title = stars === 3 ? "Math Wizard!" : stars === 2 ? "Good Math!" : "Keep Practicing";
     return (
       <GameResult
@@ -25,6 +31,9 @@ export default function NumberSequence({ onComplete, onPlayAgain }: Props) {
         subtitle={`out of ${TOTAL * (TOTAL + 1) * 6}`}
         accentColor="bg-sky"
         onReset={onPlayAgain}
+        onNextLevel={onNextLevel}
+        levelNumber={levelNumber}
+        newBest={newBest}
       />
     );
   }
@@ -92,8 +101,17 @@ export default function NumberSequence({ onComplete, onPlayAgain }: Props) {
         {selected !== null && (
           <motion.p
             key={`fb-${round}`}
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={
+              selected === problem.answer
+                ? { opacity: 0, scale: 0.5 }
+                : { opacity: 0, x: 0 }
+            }
+            animate={
+              selected === problem.answer
+                ? { opacity: 1, scale: [0.5, 1.15, 1] }
+                : { opacity: 1, x: [0, -6, 6, -4, 4, 0] }
+            }
+            transition={{ duration: selected === problem.answer ? 0.35 : 0.4 }}
             className={`text-[13px] font-bold text-center ${selected === problem.answer ? "text-green" : "text-rose"}`}
           >
             {selected === problem.answer ? "Correct!" : `Wrong — answer was ${problem.answer}`}
