@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap } from "@/components/animate-ui/icons/index.ts";
+import { Zap } from "lucide-react";
 import GameResult from "../game-result";
 import { useReactionTime, TOTAL_ROUNDS } from "../../../hooks/use-reaction-time";
 

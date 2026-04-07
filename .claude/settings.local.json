@@ -41,7 +41,29 @@
       "WebFetch(domain:github.com)",
       "Bash(cd D:/gamerify && grep -roh 'from \"lucide-react\"' src/ | wc -l && grep -roh \"import {[^}]*} from \\\\\"lucide-react\\\\\"\" src/ | sed 's/import {//;s/} from \"lucide-react\"//' | tr ',' '\\\\n' | sed 's/^ *//;s/ *$//' | sort -u)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(cd D:/gamerify && npx tsc -b --noEmit 2>&1 | head -40)"
+      "Bash(cd D:/gamerify && npx tsc -b --noEmit 2>&1 | head -40)",
+      "WebSearch",
+      "WebFetch(domain:element.lordicon.com)",
+      "WebFetch(domain:lordicon.com)",
+      "WebFetch(domain:react.lordicon.com)",
+      "WebFetch(domain:codepen.io)",
+      "WebFetch(domain:www.elegantthemes.com)",
+      "WebFetch(domain:bootsnipp.com)",
+      "Bash(gh search:*)",
+      "WebFetch(domain:lordicon-animated-icons.webflow.io)",
+      "WebFetch(domain:jsfiddle.net)",
+      "WebFetch(domain:codesandbox.io)",
+      "WebFetch(domain:cdn.lordicon.com)",
+      "Bash(for code:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:react.useanimations.com)",
+      "WebFetch(domain:useanimations.github.io)",
+      "WebFetch(domain:lottiefiles.com)",
+      "Bash(npm search:*)",
+      "WebFetch(domain:www.useanimations.com)",
+      "Bash(npm info:*)",
+      "Bash(cd D:/gamerify && ls node_modules/react-useanimations/dist/ 2>/dev/null || ls node_modules/react-useanimations/lib/ 2>/dev/null | grep -v \"^[a-z]\" || find node_modules/react-useanimations -name \"UseAnimations*\" -o -name \"index*\" 2>/dev/null | head -20)",
+      "Bash(cd D:/gamerify && grep -rl '@/components/animate-ui/icons/index.ts' src/ --include=\"*.tsx\" --include=\"*.ts\" | grep -v \"src/components/animate-ui/\" | while read f; do sed -i 's|@/components/animate-ui/icons/index.ts|lucide-react|g' \"$f\"; done && echo \"Done replacing imports\")"
     ]
   }
 }

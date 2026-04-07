@@ -19,7 +19,7 @@ import {
   CalendarHeart,
   Check,
   Eye,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import AnimatedNumber from "../components/animated-number";

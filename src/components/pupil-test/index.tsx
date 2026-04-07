@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Eye, Check, Clock, Zap } from "@/components/animate-ui/icons/index.ts";
+import { ArrowLeft, ArrowRight, Eye, Check, Clock, Zap } from "lucide-react";
 import AvatarImg from "../avatar-img";
 import { useAppSelector } from "../../store/hooks";
 import { useSound } from "../../hooks/use-sound";

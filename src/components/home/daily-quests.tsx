@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Trophy, BarChart3, Coins } from "@/components/animate-ui/icons/index.ts";
+import { Gamepad2, Trophy, BarChart3, Coins } from "lucide-react";
 import { dailyQuests } from "../../data/avatars";
 import { useAppNavigate } from "../../hooks/use-app-navigate";
 
@@ -53,18 +53,21 @@ export default function DailyQuests() {
                   <Gamepad2
                     size={20}
                     style={{ color: done ? "var(--color-green)" : qc.fg }}
+                   
                   />
                 )}
                 {q.icon === "trophy" && (
                   <Trophy
                     size={20}
                     style={{ color: done ? "var(--color-green)" : qc.fg }}
+                   
                   />
                 )}
                 {q.icon === "bar-chart" && (
                   <BarChart3
                     size={20}
                     style={{ color: done ? "var(--color-green)" : qc.fg }}
+                   
                   />
                 )}
               </div>

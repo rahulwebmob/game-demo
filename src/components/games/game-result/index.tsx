@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, Star, Zap, ChevronRight, Trophy, ArrowLeft } from "@/components/animate-ui/icons/index.ts";
+import { RotateCcw, Star, Zap, ChevronRight, Trophy, ArrowLeft } from "lucide-react";
 import { useSound } from "../../../hooks/use-sound";
 import Confetti from "../../confetti";
 

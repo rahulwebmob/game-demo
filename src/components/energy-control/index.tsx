@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Battery, Plus, Minus, RotateCcw, Eye } from "@/components/animate-ui/icons/index.ts";
+import { Battery, Plus, Minus, RotateCcw, Eye } from "lucide-react";
 import AnimatedNumber from "../animated-number";
 import { useSound } from "../../hooks/use-sound";
 

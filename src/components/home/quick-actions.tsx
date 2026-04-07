@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Medal, Gift, Paintbrush } from "@/components/animate-ui/icons/index.ts";
+import { Gamepad2, Medal, Gift, Paintbrush } from "lucide-react";
 import { useAppNavigate } from "../../hooks/use-app-navigate";
 
 const fade = {

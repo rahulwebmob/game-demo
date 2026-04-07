@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock } from "@/components/animate-ui/icons/index.ts";
+import { Trophy, Clock } from "lucide-react";
 import GameResult from "../game-result";
 import { useMemoryMatch } from "../../../hooks/use-memory-match";
 import type { MemoryMatchConfig } from "../../../hooks/use-memory-match";

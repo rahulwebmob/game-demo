@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Gamepad2, Target, Flame, Clock } from "@/components/animate-ui/icons/index.ts";
+import { Gamepad2, Target, Flame, Clock } from "lucide-react";
 import AnimatedNumber from "../animated-number";
 import { fade } from "./fade";
 

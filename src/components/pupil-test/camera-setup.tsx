@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Camera, User, Eye, MonitorSmartphone } from "@/components/animate-ui/icons/index.ts";
+import { Camera, User, Eye, MonitorSmartphone } from "lucide-react";
 import { useSound } from "../../hooks/use-sound";
 
 const checks = [
@@ -63,9 +63,7 @@ export default function CameraSetup({
             transition={{ type: "spring", stiffness: 300, damping: 24 }}
             className="flex items-start gap-3 md:gap-4"
           >
-            <motion.div
-              animate={{ rotate: [0, -4, 4, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: i * 0.6 }}
+            <div
               className="w-9 h-9 md:w-11 md:h-11 rounded-xl md:rounded-[14px] flex items-center justify-center flex-shrink-0 mt-0.5"
               style={{ background: colors[i % colors.length].bg }}
             >
@@ -74,7 +72,7 @@ export default function CameraSetup({
                 className="md:!w-[18px] md:!h-[18px]"
                 style={{ color: colors[i % colors.length].fg }}
               />
-            </motion.div>
+            </div>
             <span className="text-[13px] md:text-[15px] text-ink-secondary leading-relaxed">
               {c.text}
             </span>

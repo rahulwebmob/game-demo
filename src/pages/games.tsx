@@ -15,7 +15,7 @@ import {
   ScanEye,
   FlaskConical,
   Lock,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
 import EnergyControl from "../components/energy-control";

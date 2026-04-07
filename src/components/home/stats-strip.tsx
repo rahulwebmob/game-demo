@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Flame, Trophy, Star } from "@/components/animate-ui/icons/index.ts";
+import { Zap, Flame, Trophy, Star } from "lucide-react";
 import AnimatedNumber from "../animated-number";
 import { playerStats } from "../../data/avatars";
 

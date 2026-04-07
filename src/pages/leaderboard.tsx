@@ -11,7 +11,7 @@ import {
   Infinity as InfinityIcon,
   TrendingUp,
   Clock,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import AvatarImg from "../components/avatar-img";
 import AnimatedNumber from "../components/animated-number";
 import { leaderboardData } from "../data/avatars";

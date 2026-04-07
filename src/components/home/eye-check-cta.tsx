@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Eye } from "@/components/animate-ui/icons/index.ts";
+import { Eye } from "lucide-react";
 import { useAppNavigate } from "../../hooks/use-app-navigate";
 import type { SoundName } from "../../hooks/use-sound";
 
@@ -31,13 +31,9 @@ export default function EyeCheckCta({ noEnergy, sfx }: Props) {
             "linear-gradient(135deg, var(--color-coral), var(--color-teal))",
         }}
       >
-        <motion.div
-          animate={{ rotate: [0, -5, 5, 0] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0"
-        >
+        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-white/20 flex items-center justify-center flex-shrink-0">
           <Eye size={28} color="white" strokeWidth={1.8} />
-        </motion.div>
+        </div>
         <div className="flex-1">
           <p className="text-[16px] md:text-[18px] font-bold text-white">
             {noEnergy ? "Wake Up Your Brain" : "Eye Check"}

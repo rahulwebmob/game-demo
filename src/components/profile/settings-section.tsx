@@ -6,7 +6,7 @@ import {
   BellOff,
   Award,
   ChevronRight,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import Toggle from "./toggle";
 import ThemePicker from "../theme-picker";
 import { fade } from "./fade";

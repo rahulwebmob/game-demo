@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
-import { Info, Calendar } from "@/components/animate-ui/icons/index.ts";
+import { Info, Calendar } from "lucide-react";
 import CoinBadge from "../components/coin-badge";
-import { useAppNavigate } from "../hooks/use-app-navigate";
 import ParallaxHeader from "../components/parallax-header";
 import { useAppSelector } from "../store/hooks";
 import { useTheme } from "../hooks/use-theme";
@@ -16,7 +15,6 @@ import SettingsSection from "../components/profile/settings-section";
 import LogoutSection from "../components/profile/logout-section";
 
 export default function Profile() {
-  const navigate = useAppNavigate();
   const sfx = useSound();
   const {
     coins,

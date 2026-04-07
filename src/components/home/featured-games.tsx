@@ -7,7 +7,7 @@ import {
   Clock,
   Coins,
   Lock,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import { games } from "../../data/games";
 import { useAppNavigate } from "../../hooks/use-app-navigate";
 
@@ -92,6 +92,7 @@ export default function FeaturedGames({ noEnergy }: Props) {
                   size={28}
                   style={{ color: g.fg }}
                   strokeWidth={1.8}
+                 
                 />
               )}
               {g.icon === "eye" && (

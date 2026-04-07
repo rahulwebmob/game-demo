@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Brain, Eye, Heart, Activity } from "@/components/animate-ui/icons/index.ts";
+import { Brain, Eye, Heart, Activity } from "lucide-react";
 import { useAppNavigate } from "../../hooks/use-app-navigate";
 
 const fade = {

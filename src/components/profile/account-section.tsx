@@ -7,7 +7,7 @@ import {
   ShieldCheck,
   Pencil,
   X,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import Toggle from "./toggle";
 import { fade } from "./fade";
 import { useAppDispatch } from "../../store/hooks";

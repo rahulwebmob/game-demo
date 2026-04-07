@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { ScanEye } from "@/components/animate-ui/icons/index.ts";
+import { ScanEye } from "lucide-react";
 import GameResult from "../game-result";
 import { useContrastTest } from "../../../hooks/use-contrast-test";
 import type { ContrastTestConfig } from "../../../hooks/use-contrast-test";

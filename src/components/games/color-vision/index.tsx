@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Eye } from "@/components/animate-ui/icons/index.ts";
+import { Eye } from "lucide-react";
 import GameResult from "../game-result";
 import { useColorVision } from "../../../hooks/use-color-vision";
 import type { ColorVisionConfig } from "../../../hooks/use-color-vision";

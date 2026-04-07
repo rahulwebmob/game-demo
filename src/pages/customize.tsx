@@ -8,7 +8,7 @@ import {
   ArrowLeft,
   Glasses,
   Ban,
-} from "@/components/animate-ui/icons/index.ts";
+} from "lucide-react";
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
 import { avatars, accessories } from "../data/avatars";

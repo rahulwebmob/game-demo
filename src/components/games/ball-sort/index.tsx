@@ -1,6 +1,6 @@
 import { useRef, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock, GripVertical } from "@/components/animate-ui/icons/index.ts";
+import { Trophy, Clock, GripVertical } from "lucide-react";
 import GameResult from "../game-result";
 import { useBallSort } from "../../../hooks/use-ball-sort";
 import type { Tube, BallSortConfig } from "../../../hooks/use-ball-sort";

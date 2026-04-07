@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Hash, Clock } from "@/components/animate-ui/icons/index.ts";
+import { Hash, Clock } from "lucide-react";
 import GameResult from "../game-result";
 import { useNumberSequence } from "../../../hooks/use-number-sequence";
 import type { NumberSequenceConfig } from "../../../hooks/use-number-sequence";

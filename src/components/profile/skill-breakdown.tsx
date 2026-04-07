@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { BarChart3 } from "@/components/animate-ui/icons/index.ts";
+import { BarChart3 } from "lucide-react";
 import { fade } from "./fade";
 
 const skillBreakdown = [

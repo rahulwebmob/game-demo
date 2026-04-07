@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ShoppingBag, X } from "@/components/animate-ui/icons/index.ts";
+import { Check, ShoppingBag, X } from "lucide-react";
 import { Z } from "../../constants";
 
 export interface ToastData {

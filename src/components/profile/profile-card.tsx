@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Zap, Flame, Trophy } from "@/components/animate-ui/icons/index.ts";
+import { Zap, Flame, Trophy } from "lucide-react";
 import AvatarImg from "../avatar-img";
 import { avatars, playerStats } from "../../data/avatars";
 import type { AvatarId } from "../../data/avatars";

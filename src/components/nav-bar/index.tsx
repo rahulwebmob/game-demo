@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Home, User, Trophy, Gift, Gamepad2 } from "@/components/animate-ui/icons/index.ts";
+import { Home, User, Trophy, Gift, Gamepad2 } from "lucide-react";
 import { useAppNavigate, useActiveTab } from "../../hooks/use-app-navigate";
 import type { AppRoute } from "../../hooks/use-app-navigate";
 
@@ -56,6 +56,7 @@ export default function NavBar({ dot }: Props) {
                     size={21}
                     className="text-ink-muted"
                     strokeWidth={1.7}
+                   
                   />
                   {showDot && (
                     <motion.span

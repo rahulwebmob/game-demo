@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Search, Sun, Moon, Brain } from "@/components/animate-ui/icons/index.ts";
+import { Search, Sun, Moon, Brain } from "lucide-react";
 import AvatarImg from "../components/avatar-img";
 import CoinBadge from "../components/coin-badge";
 import EnergyBadge from "../components/energy-badge";
@@ -195,13 +195,9 @@ export default function Home() {
         variants={fade}
         className="glass-card rounded-2xl p-4 md:p-5 flex items-start gap-3.5 shadow-[var(--shadow-soft)]"
       >
-        <motion.div
-          animate={{ rotate: [0, -5, 5, 0] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-teal-light flex items-center justify-center flex-shrink-0"
-        >
+        <div className="w-11 h-11 md:w-14 md:h-14 rounded-[14px] md:rounded-2xl bg-teal-light flex items-center justify-center flex-shrink-0">
           <Brain size={20} className="text-teal" />
-        </motion.div>
+        </div>
         <div className="flex-1 min-w-0">
           <p className="text-[13px] md:text-[15px] font-bold text-ink">
             Did You Know?

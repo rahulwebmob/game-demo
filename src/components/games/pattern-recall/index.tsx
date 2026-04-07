@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Brain } from "@/components/animate-ui/icons/index.ts";
+import { Brain } from "lucide-react";
 import GameResult from "../game-result";
 import { usePatternRecall } from "../../../hooks/use-pattern-recall";
 import type { PatternRecallConfig } from "../../../hooks/use-pattern-recall";
